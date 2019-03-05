@@ -1,5 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+object deps {
+    val arrow_version = "0.8.2"
+}
+
 plugins {
     `java-gradle-plugin`
     `maven-publish`
@@ -12,6 +16,8 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    jcenter()
+    google()
 }
 
 gradlePlugin {
@@ -44,7 +50,11 @@ pluginBundle {
 }*/
 
 dependencies {
+    implementation(gradleApi())
+    compile("com.android.tools.build:gradle:3.3.1")
     compile(kotlin("stdlib-jdk8"))
+    compile("io.arrow-kt:arrow-core:${deps.arrow_version}")
+    compile("io.arrow-kt:arrow-data:${deps.arrow_version}")
 
     testCompile("junit", "junit", "4.12")
 }
