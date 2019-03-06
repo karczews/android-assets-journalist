@@ -6,6 +6,7 @@ import com.android.build.gradle.api.AndroidSourceSet
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
+import org.gradle.kotlin.dsl.findByType
 
 open class AssetFileGeneratorPlugin : Plugin<Project> {
 
@@ -13,19 +14,23 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         val extension = project.extensions.create("AFGConfig", AssetFileGeneratorExtension::class.java)
 
         project.afterEvaluate {
-            val sourceSet = project.extensions.findByType(AndroidConfig::class.java)
+
+            val sourceSet = project.extensions.findByType<AndroidConfig>()
                 ?.sourceSets
                 ?.findByName(SourceSet.MAIN_SOURCE_SET_NAME)
 
             val sourceDirs = listAssetsIn(sourceSet)
 
             println("whoops, got ${sourceDirs}")
-            println("sets" + project.extensions.findByType(AndroidConfig::class.java)?.sourceSets?.names)
+            println("sets" + project.extensions.findByType<AndroidConfig>()?.sourceSets?.names)
+
+            project.extensions.findByType<AndroidConfig>()
+                ?.sourceSets
         }
 
         val task = project.task("test2") {
-            it.doLast {
-                println("running test ${extension.msg}")
+            doLast {
+                println("running test ${extension.xmlStringNameCharMapping[0]}")
             }
         }
 

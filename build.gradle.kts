@@ -6,6 +6,7 @@ object deps {
 
 plugins {
     `java-gradle-plugin`
+    `kotlin-dsl`
     `maven-publish`
     id("com.gradle.plugin-publish") version "0.10.0"
     kotlin("jvm") version "1.3.11"

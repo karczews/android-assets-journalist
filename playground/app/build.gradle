@@ -1,4 +1,4 @@
-
+import com.github.utilx.*
 
 apply plugin: 'com.android.application'
 
@@ -6,11 +6,15 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
-
 apply plugin: 'com.github.utilx.asset-file-generator'
 
 AFGConfig {
     msg = "Override"
+    xmlStringNameCharMapping = [
+            [match: 'az', replaceWith: 'replaceAZ'],
+            [match: 'd', replaceWith: 'ds'],
+    ]
+    xmlStringNamePrefix = "prefix_"
 }
 
 android {
@@ -40,4 +44,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+}
+
+task xmlTesting(type: GenerateXmlFileTask) {
+    outputFile = file('build/t.xml')
+    sourceSet = android.sourceSets.main
 }
