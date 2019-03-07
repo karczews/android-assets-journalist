@@ -20,7 +20,7 @@ repositories {
 gradlePlugin {
     plugins {
         create("asset-listing-generator") {
-            id = "com.github.utilx.asset-file-generator"
+            id = "com.github.utilx.android-asset-file-generator"
             displayName ="Android Assets File Generator Plugin"
             description = "Plugin that generates android assets list to string resources or source code"
             implementationClass = "com.github.utilx.AssetFileGeneratorPlugin"

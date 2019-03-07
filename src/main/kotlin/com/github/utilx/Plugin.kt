@@ -17,6 +17,8 @@ private val GENERATED_SRC_DIR_NAME = listOf("generated", "aafg", "src").toFilePa
 private const val RES_OUTPUT_DIR_NAME = "res"
 private const val JAVA_OUTPUT_DIR_NAME = "java"
 
+private const val PRE_BUILD_TASK_NAME = "preBuild"
+
 /**
  * res/values/strings.xml
  */
@@ -25,7 +27,7 @@ private val XML_OUTPUT_FILE = listOf(RES_OUTPUT_DIR_NAME, "values", "asset-strin
 open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val extension = project.extensions.create("AFGConfig", AssetFileGeneratorExtension::class.java)
+        val extension = project.extensions.create("AAFGConfig", AssetFileGeneratorExtension::class.java)
 
         val androidConfig = Try.ofFailable { project.extensions.findByType<AndroidConfig>() }
             .mapFailure { IllegalStateException("Failed to locate android plugin extension, make sure plugin is applied after android gradle plugin") }
@@ -73,7 +75,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         }
 
         // register new xml generation task
-        project.tasks.getByName("preBuild").dependsOn(xmlAssetFileTask)
+        project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(xmlAssetFileTask)
 
         println(
             "Configured xml generation task for [${sourceSet.name}] source set\n" +
@@ -101,7 +103,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         }
 
         sourceSet.java.srcDirs(outputSrcDir)
-        project.tasks.getByName("preBuild").dependsOn(generateJavaTask)
+        project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(generateJavaTask)
 
         println(
             "Configured java generation task for [${sourceSet.name}] source set\n" +
