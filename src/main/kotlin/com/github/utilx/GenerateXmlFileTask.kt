@@ -3,7 +3,9 @@ package com.github.utilx
 import com.android.build.gradle.api.AndroidSourceSet
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.register
@@ -21,25 +23,32 @@ private const val DEFAULT_NAME_REPLACEMENT_CHAR = "_"
 
 open class GenerateXmlFileTask : DefaultTask() {
 
-    private val notAllowedStringNameCharsRegex = NOT_ALLOWED_STRING_NAME_CHAR_PATTERN.toRegex()
+    private val notAllowedStringNameCharsRegex by lazy { NOT_ALLOWED_STRING_NAME_CHAR_PATTERN.toRegex() }
 
-    @OutputFile
+    @get:OutputFile
     lateinit var outputFile: File
-
+    @get:Input
+    var stringNameCharMapping = emptyList<Map<String, String>>()
+    @get:Input
+    var stringNamePrefix = ""
     lateinit var sourceSet: AndroidSourceSet
 
-    var stringNameCharMapping = emptyList<Map<String, String>>()
-    var stringNamePrefix = ""
+    /**
+     * This is mainly to capture all input files and prevent running task multiple times to the same file set
+     */
+    @InputFiles
+    fun getInputFiles(): FileTree {
+        return sourceSet.assets.sourceFiles
+    }
 
     @TaskAction
-    fun run() {
-
-        //val out = System.out
+    fun generateXml() {
         FileWriter(outputFile).use { fileWriter ->
             val writer = XMLOutputFactory.newInstance().createXMLStreamWriter(fileWriter)
             val list = listAssetsIn(sourceSet)
 
             writer.document {
+                writeComment("This is XML file generated with asset file generator. All changes done here will be overwritten.")
                 element(RESOURCE_XML_TAG) {
                     list.forEach {
                         element(STRING_XML_TAG) {
@@ -57,19 +66,7 @@ open class GenerateXmlFileTask : DefaultTask() {
 
     private fun createStringName(filePath: String): String =
         filePath.replace(notAllowedStringNameCharsRegex, DEFAULT_NAME_REPLACEMENT_CHAR)
-
-
-    private fun listAssetsIn(sourceSet: AndroidSourceSet?): List<String> {
-        return sourceSet
-            ?.assets
-            ?.sourceDirectoryTrees
-            ?.flatMap { assetFileTree ->
-                val assetBaseDir = assetFileTree.dir
-                assetFileTree.asFileTree.files
-                    .map { it.relativeTo(assetBaseDir) }
-                    .map { it.toString() }
-            } ?: emptyList()
-    }
+            .let { stringNamePrefix + it }
 
 }
 

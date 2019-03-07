@@ -10,11 +10,11 @@ apply plugin: 'com.github.utilx.asset-file-generator'
 
 AFGConfig {
     msg = "Override"
+    xmlStringNamePrefix = "prefix_"
     xmlStringNameCharMapping = [
             [match: 'az', replaceWith: 'replaceAZ'],
             [match: 'd', replaceWith: 'ds'],
     ]
-    xmlStringNamePrefix = "prefix_"
 }
 
 android {
@@ -47,6 +47,13 @@ dependencies {
 }
 
 task xmlTesting(type: GenerateXmlFileTask) {
-    outputFile = file('build/t.xml')
+    outputFile = file('build/output/xml/t.xml')
+    sourceSet = android.sourceSets.main
+}
+
+task javaTesting(type: GenerateJavaFileTask) {
+    outputSrcDir = file('build/output/src')
+    packageName = "com.github.utilx"
+    className = "Assets"
     sourceSet = android.sourceSets.main
 }

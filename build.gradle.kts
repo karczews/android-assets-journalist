@@ -1,9 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-object deps {
-    val arrow_version = "0.8.2"
-}
-
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
@@ -52,12 +48,11 @@ pluginBundle {
 
 dependencies {
     implementation(gradleApi())
-    compile("com.android.tools.build:gradle:3.3.1")
-    compile(kotlin("stdlib-jdk8"))
-    compile("io.arrow-kt:arrow-core:${deps.arrow_version}")
-    compile("io.arrow-kt:arrow-data:${deps.arrow_version}")
+    implementation("com.squareup:javapoet:1.11.1")
+    implementation("com.android.tools.build:gradle:3.3.1")
+    implementation(kotlin("stdlib-jdk8"))
 
-    testCompile("junit", "junit", "4.12")
+    testImplementation("junit", "junit", "4.12")
 }
 
 configure<JavaPluginConvention> {
