@@ -9,7 +9,6 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.utilx.asset-file-generator'
 
 AFGConfig {
-    msg = "Override"
     xmlStringNamePrefix = "prefix_"
     xmlStringNameCharMapping = [
             [match: 'az', replaceWith: 'replaceAZ'],

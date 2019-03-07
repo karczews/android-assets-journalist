@@ -62,23 +62,12 @@ open class GenerateJavaFileTask : DefaultTask() {
             .addFields(fields)
             .build()
 
-
-        JavaFile.builder(packageName, typeSpec)
-            .build()
-            .writeTo(System.out)
-
+        // generate class file at
         JavaFile.builder(packageName, typeSpec)
             .build()
             .writeTo(outputSrcDir)
 
-            //.map { FieldSpec }
-/*
-        FieldSpec.builder(TypeName.get(String::class.java), "name")
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-            .initializer("value")
-            .build()*/
-        /*val typeSpec = TypeSpec.classBuilder(className)
-            .addFields()*/
+        logger.quiet("generating asset java class $packageName.$className in $outputSrcDir")
 
     }
 

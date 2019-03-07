@@ -15,6 +15,7 @@ import java.io.File
 private val GENERATED_SRC_DIR_NAME = listOf("generated", "aafg", "src").toFilePath()
 
 private const val RES_OUTPUT_DIR_NAME = "res"
+private const val JAVA_OUTPUT_DIR_NAME = "java"
 
 /**
  * res/values/strings.xml
@@ -39,11 +40,15 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
                 if (extension.generateXmlFile) {
                     configureXmlTask(project, extension, sourceSet)
                 }
+
+                if (extension.generateJavaFile) {
+                    configureJavaTask(project, extension, sourceSet)
+                }
             }
         }
     }
 
-    fun configureXmlTask(
+    private fun configureXmlTask(
         project: Project,
         extension: AssetFileGeneratorExtension,
         sourceSet: AndroidSourceSet
@@ -59,13 +64,12 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
             projectBuildDir = project.buildDir,
             sourceSetName = sourceSet.name
         )
-        println("after evaluate running, prefix - " + extension.xmlStringNamePrefix)
 
         val xmlAssetFileTask = project.task<GenerateXmlFileTask>("generateAssetXmlFile${sourceSet.name}") {
             this.sourceSet = sourceSet
-            outputFile = generatedXmlFile
-            stringNamePrefix = extension.xmlStringNamePrefix
-            stringNameCharMapping = extension.xmlStringNameCharMapping
+            this.outputFile = generatedXmlFile
+            this.stringNamePrefix = extension.xmlStringNamePrefix
+            this.stringNameCharMapping = extension.xmlStringNameCharMapping
         }
 
         // register new xml generation task
@@ -75,6 +79,33 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
             "Configured xml generation task for [${sourceSet.name}] source set\n" +
                     "Registered new res directory - $generatedResDirectory\n" +
                     "Asset xml file will be generated at $generatedXmlFile"
+        )
+    }
+
+    private fun configureJavaTask(
+        project: Project,
+        extension: AssetFileGeneratorExtension,
+        sourceSet: AndroidSourceSet
+    ) {
+        val outputSrcDir = getGeneratedJavaOutputDirForSourceSet(
+            projectBuildDir = project.buildDir,
+            sourceSetName = sourceSet.name
+        )
+
+        val generateJavaTask = project.task<GenerateJavaFileTask>("generateAssetJavaFile${sourceSet.name}") {
+            this.sourceSet = sourceSet
+            this.outputSrcDir = outputSrcDir
+            this.className = extension.javaClassName
+            this.packageName = extension.javaPackageName
+            this.constNamePrefix = extension.javaFieldNamePrefix
+        }
+
+        sourceSet.java.srcDirs(outputSrcDir)
+        project.tasks.getByName("preBuild").dependsOn(generateJavaTask)
+
+        println(
+            "Configured java generation task for [${sourceSet.name}] source set\n" +
+                    "Registered new java source directory - $outputSrcDir"
         )
     }
 
@@ -96,6 +127,15 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         projectBuildDir: File,
         sourceSetName: String
     ) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), RES_OUTPUT_DIR_NAME)
+
+    /**
+     * Returns SourceSet dependant res directory where files will be generated
+     * usually returns something like <Project>/build/generated/aafg/src/<main>/java
+     */
+    fun getGeneratedJavaOutputDirForSourceSet(
+        projectBuildDir: File,
+        sourceSetName: String
+    ) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), JAVA_OUTPUT_DIR_NAME)
 
     /**
      * Returns SourceSet dependant res directory where files will be generated
