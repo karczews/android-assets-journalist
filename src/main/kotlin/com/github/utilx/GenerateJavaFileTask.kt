@@ -52,7 +52,7 @@ open class GenerateJavaFileTask : DefaultTask() {
                 val constName = generateConstName(it)
                 FieldSpec.builder(TypeName.get(String::class.java), constName)
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer(it)
+                    .initializer("\"$it\"")
                     .build()
             }
 
