@@ -56,3 +56,10 @@ task javaTesting(type: GenerateJavaFileTask) {
     className = "Assets"
     sourceSet = android.sourceSets.main
 }
+
+task kotlinTesting(type: GenerateKotlinFileTask) {
+    outputSrcDir = file('build/output/src')
+    packageName = "com.github.utilx"
+    className = "Assets"
+    sourceSet = android.sourceSets.main
+}

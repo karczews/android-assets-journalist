@@ -49,6 +49,7 @@ pluginBundle {
 dependencies {
     implementation(gradleApi())
     implementation("com.squareup:javapoet:1.11.1")
+    implementation("com.squareup:kotlinpoet:1.1.0")
     implementation("com.android.tools.build:gradle:3.3.1")
     implementation(kotlin("stdlib-jdk8"))
 
