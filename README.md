@@ -3,14 +3,12 @@
 
 Android Asset File Generator is gradle plugin that can be used in Android project to generate listing of android asset files in certain library.
 
-Given project contains following asset files
-```
-src/main/assets/testName.testExtension
-src/main/assets/subdir/testName.testExtension
-```
-## Assets listing file can be generated in 3 forms
+## Assets listing file can be generated in 3 ways
 ####  Android strings xml file
-Pliugin can generate xml file in `build/generated/aafg/src/main/res/values/asset-strings.xml` as:
+Given project contains following asset files:
+`src/main/assets/testName.testExtension`,
+`src/main/assets/subdir/testName.testExtension`
+Plugin can generate xml file in `build/generated/aafg/src/main/res/values/asset-strings.xml` as:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
@@ -19,17 +17,23 @@ Pliugin can generate xml file in `build/generated/aafg/src/main/res/values/asset
 </resources>
 ```
 ####  Java source class
+Given project contains following asset files:
+`src/main/assets/testName.testExtension`,
+`src/main/assets/subdir/testName.testExtension`
 Plugin can generate java file in `/build/generated/aafg/src/main/java/com/github/utilx/AssetFiles.java`
 ```java
 public final class AssetFiles {
   public static final String asset_testName_testExtension = "testName.testExtension";
   public static final String asset_subdir_testName_testExtension = "subDir/testName.testExtension";
-  }
+}
 ```
 #### Kotlin source class
+Given project contains following asset files:
+`src/main/assets/testName.testExtension`,
+`src/main/assets/subdir/testName.testExtension`
 Plugin generate kotlin file in `/build/generated/aafg/src/main/kotlin/com/github/utilx/AssetFiles.kt`
 ```kotlin
-object Assets {
+object AssetFiles {
     const val asset_testName_testExtension = "testName.testExtension"
     const val asset_subdir_testName_testExtension = "subDir/testName.testExtension"
 }
