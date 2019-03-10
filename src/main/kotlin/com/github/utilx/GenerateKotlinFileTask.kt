@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) 2019-present, Android Asset File Generator Contributors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is
+ * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
+ * the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.github.utilx
 
 import com.android.build.gradle.api.AndroidSourceSet
@@ -64,8 +77,10 @@ open class GenerateKotlinFileTask : DefaultTask() {
         // create type spec for object and include all properties
         val objectSpec = TypeSpec.objectBuilder(className)
             .addProperties(properties)
-            .addKdoc("This class is generated using android-asset-file-generator gradle plugin. \n" +
-                    "Do not modify this class because all changes will be overwritten")
+            .addKdoc(
+                "This class is generated using android-asset-file-generator gradle plugin. \n" +
+                        "Do not modify this class because all changes will be overwritten"
+            )
             .build()
 
         // generating kt file

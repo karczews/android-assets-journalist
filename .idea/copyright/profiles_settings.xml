@@ -1,0 +1,10 @@
+<component name="CopyrightManager">
+  <settings default="Apache2-AAFG">
+    <module2copyright>
+      <element module="Production" copyright="Apache2-AAFG" />
+      <element module="Tests" copyright="Apache2-AAFG" />
+      <element module="Project Files" copyright="Apache2-AAFG" />
+      <element module="Changed Files" copyright="Apache2-AAFG" />
+    </module2copyright>
+  </settings>
+</component>
