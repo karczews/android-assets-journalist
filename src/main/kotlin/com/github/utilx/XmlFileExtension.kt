@@ -12,17 +12,10 @@
 
 package com.github.utilx
 
-import org.gradle.api.tasks.SourceSet
+open class XmlFileExtension {
 
-open class AssetFileGeneratorExtension {
-
-    //by default use only main source set
-    var sourceSetNames = listOf(SourceSet.MAIN_SOURCE_SET_NAME)
-
-    // java generation config
-    var generateJavaFile = true
-    var javaClassName = "AssetFiles"
-    var javaPackageName = "com.github.utilx"
-    var javaFieldNamePrefix = "asset_"
-    var javaFieldNameCharMapping = emptyList<Map<String, String>>()
+    // xml generation config
+    var enabled = true
+    var stringNameCharMapping = emptyList<Map<String, String>>()
+    var stringNamePrefix = ""
 }

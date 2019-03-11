@@ -6,5 +6,11 @@
       <element module="Project Files" copyright="Apache2-AAFG" />
       <element module="Changed Files" copyright="Apache2-AAFG" />
     </module2copyright>
+    <LanguageOptions name="__TEMPLATE__">
+      <option name="relativeBefore" value="false" />
+      <option name="lenBefore" value="120" />
+      <option name="lenAfter" value="120" />
+      <option name="box" value="true" />
+    </LanguageOptions>
   </settings>
 </component>

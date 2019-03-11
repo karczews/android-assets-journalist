@@ -1,21 +1,22 @@
-/**
- * Copyright (c) 2019-present, Android Asset File Generator Contributors.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is
- * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
- * the License for the specific language governing permissions and limitations under the License.
+/*
+ *  Copyright (c) 2019-present, Android Asset File Generator Contributors.
+ *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ *  compliance with the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software distributed under the License is
+ *  distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
+ *  the License for the specific language governing permissions and limitations under the License.
  */
+
 package com.github.utilx
 
 import com.android.build.gradle.AndroidConfig
 import com.android.build.gradle.api.AndroidSourceSet
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.internal.Try
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.task
@@ -31,15 +32,21 @@ private const val JAVA_OUTPUT_DIR_NAME = "java"
 
 private const val PRE_BUILD_TASK_NAME = "preBuild"
 
+private const val ROOT_EXTENSION_NAME = "AAFGConfig"
+private const val XML_GENERATOR_EXTENSION_NAME = "xml"
+
 /**
  * res/values/strings.xml
  */
 private val XML_OUTPUT_FILE = listOf(RES_OUTPUT_DIR_NAME, "values", "asset-strings.xml").toFilePath()
 
+
 open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val extension = project.extensions.create("AAFGConfig", AssetFileGeneratorExtension::class.java)
+        val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorExtension::class.java)
+
+        val xmlExtension = (extension as ExtensionAware).extensions.create(XML_GENERATOR_EXTENSION_NAME, XmlFileExtension::class.java)
 
         val androidConfig = Try.ofFailable { project.extensions.findByType<AndroidConfig>() }
             .mapFailure { IllegalStateException("Failed to locate android plugin extension, make sure plugin is applied after android gradle plugin") }
@@ -51,8 +58,8 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
                     .mapFailure { IllegalStateException("failed to locate $sourceSetName sourceSet") }
                     .get()
 
-                if (extension.generateXmlFile) {
-                    configureXmlTask(project, extension, sourceSet)
+                if (xmlExtension.enabled) {
+                    configureXmlTask(project, xmlExtension, sourceSet)
                 }
 
                 if (extension.generateJavaFile) {
@@ -64,7 +71,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     private fun configureXmlTask(
         project: Project,
-        extension: AssetFileGeneratorExtension,
+        xmlExtension: XmlFileExtension,
         sourceSet: AndroidSourceSet
     ) {
         //Register new res directory to provided sourceSet so all generated xml files are accessible in the project
@@ -82,8 +89,8 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         val xmlAssetFileTask = project.task<GenerateXmlFileTask>("generateAssetXmlFile${sourceSet.name}") {
             this.sourceSet = sourceSet
             this.outputFile = generatedXmlFile
-            this.stringNamePrefix = extension.xmlStringNamePrefix
-            this.stringNameCharMapping = extension.xmlStringNameCharMapping
+            this.stringNamePrefix = xmlExtension.stringNamePrefix
+            this.stringNameCharMapping = xmlExtension.stringNameCharMapping
         }
 
         // register new xml generation task
