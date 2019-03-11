@@ -10,9 +10,10 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg
+package com.github.utilx.aafg.xml
 
 import com.android.build.gradle.api.AndroidSourceSet
+import com.github.utilx.aafg.listAssetsIn
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
@@ -80,6 +81,13 @@ open class GenerateXmlFileTask : DefaultTask() {
         filePath.replace(notAllowedStringNameCharsRegex, DEFAULT_NAME_REPLACEMENT_CHAR)
             .let { stringNamePrefix + it }
 
+    /**
+     * Configure task using provided extension
+     */
+    fun configureUsing(extension: XmlFileExtension) {
+        this.stringNamePrefix = extension.stringNamePrefix
+        this.stringNameCharMapping = extension.stringNameCharMapping
+    }
 }
 
 

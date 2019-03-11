@@ -10,8 +10,8 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg
+package com.github.utilx.aafg.kotlin
 
-open class JavaFileExtension {
-
+open class KotlinFileExtension {
+    var enabled = true
 }

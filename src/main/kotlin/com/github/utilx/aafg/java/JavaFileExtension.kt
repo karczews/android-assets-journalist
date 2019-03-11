@@ -10,12 +10,8 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg
+package com.github.utilx.aafg.java
 
-open class XmlFileExtension {
-
-    // xml generation config
+open class JavaFileExtension {
     var enabled = true
-    var stringNameCharMapping = emptyList<Map<String, String>>()
-    var stringNamePrefix = ""
 }

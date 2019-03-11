@@ -14,6 +14,10 @@ package com.github.utilx.aafg
 
 import com.android.build.gradle.AndroidConfig
 import com.android.build.gradle.api.AndroidSourceSet
+import com.github.utilx.aafg.java.JavaFileExtension
+import com.github.utilx.aafg.kotlin.KotlinFileExtension
+import com.github.utilx.aafg.xml.GenerateXmlFileTask
+import com.github.utilx.aafg.xml.XmlFileExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -32,8 +36,10 @@ private const val JAVA_OUTPUT_DIR_NAME = "java"
 
 private const val PRE_BUILD_TASK_NAME = "preBuild"
 
-private const val ROOT_EXTENSION_NAME = "AAFGConfig"
-private const val XML_GENERATOR_EXTENSION_NAME = "xml"
+private const val ROOT_EXTENSION_NAME = "androidAssetFileGenerator"
+private const val XML_GENERATOR_EXTENSION_NAME = "xmlFile"
+private const val JAVA_GENERATOR_EXTENSION_NAME = "javaFile"
+private const val KOTLIN_GENERATOR_EXTENSION_NANE = "kotlinFile"
 
 /**
  * res/values/strings.xml
@@ -45,8 +51,14 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorExtension::class.java)
+        val extensionAware = extension as ExtensionAware
 
-        val xmlExtension = (extension as ExtensionAware).extensions.create(XML_GENERATOR_EXTENSION_NAME, XmlFileExtension::class.java)
+        val xmlExtension =
+            extensionAware.extensions.create(XML_GENERATOR_EXTENSION_NAME, XmlFileExtension::class.java)
+
+        val javaExtension = extensionAware.extensions.create(JAVA_GENERATOR_EXTENSION_NAME, JavaFileExtension::class.java)
+
+        val kotlinExtension = extensionAware.extensions.create(KOTLIN_GENERATOR_EXTENSION_NANE, KotlinFileExtension::class.java)
 
         val androidConfig = Try.ofFailable { project.extensions.findByType<AndroidConfig>() }
             .mapFailure { IllegalStateException("Failed to locate android plugin extension, make sure plugin is applied after android gradle plugin") }
@@ -89,9 +101,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         val xmlAssetFileTask = project.task<GenerateXmlFileTask>("generateAssetXmlFile${sourceSet.name}") {
             this.sourceSet = sourceSet
             this.outputFile = generatedXmlFile
-            this.stringNamePrefix = xmlExtension.stringNamePrefix
-            this.stringNameCharMapping = xmlExtension.stringNameCharMapping
-        }
+        }.apply { configureUsing(xmlExtension) }
 
         // register new xml generation task
         project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(xmlAssetFileTask)

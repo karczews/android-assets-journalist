@@ -1,4 +1,5 @@
 import com.github.utilx.aafg.*
+import com.github.utilx.aafg.xml.*
 
 apply plugin: 'com.android.application'
 
@@ -8,16 +9,21 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.github.utilx.android-asset-file-generator'
 
-AAFGConfig {
-    xml {
+androidAssetFileGenerator {
+    xmlFile {
         enabled = true
         stringNamePrefix = "prefix_"
         stringNameCharMapping = [
-            [match: 'az', replaceWith: 'replaceAZ'],
-            [match: 'd', replaceWith: 'ds'],
+                [match: 'az', replaceWith: 'replaceAZ'],
+                [match: 'd', replaceWith: 'ds'],
         ]
     }
-    //xmlStringNamePrefix = "prefix_"
+    javaFile {
+        enabled = true
+    }
+    kotlinFile {
+        enabled = true
+    }
 }
 
 android {
