@@ -10,8 +10,18 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx
+package com.github.utilx.aafg
 
-open class JavaFileExtension {
+import com.android.build.gradle.api.AndroidSourceSet
 
+internal fun listAssetsIn(sourceSet: AndroidSourceSet): List<String> {
+    return sourceSet
+        .assets
+        .sourceDirectoryTrees
+        .flatMap { assetFileTree ->
+            val assetBaseDir = assetFileTree.dir
+            assetFileTree.asFileTree.files
+                .map { it.relativeTo(assetBaseDir) }
+                .map { it.toString() }
+        }
 }

@@ -10,12 +10,19 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx
+package com.github.utilx.aafg
 
-open class XmlFileExtension {
+import org.gradle.api.tasks.SourceSet
 
-    // xml generation config
-    var enabled = true
-    var stringNameCharMapping = emptyList<Map<String, String>>()
-    var stringNamePrefix = ""
+open class AssetFileGeneratorExtension {
+
+    //by default use only main source set
+    var sourceSetNames = listOf(SourceSet.MAIN_SOURCE_SET_NAME)
+
+    // java generation config
+    var generateJavaFile = true
+    var javaClassName = "AssetFiles"
+    var javaPackageName = "com.github.utilx"
+    var javaFieldNamePrefix = "asset_"
+    var javaFieldNameCharMapping = emptyList<Map<String, String>>()
 }

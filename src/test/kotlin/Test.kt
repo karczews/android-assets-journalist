@@ -1,4 +1,4 @@
-import com.github.utilx.AssetFileGeneratorPlugin
+import com.github.utilx.aafg.AssetFileGeneratorPlugin
 import org.junit.Test
 
 class Test {

@@ -1,4 +1,4 @@
-import com.github.utilx.*
+import com.github.utilx.aafg.*
 
 apply plugin: 'com.android.application'
 
