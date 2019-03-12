@@ -10,9 +10,10 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg
+package com.github.utilx.aafg.kotlin
 
 import com.android.build.gradle.api.AndroidSourceSet
+import com.github.utilx.aafg.listAssets
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
@@ -35,9 +36,8 @@ open class GenerateKotlinFileTask : DefaultTask() {
     @get:OutputDirectory
     lateinit var outputSrcDir: File
 
-
     @get:Input
-    var className = "AssetFile"
+    var className = "AssetFileKt"
 
     @get:Input
     var packageName = ""
@@ -60,7 +60,7 @@ open class GenerateKotlinFileTask : DefaultTask() {
 
     @TaskAction
     fun generateKotlinFile() {
-        val assetsFileList = listAssetsIn(sourceSet)
+        val assetsFileList = sourceSet.listAssets()
 
         // converting asset listing to object property specs
         val properties = assetsFileList
@@ -89,11 +89,18 @@ open class GenerateKotlinFileTask : DefaultTask() {
             .writeTo(outputSrcDir)
 
         logger.quiet("generating asset kotlin file $packageName.$className in $outputSrcDir")
+    }
 
-
+    fun configureUsing(config: KotlinFileConfig) {
+        this.constNamePrefix = config.constNamePrefix
+        this.packageName = config.packageName
+        this.className = config.className
     }
 
     private fun generateConstName(assetFile: String): String {
-        return assetFile.replace(notAllowedConstNameCharsRegex, DEFAULT_NAME_REPLACEMENT_CHAR)
+        return assetFile.replace(
+            notAllowedConstNameCharsRegex,
+            DEFAULT_NAME_REPLACEMENT_CHAR
+        )
     }
 }

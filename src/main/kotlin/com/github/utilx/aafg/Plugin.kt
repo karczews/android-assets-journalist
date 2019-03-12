@@ -14,10 +14,12 @@ package com.github.utilx.aafg
 
 import com.android.build.gradle.AndroidConfig
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.aafg.java.JavaFileExtension
-import com.github.utilx.aafg.kotlin.KotlinFileExtension
+import com.github.utilx.aafg.java.GenerateJavaFileTask
+import com.github.utilx.aafg.java.JavaFileConfig
+import com.github.utilx.aafg.kotlin.GenerateKotlinFileTask
+import com.github.utilx.aafg.kotlin.KotlinFileConfig
 import com.github.utilx.aafg.xml.GenerateXmlFileTask
-import com.github.utilx.aafg.xml.XmlFileExtension
+import com.github.utilx.aafg.xml.XmlFileConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -33,6 +35,7 @@ private val GENERATED_SRC_DIR_NAME = listOf("generated", "aafg", "src").toFilePa
 
 private const val RES_OUTPUT_DIR_NAME = "res"
 private const val JAVA_OUTPUT_DIR_NAME = "java"
+private const val KOTLIN_OUTPUT_DIR_NAME = "kotlin"
 
 private const val PRE_BUILD_TASK_NAME = "preBuild"
 
@@ -50,15 +53,16 @@ private val XML_OUTPUT_FILE = listOf(RES_OUTPUT_DIR_NAME, "values", "asset-strin
 open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorExtension::class.java)
+        val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class.java)
         val extensionAware = extension as ExtensionAware
 
         val xmlExtension =
-            extensionAware.extensions.create(XML_GENERATOR_EXTENSION_NAME, XmlFileExtension::class.java)
+            extensionAware.extensions.create(XML_GENERATOR_EXTENSION_NAME, XmlFileConfig::class.java)
 
-        val javaExtension = extensionAware.extensions.create(JAVA_GENERATOR_EXTENSION_NAME, JavaFileExtension::class.java)
+        val javaExtension = extensionAware.extensions.create(JAVA_GENERATOR_EXTENSION_NAME, JavaFileConfig::class.java)
 
-        val kotlinExtension = extensionAware.extensions.create(KOTLIN_GENERATOR_EXTENSION_NANE, KotlinFileExtension::class.java)
+        val kotlinExtension =
+            extensionAware.extensions.create(KOTLIN_GENERATOR_EXTENSION_NANE, KotlinFileConfig::class.java)
 
         val androidConfig = Try.ofFailable { project.extensions.findByType<AndroidConfig>() }
             .mapFailure { IllegalStateException("Failed to locate android plugin extension, make sure plugin is applied after android gradle plugin") }
@@ -74,8 +78,12 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
                     configureXmlTask(project, xmlExtension, sourceSet)
                 }
 
-                if (extension.generateJavaFile) {
-                    configureJavaTask(project, extension, sourceSet)
+                if (javaExtension.enabled) {
+                    configureJavaTask(project, javaExtension, sourceSet)
+                }
+
+                if (kotlinExtension.enabled) {
+                    configureKotlinTask(project, kotlinExtension, sourceSet)
                 }
             }
         }
@@ -83,7 +91,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     private fun configureXmlTask(
         project: Project,
-        xmlExtension: XmlFileExtension,
+        xmlConfig: XmlFileConfig,
         sourceSet: AndroidSourceSet
     ) {
         //Register new res directory to provided sourceSet so all generated xml files are accessible in the project
@@ -101,7 +109,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         val xmlAssetFileTask = project.task<GenerateXmlFileTask>("generateAssetXmlFile${sourceSet.name}") {
             this.sourceSet = sourceSet
             this.outputFile = generatedXmlFile
-        }.apply { configureUsing(xmlExtension) }
+        }.apply { configureUsing(xmlConfig) }
 
         // register new xml generation task
         project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(xmlAssetFileTask)
@@ -115,7 +123,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     private fun configureJavaTask(
         project: Project,
-        extension: AssetFileGeneratorExtension,
+        extension: JavaFileConfig,
         sourceSet: AndroidSourceSet
     ) {
         val outputSrcDir = getGeneratedJavaOutputDirForSourceSet(
@@ -126,10 +134,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         val generateJavaTask = project.task<GenerateJavaFileTask>("generateAssetJavaFile${sourceSet.name}") {
             this.sourceSet = sourceSet
             this.outputSrcDir = outputSrcDir
-            this.className = extension.javaClassName
-            this.packageName = extension.javaPackageName
-            this.constNamePrefix = extension.javaFieldNamePrefix
-        }
+        }.apply { configureUsing(extension) }
 
         sourceSet.java.srcDirs(outputSrcDir)
         project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(generateJavaTask)
@@ -138,6 +143,30 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
             "Configured java generation task for [${sourceSet.name}] source set\n" +
                     "Registered new java source directory - $outputSrcDir"
         )
+    }
+
+    fun configureKotlinTask(
+        project: Project,
+        extension: KotlinFileConfig,
+        sourceSet: AndroidSourceSet
+    ) {
+        val outputSrcDir = getGeneratedKotlinOutputDirForSourceSet(
+            projectBuildDir = project.buildDir,
+            sourceSetName = sourceSet.name
+        )
+        val generateKotlinTask = project.task<GenerateKotlinFileTask>("generateAssetKotlinFile${sourceSet.name}") {
+            this.sourceSet = sourceSet
+            this.outputSrcDir = outputSrcDir
+        }.apply { configureUsing(extension) }
+
+        sourceSet.java.srcDirs(outputSrcDir)
+        project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(generateKotlinTask)
+
+        println(
+            "Configured kotlin generation task for [${sourceSet.name}] source set\n" +
+                    "Registered new kotlin source directory - $outputSrcDir"
+        )
+
     }
 
     /**
@@ -160,13 +189,22 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
     ) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), RES_OUTPUT_DIR_NAME)
 
     /**
-     * Returns SourceSet dependant res directory where files will be generated
+     * Returns SourceSet dependant java source root directory where files will be generated
      * usually returns something like <Project>/build/generated/aafg/src/<main>/java
      */
     fun getGeneratedJavaOutputDirForSourceSet(
         projectBuildDir: File,
         sourceSetName: String
     ) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), JAVA_OUTPUT_DIR_NAME)
+
+    /**
+     * Returns SourceSet dependant kotlin source root directory where files will be generated
+     * usually returns something like <Project>/build/generated/aafg/src/<main>/kotlin
+     */
+    fun getGeneratedKotlinOutputDirForSourceSet(
+        projectBuildDir: File,
+        sourceSetName: String
+    ) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), KOTLIN_OUTPUT_DIR_NAME)
 
     /**
      * Returns SourceSet dependant res directory where files will be generated

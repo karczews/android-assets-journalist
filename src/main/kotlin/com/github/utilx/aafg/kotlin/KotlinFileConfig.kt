@@ -10,8 +10,15 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg.java
+package com.github.utilx.aafg.kotlin
 
-open class JavaFileExtension {
+open class KotlinFileConfig {
     var enabled = true
+
+    var className = "AssetFilesKt"
+    var packageName = "com.github.utilx"
+    var constNamePrefix = "asset_"
+
+    //TODO
+    //var constNameCharMapping = emptyList<Map<String, String>>()
 }

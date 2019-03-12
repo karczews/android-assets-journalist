@@ -1,5 +1,7 @@
 import com.github.utilx.aafg.*
 import com.github.utilx.aafg.xml.*
+import com.github.utilx.aafg.java.*
+import com.github.utilx.aafg.kotlin.*
 
 apply plugin: 'com.android.application'
 

@@ -10,16 +10,20 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg
+package com.github.utilx.aafg.java
 
 import com.android.build.gradle.api.AndroidSourceSet
+import com.github.utilx.aafg.listAssets
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileTree
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import java.io.File
 import javax.lang.model.element.Modifier
 
@@ -38,8 +42,9 @@ open class GenerateJavaFileTask : DefaultTask() {
     @get:Input
     var packageName = ""
 
-    @get:Input
-    var constNameCharMapping = emptyList<Map<String, String>>()
+    // TODO
+   // @get:Input
+   // var constNameCharMapping = emptyList<Map<String, String>>()
     @get:Input
     var constNamePrefix = ""
 
@@ -56,7 +61,7 @@ open class GenerateJavaFileTask : DefaultTask() {
 
     @TaskAction
     fun generateJavaFile() {
-        val assetsFileList = listAssetsIn(sourceSet)
+        val assetsFileList = sourceSet.listAssets()
 
         // converting asset listing to class fields specs
         val fields = assetsFileList
@@ -83,7 +88,17 @@ open class GenerateJavaFileTask : DefaultTask() {
 
     }
 
+    fun configureUsing(config: JavaFileConfig) {
+        this.className = config.className
+        this.constNamePrefix = config.constNamePrefix
+        //this.constNameCharMapping = config.constNameCharMapping
+        this.packageName = config.packageName
+    }
+
     private fun generateConstName(assetFile: String): String {
-        return assetFile.replace(notAllowedConstNameCharsRegex, DEFAULT_NAME_REPLACEMENT_CHAR)
+        return assetFile.replace(
+            notAllowedConstNameCharsRegex,
+            DEFAULT_NAME_REPLACEMENT_CHAR
+        )
     }
 }

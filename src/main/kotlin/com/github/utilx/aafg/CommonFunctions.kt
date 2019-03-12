@@ -14,9 +14,8 @@ package com.github.utilx.aafg
 
 import com.android.build.gradle.api.AndroidSourceSet
 
-internal fun listAssetsIn(sourceSet: AndroidSourceSet): List<String> {
-    return sourceSet
-        .assets
+fun AndroidSourceSet.listAssets(): List<String> =
+    assets
         .sourceDirectoryTrees
         .flatMap { assetFileTree ->
             val assetBaseDir = assetFileTree.dir
@@ -24,4 +23,3 @@ internal fun listAssetsIn(sourceSet: AndroidSourceSet): List<String> {
                 .map { it.relativeTo(assetBaseDir) }
                 .map { it.toString() }
         }
-}

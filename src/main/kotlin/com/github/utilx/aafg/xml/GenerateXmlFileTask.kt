@@ -13,7 +13,7 @@
 package com.github.utilx.aafg.xml
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.aafg.listAssetsIn
+import com.github.utilx.aafg.listAssets
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
@@ -58,7 +58,7 @@ open class GenerateXmlFileTask : DefaultTask() {
     fun generateXml() {
         FileWriter(outputFile).use { fileWriter ->
             val writer = XMLOutputFactory.newInstance().createXMLStreamWriter(fileWriter)
-            val list = listAssetsIn(sourceSet)
+            val list = sourceSet.listAssets()
 
             writer.document {
                 writeComment("This is XML file generated with asset file generator. All changes done here will be overwritten.")
@@ -82,11 +82,11 @@ open class GenerateXmlFileTask : DefaultTask() {
             .let { stringNamePrefix + it }
 
     /**
-     * Configure task using provided extension
+     * Configure task using provided config
      */
-    fun configureUsing(extension: XmlFileExtension) {
-        this.stringNamePrefix = extension.stringNamePrefix
-        this.stringNameCharMapping = extension.stringNameCharMapping
+    fun configureUsing(config: XmlFileConfig) {
+        this.stringNamePrefix = config.stringNamePrefix
+        this.stringNameCharMapping = config.stringNameCharMapping
     }
 }
 
