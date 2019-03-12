@@ -23,8 +23,8 @@ Given project contains following asset files:
 Plugin can generate java file in `/build/generated/aafg/src/main/java/com/github/utilx/AssetFiles.java`
 ```java
 public final class AssetFiles {
-  public static final String asset_testName_testExtension = "testName.testExtension";
-  public static final String asset_subdir_testName_testExtension = "subDir/testName.testExtension";
+  public static final String ASSET_TESTNAME_TESTEXTENSION = "testName.testExtension";
+  public static final String ASSET_SUBDIR_TESTNAME_TESTEXTENSION = "subDir/testName.testExtension";
 }
 ```
 #### Kotlin source class
@@ -34,11 +34,14 @@ Given project contains following asset files:
 Plugin generate kotlin file in `/build/generated/aafg/src/main/kotlin/com/github/utilx/AssetFiles.kt`
 ```kotlin
 object AssetFiles {
-    const val asset_testName_testExtension = "testName.testExtension"
-    const val asset_subdir_testName_testExtension = "subDir/testName.testExtension"
+    const val ASSET_TESTNAME_TESTEXTENSION = "testName.testExtension"
+    const val ASSET_SUBDIR_TESTNAME_TESTEXTENSION = "subDir/testName.testExtension"
 }
 ```
-# Configuration
+# How to apply plugin
+[gradle-plugin-repository]
+# How to configure plugin
+Once plugin is applied, in order to configure plugin use `androidAssetFileGenerator` extension. 
 Following configuration presents all configuration options with default values. Default values will be applied if not specified by integrator.
 ```groovy
 androidAssetFileGenerator {
@@ -75,7 +78,6 @@ androidAssetFileGenerator {
     }
 }
 ```
-[gradle-plugin-repository]
 
 License
 ----
