@@ -8,7 +8,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("TEST", getString(R.string.prefix_testFolder_1_testFolder_1_testFile_txt))
+        Log.d("TEST", getString(R.string.prefix_testFolder_1_testFolder_1_testFile_txt_1186991154))
         setContentView(R.layout.activity_main)
     }
 }

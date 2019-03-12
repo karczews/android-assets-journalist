@@ -26,6 +26,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import javax.lang.model.element.Modifier
+import kotlin.math.absoluteValue
 
 private const val NOT_ALLOWED_CONST_NAME_CHAR_PATTERN = "[^A-Za-z0-9$]"
 private const val DEFAULT_NAME_REPLACEMENT_CHAR = "_"
@@ -100,5 +101,7 @@ open class GenerateJavaFileTask : DefaultTask() {
             notAllowedConstNameCharsRegex,
             DEFAULT_NAME_REPLACEMENT_CHAR
         )
+            .let { it + DEFAULT_NAME_REPLACEMENT_CHAR + assetFile.hashCode().absoluteValue }
+            .toUpperCase()
     }
 }

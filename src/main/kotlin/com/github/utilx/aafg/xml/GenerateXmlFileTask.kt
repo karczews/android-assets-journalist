@@ -26,6 +26,7 @@ import java.io.File
 import java.io.FileWriter
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
+import kotlin.math.absoluteValue
 
 private const val RESOURCE_XML_TAG = "resources"
 private const val STRING_XML_TAG = "string"
@@ -79,6 +80,7 @@ open class GenerateXmlFileTask : DefaultTask() {
 
     private fun createStringName(filePath: String): String =
         filePath.replace(notAllowedStringNameCharsRegex, DEFAULT_NAME_REPLACEMENT_CHAR)
+            .let { it + DEFAULT_NAME_REPLACEMENT_CHAR + filePath.hashCode().absoluteValue }
             .let { stringNamePrefix + it }
 
     /**
