@@ -23,6 +23,7 @@ import com.github.utilx.aafg.xml.XmlFileConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.tasks.SourceSet
 import org.gradle.internal.Try
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.task
@@ -69,28 +70,32 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
             .get()
 
         project.afterEvaluate {
-            extension.sourceSetNames.forEach { sourceSetName ->
-                val sourceSet = Try.ofFailable { androidConfig.sourceSets.findByName(sourceSetName)!! }
-                    .mapFailure { IllegalStateException("failed to locate $sourceSetName sourceSet") }
-                    .get()
+            extension.sourceSets
+                .ifEmpty {
+                    project.logger.quiet("No source set specified, using main")
+                    Try.ofFailable { androidConfig.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)!! }
+                        .mapFailure { IllegalStateException("failed to locate ${SourceSet.MAIN_SOURCE_SET_NAME} sourceSet") }
+                        .map { listOf(it) }
+                        .get()
+                }.forEach { sourceSet ->
 
-                if (!xmlExtension.enabled && !javaExtension.enabled && !kotlinExtension.enabled) {
-                    project.logger.warn("No file type enabled, enabling java file generation")
-                    javaExtension.enabled = true
-                }
+                    if (!xmlExtension.enabled && !javaExtension.enabled && !kotlinExtension.enabled) {
+                        project.logger.warn("No file type enabled, enabling java file generation")
+                        javaExtension.enabled = true
+                    }
 
-                if (xmlExtension.enabled) {
-                    configureXmlTask(project, xmlExtension, sourceSet)
-                }
+                    if (xmlExtension.enabled) {
+                        configureXmlTask(project, xmlExtension, sourceSet)
+                    }
 
-                if (javaExtension.enabled) {
-                    configureJavaTask(project, javaExtension, sourceSet)
-                }
+                    if (javaExtension.enabled) {
+                        configureJavaTask(project, javaExtension, sourceSet)
+                    }
 
-                if (kotlinExtension.enabled) {
-                    configureKotlinTask(project, kotlinExtension, sourceSet)
+                    if (kotlinExtension.enabled) {
+                        configureKotlinTask(project, kotlinExtension, sourceSet)
+                    }
                 }
-            }
         }
     }
 

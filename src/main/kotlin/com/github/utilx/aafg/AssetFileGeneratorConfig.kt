@@ -12,10 +12,9 @@
 
 package com.github.utilx.aafg
 
-import org.gradle.api.tasks.SourceSet
+import com.android.build.gradle.api.AndroidSourceSet
 
 open class AssetFileGeneratorConfig {
 
-    //by default use only main source set
-    var sourceSetNames = listOf(SourceSet.MAIN_SOURCE_SET_NAME)
+    var sourceSets = emptyList<AndroidSourceSet>()
 }

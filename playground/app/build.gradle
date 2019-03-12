@@ -12,19 +12,30 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.utilx.android-asset-file-generator'
 
 androidAssetFileGenerator {
+
+    sourceSets = [android.sourceSets.main]
+
     xmlFile {
         enabled = true
         stringNamePrefix = "prefix_"
-        stringNameCharMapping = [
+        /*stringNameCharMapping = [
                 [match: 'az', replaceWith: 'replaceAZ'],
                 [match: 'd', replaceWith: 'ds'],
-        ]
+        ]*/
     }
+
     javaFile {
         enabled = true
+        className = "AssetFiles"
+        packageName = "com.github.utilx"
+        constNamePrefix = "asset_"
     }
+
     kotlinFile {
         enabled = true
+        className = "AssetFilesKt"
+        packageName = "com.github.utilx"
+        constNamePrefix = "asset_"
     }
 }
 

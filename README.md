@@ -39,7 +39,42 @@ object AssetFiles {
 }
 ```
 # Configuration
-TODO
+Following configuration presents all configuration options with default values. Default values will be applied if not specified by integrator.
+```groovy
+androidAssetFileGenerator {
+    // specifies which source sets in library should be used. If not specified, main is used
+    sourceSets = [android.sourceSets.main]
+
+    xmlFile {
+        // enables xml string resource file generation
+        enabled = false
+        // prefix for each string name
+        stringNamePrefix = "prefix_"
+    }
+
+    javaFile {
+        // enable java source file generation
+        enabled = true
+        // class name to generate
+        className = "AssetFiles"
+        // package name for generated class
+        packageName = "com.github.utilx"
+        // prefix for each constant
+        constNamePrefix = "asset_"
+    }
+
+    kotlinFile {
+        // enable kotlin source file generation
+        enabled = false
+        // class name to generate
+        className = "AssetFilesKt"
+        // package name for generated class
+        packageName = "com.github.utilx"
+        // prefix for each constant
+        constNamePrefix = "asset_"
+    }
+}
+```
 [gradle-plugin-repository]
 
 License

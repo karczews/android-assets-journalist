@@ -16,7 +16,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.utilx.android-asset-file-generator' version '1.0-SNAPSHOT' apply false
+    id 'com.github.utilx.android-asset-file-generator' version '0.9.5' apply false
 }
 
 allprojects {
