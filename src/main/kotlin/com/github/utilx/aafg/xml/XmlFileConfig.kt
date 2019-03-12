@@ -13,7 +13,7 @@
 package com.github.utilx.aafg.xml
 
 open class XmlFileConfig {
-    var enabled = true
+    var enabled = false
     var stringNameCharMapping = emptyList<Map<String, String>>()
     var stringNamePrefix = ""
 }

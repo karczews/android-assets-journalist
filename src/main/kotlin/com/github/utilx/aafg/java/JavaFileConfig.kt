@@ -13,8 +13,7 @@
 package com.github.utilx.aafg.java
 
 open class JavaFileConfig {
-    var enabled = true
-
+    var enabled = false
     var className = "AssetFiles"
     var packageName = "com.github.utilx"
     var constNamePrefix = "asset_"

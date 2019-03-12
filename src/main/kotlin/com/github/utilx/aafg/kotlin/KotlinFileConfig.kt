@@ -13,8 +13,7 @@
 package com.github.utilx.aafg.kotlin
 
 open class KotlinFileConfig {
-    var enabled = true
-
+    var enabled = false
     var className = "AssetFilesKt"
     var packageName = "com.github.utilx"
     var constNamePrefix = "asset_"

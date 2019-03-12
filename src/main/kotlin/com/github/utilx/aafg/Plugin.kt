@@ -74,6 +74,11 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
                     .mapFailure { IllegalStateException("failed to locate $sourceSetName sourceSet") }
                     .get()
 
+                if (!xmlExtension.enabled && !javaExtension.enabled && !kotlinExtension.enabled) {
+                    project.logger.warn("No file type enabled, enabling java file generation")
+                    javaExtension.enabled = true
+                }
+
                 if (xmlExtension.enabled) {
                     configureXmlTask(project, xmlExtension, sourceSet)
                 }
@@ -114,7 +119,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         // register new xml generation task
         project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(xmlAssetFileTask)
 
-        println(
+        project.logger.quiet(
             "Configured xml generation task for [${sourceSet.name}] source set\n" +
                     "Registered new res directory - $generatedResDirectory\n" +
                     "Asset xml file will be generated at $generatedXmlFile"
@@ -139,7 +144,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         sourceSet.java.srcDirs(outputSrcDir)
         project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(generateJavaTask)
 
-        println(
+        project.logger.quiet(
             "Configured java generation task for [${sourceSet.name}] source set\n" +
                     "Registered new java source directory - $outputSrcDir"
         )
@@ -162,7 +167,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         sourceSet.java.srcDirs(outputSrcDir)
         project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(generateKotlinTask)
 
-        println(
+        project.logger.quiet(
             "Configured kotlin generation task for [${sourceSet.name}] source set\n" +
                     "Registered new kotlin source directory - $outputSrcDir"
         )
