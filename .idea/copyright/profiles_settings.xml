@@ -1,10 +1,10 @@
 <component name="CopyrightManager">
-  <settings default="Apache2-AAFG">
+  <settings default="Apache2-AAJ">
     <module2copyright>
-      <element module="Production" copyright="Apache2-AAFG" />
-      <element module="Tests" copyright="Apache2-AAFG" />
-      <element module="Project Files" copyright="Apache2-AAFG" />
-      <element module="Changed Files" copyright="Apache2-AAFG" />
+      <element module="Production" copyright="Apache2-AAJ" />
+      <element module="Tests" copyright="Apache2-AAJ" />
+      <element module="Project Files" copyright="Apache2-AAJ" />
+      <element module="Changed Files" copyright="Apache2-AAJ" />
     </module2copyright>
     <LanguageOptions name="__TEMPLATE__">
       <option name="relativeBefore" value="false" />
