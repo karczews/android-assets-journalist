@@ -17,8 +17,7 @@ import com.github.utilx.assetsjournalist.SourceFileConfig.Companion.CONST_VALUE_
 import java.lang.IllegalStateException
 
 class StringTransformer(
-    val replacementsList: List<Replacement>,
-    val prefix: String = ""
+    private val replacementsList: List<Replacement>
 ) {
     /**
      * Applies transformation to provided string and returns result
@@ -28,7 +27,6 @@ class StringTransformer(
         replacementsList.forEach { replacement ->
             result = result.replace(replacement.match, replacement.replaceWith)
         }
-        result = prefix + result
         return result
     }
 }
@@ -36,14 +34,12 @@ class StringTransformer(
 /**
  * Creates String transformer using provided replacement list from extension/task configuration
  */
-fun buildStringTrasformerUsing(
-    extensionReplacementList: List<Map<String, String>>,
-    prefix: String = ""
+fun buildStringTransformerUsing(
+    extensionReplacementList: List<Map<String, String>>
 ): StringTransformer {
     val replacementsList = extensionReplacementList
         .asSequence()
         .map {
-
             val regex = it[CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY]?.toRegex()
             val replacement = it[CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY]
             if (regex == null || replacement == null) {
@@ -53,5 +49,5 @@ fun buildStringTrasformerUsing(
         }
         .toList()
 
-    return StringTransformer(replacementsList, prefix)
+    return StringTransformer(replacementsList)
 }

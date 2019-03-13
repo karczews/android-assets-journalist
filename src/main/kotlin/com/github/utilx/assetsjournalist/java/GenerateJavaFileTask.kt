@@ -13,7 +13,8 @@
 package com.github.utilx.assetsjournalist.java
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.assetsjournalist.internal.buildStringTrasformerUsing
+import com.github.utilx.assetsjournalist.internal.FileConstantsFactory
+import com.github.utilx.assetsjournalist.internal.buildStringTransformerUsing
 import com.github.utilx.assetsjournalist.internal.listAssets
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
@@ -27,14 +28,8 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import javax.lang.model.element.Modifier
-import kotlin.math.absoluteValue
-
-private const val NOT_ALLOWED_CONST_NAME_CHAR_PATTERN = "[^A-Za-z0-9$]"
-private const val DEFAULT_NAME_REPLACEMENT_CHAR = "_"
 
 open class GenerateJavaFileTask : DefaultTask() {
-
-    private val notAllowedConstNameCharsRegex by lazy { NOT_ALLOWED_CONST_NAME_CHAR_PATTERN.toRegex() }
 
     @get:OutputDirectory
     lateinit var outputSrcDir: File
@@ -43,18 +38,12 @@ open class GenerateJavaFileTask : DefaultTask() {
     var className = "AssetFile"
     @get:Input
     var packageName = ""
-
-    /*@get:Input
-    var constNameCharMapping = emptyList<Map<String, String>>()*/
     @get:Input
     var constNamePrefix = ""
     @get:Input
     var constValuePrefix = ""
     @get:Input
     var constValueReplacementExpressions = emptyList<Map<String, String>>()
-    private val constValueTransformer by lazy {
-        buildStringTrasformerUsing(constValueReplacementExpressions, constValuePrefix)
-    }
 
     lateinit var sourceSet: AndroidSourceSet
 
@@ -69,21 +58,32 @@ open class GenerateJavaFileTask : DefaultTask() {
 
     @TaskAction
     fun generateJavaFile() {
-        val assetsFileList = sourceSet.listAssets()
+        val fileConstantsFactory = FileConstantsFactory(
+            constValuePrefix = constValuePrefix,
+            constValueTransformer = buildStringTransformerUsing(constValueReplacementExpressions),
+            constNamePrefix = constNamePrefix
+        )
 
         // converting asset listing to class fields specs
-        val fields = assetsFileList
+        val fields = sourceSet.listAssets()
+            .asSequence()
+            .map(fileConstantsFactory::toConstNameValuePair)
+            // remove duplicate entries
+            .distinct()
             .map {
-                val constName = generateConstName(it)
-
-                FieldSpec.builder(TypeName.get(String::class.java), constName)
+                FieldSpec.builder(TypeName.get(String::class.java), it.name)
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("\"${constValueTransformer.apply(it)}\"")
+                    .initializer("\"${it.value}\"")
                     .build()
             }
+            .asIterable()
 
         // creating class spec that includes previous field specs
         val typeSpec = TypeSpec.classBuilder(className)
+            .addJavadoc(
+                "This class is generated using android-assets-journalist gradle plugin. \n" +
+                        "Do not modify this class because all changes will be overwritten"
+            )
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addFields(fields)
             .build()
@@ -104,14 +104,5 @@ open class GenerateJavaFileTask : DefaultTask() {
         this.packageName = config.packageName
 
         this.constValueReplacementExpressions = config.constValueReplacementExpressions
-    }
-
-    private fun generateConstName(assetFile: String): String {
-        return assetFile.replace(
-            notAllowedConstNameCharsRegex,
-            DEFAULT_NAME_REPLACEMENT_CHAR
-        )
-            .let { it + DEFAULT_NAME_REPLACEMENT_CHAR + assetFile.hashCode().absoluteValue }
-            .toUpperCase()
     }
 }

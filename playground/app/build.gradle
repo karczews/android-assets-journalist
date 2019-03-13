@@ -11,17 +11,13 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.github.utilx.android-assets-journalist'
 
-androidAssetFileGenerator {
+androidAssetsJournalist {
 
     sourceSets = [android.sourceSets.main]
 
     xmlFile {
         enabled = true
         stringNamePrefix = "prefix_"
-        /*stringNameCharMapping = [
-                [match: 'az', replaceWith: 'replaceAZ'],
-                [match: 'd', replaceWith: 'ds'],
-        ]*/
     }
 
     javaFile {

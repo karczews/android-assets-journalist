@@ -13,7 +13,8 @@
 package com.github.utilx.assetsjournalist.kotlin
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.assetsjournalist.internal.buildStringTrasformerUsing
+import com.github.utilx.assetsjournalist.internal.FileConstantsFactory
+import com.github.utilx.assetsjournalist.internal.buildStringTransformerUsing
 import com.github.utilx.assetsjournalist.internal.listAssets
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
@@ -26,14 +27,9 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
-import kotlin.math.absoluteValue
 
-private const val NOT_ALLOWED_CONST_NAME_CHAR_PATTERN = "[^A-Za-z0-9$]"
-private const val DEFAULT_NAME_REPLACEMENT_CHAR = "_"
 
 open class GenerateKotlinFileTask : DefaultTask() {
-
-    private val notAllowedConstNameCharsRegex by lazy { NOT_ALLOWED_CONST_NAME_CHAR_PATTERN.toRegex() }
 
     @get:OutputDirectory
     lateinit var outputSrcDir: File
@@ -50,9 +46,6 @@ open class GenerateKotlinFileTask : DefaultTask() {
     var constValuePrefix = ""
     @get:Input
     var constValueReplacementExpressions = emptyList<Map<String, String>>()
-    private val constValueTransformer by lazy {
-        buildStringTrasformerUsing(constValueReplacementExpressions, constValuePrefix)
-    }
 
     lateinit var sourceSet: AndroidSourceSet
 
@@ -66,24 +59,30 @@ open class GenerateKotlinFileTask : DefaultTask() {
 
     @TaskAction
     fun generateKotlinFile() {
-        val assetsFileList = sourceSet.listAssets()
+        val fileConstantsFactory = FileConstantsFactory(
+            constValuePrefix = constValuePrefix,
+            constValueTransformer = buildStringTransformerUsing(constValueReplacementExpressions),
+            constNamePrefix = constNamePrefix
+        )
 
-        // converting asset listing to object property specs
-        val properties = assetsFileList
+        val properties = sourceSet.listAssets()
+            .asSequence()
+            .map(fileConstantsFactory::toConstNameValuePair)
+            // remove duplicate entries
+            .distinct()
             .map {
-                val constName = generateConstName(it)
-
-                PropertySpec.builder(constName, String::class)
+                PropertySpec.builder(it.name, String::class)
                     .addModifiers(KModifier.CONST)
-                    .initializer("\"${constValueTransformer.apply(it)}\"")
+                    .initializer("\"${it.value}\"")
                     .build()
             }
+            .asIterable()
 
         // create type spec for object and include all properties
         val objectSpec = TypeSpec.objectBuilder(className)
             .addProperties(properties)
             .addKdoc(
-                "This class is generated using android-asset-file-generator gradle plugin. \n" +
+                "This class is generated using android-assets-journalist gradle plugin. \n" +
                         "Do not modify this class because all changes will be overwritten"
             )
             .build()
@@ -104,14 +103,5 @@ open class GenerateKotlinFileTask : DefaultTask() {
         this.className = config.className
 
         this.constValueReplacementExpressions = config.constValueReplacementExpressions
-    }
-
-    private fun generateConstName(assetFile: String): String {
-        return assetFile.replace(
-            notAllowedConstNameCharsRegex,
-            DEFAULT_NAME_REPLACEMENT_CHAR
-        )
-            .let { it + DEFAULT_NAME_REPLACEMENT_CHAR + assetFile.hashCode().absoluteValue }
-            .toUpperCase()
     }
 }
