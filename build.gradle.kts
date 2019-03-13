@@ -42,7 +42,12 @@ dependencies {
     compileOnly("com.android.tools.build:gradle:3.3.1")
     implementation(kotlin("stdlib-jdk8"))
 
+    testImplementation(kotlin("test"))
+    testImplementation(kotlin("test-junit"))
     testImplementation("junit", "junit", "4.12")
+    testImplementation("io.mockk", "mockk", "1.9.2.kotlin12")
+    testImplementation("com.android.tools.build:gradle:3.3.1")
+
 }
 
 configure<JavaPluginConvention> {

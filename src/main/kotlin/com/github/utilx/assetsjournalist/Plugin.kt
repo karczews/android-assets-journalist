@@ -39,10 +39,10 @@ private const val KOTLIN_OUTPUT_DIR_NAME = "kotlin"
 
 private const val PRE_BUILD_TASK_NAME = "preBuild"
 
-private const val ROOT_EXTENSION_NAME = "androidAssetsJournalist"
-private const val XML_GENERATOR_EXTENSION_NAME = "xmlFile"
-private const val JAVA_GENERATOR_EXTENSION_NAME = "javaFile"
-private const val KOTLIN_GENERATOR_EXTENSION_NANE = "kotlinFile"
+internal const val ROOT_EXTENSION_NAME = "androidAssetsJournalist"
+internal const val XML_GENERATOR_EXTENSION_NAME = "xmlFile"
+internal const val JAVA_GENERATOR_EXTENSION_NAME = "javaFile"
+internal const val KOTLIN_GENERATOR_EXTENSION_NANE = "kotlinFile"
 
 /**
  * res/values/strings.xml
@@ -116,7 +116,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             sourceSetName = sourceSet.name
         )
 
-        val xmlAssetFileTask = project.task<GenerateXmlFileTask>("generateAssetsXmlFile${sourceSet.name}") {
+        val xmlAssetFileTask = project.task<GenerateXmlFileTask>("generateAssetsXmlFile${sourceSet.name.capitalize()}") {
             this.sourceSet = sourceSet
             this.outputFile = generatedXmlFile
         }.apply { configureUsing(xmlConfig) }
@@ -141,7 +141,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             sourceSetName = sourceSet.name
         )
 
-        val generateJavaTask = project.task<GenerateJavaFileTask>("generateAssetsJavaFile${sourceSet.name}") {
+        val generateJavaTask = project.task<GenerateJavaFileTask>("generateAssetsJavaFile${sourceSet.name.capitalize()}") {
             this.sourceSet = sourceSet
             this.outputSrcDir = outputSrcDir
         }.apply { configureUsing(extension) }
@@ -164,7 +164,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             projectBuildDir = project.buildDir,
             sourceSetName = sourceSet.name
         )
-        val generateKotlinTask = project.task<GenerateKotlinFileTask>("generateAssetsKotlinFile${sourceSet.name}") {
+        val generateKotlinTask = project.task<GenerateKotlinFileTask>("generateAssetsKotlinFile${sourceSet.name.capitalize()}") {
             this.sourceSet = sourceSet
             this.outputSrcDir = outputSrcDir
         }.apply { configureUsing(extension) }
