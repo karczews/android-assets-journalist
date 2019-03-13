@@ -42,7 +42,7 @@ object AssetFiles {
 [gradle-plugin-repository]
 # How to configure plugin
 Once plugin is applied, in order to configure plugin use `androidAssetFileGenerator` extension. 
-Following configuration presents all configuration options with default values. Default values will be applied if not specified by integrator.
+Following configuration presents all configuration options with default values or example values. Default values will be applied if not specified by integrator.
 ```groovy
 androidAssetsJournalist {
     // specifies which source sets in library should be used. If not specified, main is used
@@ -64,6 +64,10 @@ androidAssetsJournalist {
         packageName = "com.github.utilx"
         // prefix for each constant
         constNamePrefix = "asset_"
+        // prefix to applt for each path, empty by default
+        constValuePrefix = ""
+        // regexp for replacing matching part of asset path, none by default
+        constValueReplacementExpressions = [ ]
     }
 
     kotlinFile {
@@ -75,6 +79,16 @@ androidAssetsJournalist {
         packageName = "com.github.utilx"
         // prefix for each constant
         constNamePrefix = "asset_"
+        // prefix to apply to each asset path, example:
+        constValuePrefix = "assetFile://"
+        // regexp for replacing matching part of asset path with provided replacement string
+        constValueReplacementExpressions = [
+                // example1: replace each "ab" at the start of each path with "zx"
+                [match: '^ab', replaceWith: 'zx'],
+                // example2: replace each "da" or "db" with "cd"
+                [match: 'd[ab]', replaceWith: 'cd']
+            ]
+        
     }
 }
 ```
