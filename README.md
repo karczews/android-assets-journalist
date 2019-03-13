@@ -67,7 +67,7 @@ androidAssetsJournalist {
         // prefix to applt for each path, empty by default
         constValuePrefix = ""
         // regexp for replacing matching part of asset path, none by default
-        constValueReplacementExpressions = [ ]
+        replaceInAssetsPath = [ ]
     }
 
     kotlinFile {
@@ -82,7 +82,7 @@ androidAssetsJournalist {
         // prefix to apply to each asset path, example:
         constValuePrefix = "assetFile://"
         // regexp for replacing matching part of asset path with provided replacement string
-        constValueReplacementExpressions = [
+        replaceInAssetsPath = [
                 // example1: replace each "ab" at the start of each path with "zx"
                 [match: '^ab', replaceWith: 'zx'],
                 // example2: replace each "da" or "db" with "cd"

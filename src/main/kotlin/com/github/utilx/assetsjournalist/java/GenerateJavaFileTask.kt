@@ -103,6 +103,6 @@ open class GenerateJavaFileTask : DefaultTask() {
         this.constValuePrefix = config.constValuePrefix
         this.packageName = config.packageName
 
-        this.constValueReplacementExpressions = config.constValueReplacementExpressions
+        this.constValueReplacementExpressions = config.replaceInAssetsPath
     }
 }

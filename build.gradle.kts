@@ -29,7 +29,7 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "http://github.com/karczews/android-assets-journalistr"
+    website = "http://github.com/karczews/android-assets-journalist"
     vcsUrl = "http://github.com/karczews/android-assets-journalist"
     tags = listOf("android", "assets", "file", "listing", "generator", "journaling")
 }

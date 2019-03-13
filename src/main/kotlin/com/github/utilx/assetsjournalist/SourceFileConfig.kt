@@ -24,12 +24,12 @@ abstract class SourceFileConfig {
     var constValuePrefix = ""
 
     /**
-     * constValueReplacementExpressions = [
+     * replaceInAssetsPath = [
      * [match: 'az', replaceWith: 'replaceAZ'],
      * [match: 'd', replaceWith: 'ds']
      * ]
      */
-    var constValueReplacementExpressions = emptyList<Map<String, String>>()
+    var replaceInAssetsPath = emptyList<Map<String, String>>()
 
     companion object {
         const val CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY = "match"

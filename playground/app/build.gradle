@@ -32,7 +32,7 @@ androidAssetsJournalist {
         className = "AssetFilesKt"
         packageName = "com.github.utilx"
         constNamePrefix = "asset_"
-        constValueReplacementExpressions = [
+        replaceInAssetsPath = [
             [match: '^az', replaceWith: 'replaceAZ'],
             [match: 'd[abc]', replaceWith: 'ds']
         ]

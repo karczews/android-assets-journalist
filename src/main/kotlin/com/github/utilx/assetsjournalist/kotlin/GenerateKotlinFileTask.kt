@@ -102,6 +102,6 @@ open class GenerateKotlinFileTask : DefaultTask() {
         this.packageName = config.packageName
         this.className = config.className
 
-        this.constValueReplacementExpressions = config.constValueReplacementExpressions
+        this.constValueReplacementExpressions = config.replaceInAssetsPath
     }
 }
