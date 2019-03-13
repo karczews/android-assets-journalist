@@ -24,7 +24,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet
-import org.gradle.internal.Try
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.task
 import java.io.File
@@ -65,18 +64,19 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
         val kotlinExtension =
             extensionAware.extensions.create(KOTLIN_GENERATOR_EXTENSION_NANE, KotlinFileConfig::class.java)
 
-        val androidConfig = Try.ofFailable { project.extensions.findByType<AndroidConfig>() }
-            .mapFailure { IllegalStateException("Failed to locate android plugin extension, make sure plugin is applied after android gradle plugin") }
-            .get()
+
+        val androidConfig = runCatching { project.extensions.findByType<AndroidConfig>()!! }
+            .onFailure { throw IllegalStateException("Failed to locate android plugin extension, make sure plugin is applied after android gradle plugin") }
+            .getOrThrow()
 
         project.afterEvaluate {
             extension.sourceSets
                 .ifEmpty {
                     project.logger.quiet("No source set specified, using main")
-                    Try.ofFailable { androidConfig.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)!! }
-                        .mapFailure { IllegalStateException("failed to locate ${SourceSet.MAIN_SOURCE_SET_NAME} sourceSet") }
+                    runCatching { androidConfig.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)!! }
+                        .onFailure { throw IllegalStateException("failed to locate ${SourceSet.MAIN_SOURCE_SET_NAME} sourceSet") }
                         .map { listOf(it) }
-                        .get()
+                        .getOrThrow()
                 }.forEach { sourceSet ->
 
                     if (!xmlExtension.enabled && !javaExtension.enabled && !kotlinExtension.enabled) {

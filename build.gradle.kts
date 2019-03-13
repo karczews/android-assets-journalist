@@ -1,15 +1,15 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    `java-gradle-plugin`
+    kotlin("jvm") version "1.3.21"
     `kotlin-dsl`
+    `java-gradle-plugin`
     `maven-publish`
-    id("com.gradle.plugin-publish") version "0.10.0"
-    kotlin("jvm") version "1.3.11"
+    id("com.gradle.plugin-publish") version "0.10.1"
 }
 
 group = "com.github.utilx"
-version = "0.9.5"
+version = "0.9.8"
 
 repositories {
     mavenCentral()
@@ -29,28 +29,17 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "http://github.com/utilx/android-asset-file-generator"
+    website = "http://github.com/karczews/android-asset-file-generator"
     vcsUrl = "http://github.com/karczews/android-asset-file-generator"
     tags = listOf("android", "assets", "file", "listing", "generator")
 }
 
-/*publishing {
-    publications {
-        create<MavenPublication> ("pluginPublication") {
-            groupId = "com.github.utilx"
-            artifactId = "assetlistgen"
-            version = "1.0"
-
-            from(components["java"])
-        }
-    }
-}*/
-
 dependencies {
+
     implementation(gradleApi())
     implementation("com.squareup:javapoet:1.11.1")
     implementation("com.squareup:kotlinpoet:1.1.0")
-    implementation("com.android.tools.build:gradle:3.3.1")
+    compileOnly("com.android.tools.build:gradle:3.3.1")
     implementation(kotlin("stdlib-jdk8"))
 
     testImplementation("junit", "junit", "4.12")

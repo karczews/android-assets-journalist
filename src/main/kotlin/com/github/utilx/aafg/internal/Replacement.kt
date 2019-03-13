@@ -10,8 +10,9 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg.java
+package com.github.utilx.aafg.internal
 
-import com.github.utilx.aafg.SourceFileConfig
-
-open class JavaFileConfig : SourceFileConfig()
+/**
+ * Class representing certain regexp match that should be replaced with given string
+ */
+data class Replacement(val match: Regex, val replaceWith: String)

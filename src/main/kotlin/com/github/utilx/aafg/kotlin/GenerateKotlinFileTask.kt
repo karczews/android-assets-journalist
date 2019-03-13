@@ -13,7 +13,8 @@
 package com.github.utilx.aafg.kotlin
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.aafg.listAssets
+import com.github.utilx.aafg.internal.buildStringTrasformerUsing
+import com.github.utilx.aafg.internal.listAssets
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
@@ -44,10 +45,14 @@ open class GenerateKotlinFileTask : DefaultTask() {
     var packageName = ""
 
     @get:Input
-    var constNameCharMapping = emptyList<Map<String, String>>()
-    @get:Input
     var constNamePrefix = ""
-
+    @get:Input
+    var constValuePrefix = ""
+    @get:Input
+    var constValueReplacementExpressions = emptyList<Map<String, String>>()
+    private val constValueTransformer by lazy {
+        buildStringTrasformerUsing(constValueReplacementExpressions, constValuePrefix)
+    }
 
     lateinit var sourceSet: AndroidSourceSet
 
@@ -70,7 +75,7 @@ open class GenerateKotlinFileTask : DefaultTask() {
 
                 PropertySpec.builder(constName, String::class)
                     .addModifiers(KModifier.CONST)
-                    .initializer("\"${it}\"")
+                    .initializer("\"${constValueTransformer.apply(it)}\"")
                     .build()
             }
 
@@ -94,8 +99,11 @@ open class GenerateKotlinFileTask : DefaultTask() {
 
     fun configureUsing(config: KotlinFileConfig) {
         this.constNamePrefix = config.constNamePrefix
+        this.constValuePrefix = config.constValuePrefix
         this.packageName = config.packageName
         this.className = config.className
+
+        this.constValueReplacementExpressions = config.constValueReplacementExpressions
     }
 
     private fun generateConstName(assetFile: String): String {

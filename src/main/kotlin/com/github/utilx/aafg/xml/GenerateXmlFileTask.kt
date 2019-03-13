@@ -13,7 +13,7 @@
 package com.github.utilx.aafg.xml
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.aafg.listAssets
+import com.github.utilx.aafg.internal.listAssets
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree

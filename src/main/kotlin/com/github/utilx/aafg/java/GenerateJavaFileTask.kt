@@ -13,7 +13,8 @@
 package com.github.utilx.aafg.java
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.aafg.listAssets
+import com.github.utilx.aafg.internal.buildStringTrasformerUsing
+import com.github.utilx.aafg.internal.listAssets
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
@@ -43,11 +44,17 @@ open class GenerateJavaFileTask : DefaultTask() {
     @get:Input
     var packageName = ""
 
-    // TODO
-   // @get:Input
-   // var constNameCharMapping = emptyList<Map<String, String>>()
+    /*@get:Input
+    var constNameCharMapping = emptyList<Map<String, String>>()*/
     @get:Input
     var constNamePrefix = ""
+    @get:Input
+    var constValuePrefix = ""
+    @get:Input
+    var constValueReplacementExpressions = emptyList<Map<String, String>>()
+    private val constValueTransformer by lazy {
+        buildStringTrasformerUsing(constValueReplacementExpressions, constValuePrefix)
+    }
 
     lateinit var sourceSet: AndroidSourceSet
 
@@ -68,9 +75,10 @@ open class GenerateJavaFileTask : DefaultTask() {
         val fields = assetsFileList
             .map {
                 val constName = generateConstName(it)
+
                 FieldSpec.builder(TypeName.get(String::class.java), constName)
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("\"$it\"")
+                    .initializer("\"${constValueTransformer.apply(it)}\"")
                     .build()
             }
 
@@ -92,8 +100,10 @@ open class GenerateJavaFileTask : DefaultTask() {
     fun configureUsing(config: JavaFileConfig) {
         this.className = config.className
         this.constNamePrefix = config.constNamePrefix
-        //this.constNameCharMapping = config.constNameCharMapping
+        this.constValuePrefix = config.constValuePrefix
         this.packageName = config.packageName
+
+        this.constValueReplacementExpressions = config.constValueReplacementExpressions
     }
 
     private fun generateConstName(assetFile: String): String {

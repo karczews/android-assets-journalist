@@ -12,12 +12,6 @@
 
 package com.github.utilx.aafg.kotlin
 
-open class KotlinFileConfig {
-    var enabled = false
-    var className = "AssetFilesKt"
-    var packageName = "com.github.utilx"
-    var constNamePrefix = "asset_"
+import com.github.utilx.aafg.SourceFileConfig
 
-    //TODO
-    //var constNameCharMapping = emptyList<Map<String, String>>()
-}
+open class KotlinFileConfig : SourceFileConfig()
