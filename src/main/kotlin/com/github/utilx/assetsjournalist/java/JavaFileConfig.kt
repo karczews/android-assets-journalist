@@ -10,11 +10,8 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg
+package com.github.utilx.assetsjournalist.java
 
-import com.android.build.gradle.api.AndroidSourceSet
+import com.github.utilx.assetsjournalist.SourceFileConfig
 
-open class AssetFileGeneratorConfig {
-
-    var sourceSets = emptyList<AndroidSourceSet>()
-}
+open class JavaFileConfig : SourceFileConfig()

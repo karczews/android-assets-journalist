@@ -10,7 +10,7 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg.internal
+package com.github.utilx.assetsjournalist.internal
 
 /**
  * Class representing certain regexp match that should be replaced with given string

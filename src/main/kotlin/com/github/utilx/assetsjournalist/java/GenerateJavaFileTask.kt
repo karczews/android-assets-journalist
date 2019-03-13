@@ -10,11 +10,11 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg.java
+package com.github.utilx.assetsjournalist.java
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.aafg.internal.buildStringTrasformerUsing
-import com.github.utilx.aafg.internal.listAssets
+import com.github.utilx.assetsjournalist.internal.buildStringTrasformerUsing
+import com.github.utilx.assetsjournalist.internal.listAssets
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName

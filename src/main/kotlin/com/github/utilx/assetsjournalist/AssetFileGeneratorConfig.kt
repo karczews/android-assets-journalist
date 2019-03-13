@@ -10,16 +10,11 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg.internal
+package com.github.utilx.assetsjournalist
 
 import com.android.build.gradle.api.AndroidSourceSet
 
-fun AndroidSourceSet.listAssets(): List<String> =
-    assets
-        .sourceDirectoryTrees
-        .flatMap { assetFileTree ->
-            val assetBaseDir = assetFileTree.dir
-            assetFileTree.asFileTree.files
-                .map { it.relativeTo(assetBaseDir) }
-                .map { it.toString() }
-        }
+open class AssetFileGeneratorConfig {
+
+    var sourceSets = emptyList<AndroidSourceSet>()
+}

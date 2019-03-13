@@ -10,10 +10,10 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg.internal
+package com.github.utilx.assetsjournalist.internal
 
-import com.github.utilx.aafg.SourceFileConfig.Companion.CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY
-import com.github.utilx.aafg.SourceFileConfig.Companion.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY
+import com.github.utilx.assetsjournalist.SourceFileConfig.Companion.CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY
+import com.github.utilx.assetsjournalist.SourceFileConfig.Companion.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY
 import java.lang.IllegalStateException
 
 class StringTransformer(

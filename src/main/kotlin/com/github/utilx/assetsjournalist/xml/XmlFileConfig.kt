@@ -10,8 +10,10 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg.kotlin
+package com.github.utilx.assetsjournalist.xml
 
-import com.github.utilx.aafg.SourceFileConfig
-
-open class KotlinFileConfig : SourceFileConfig()
+open class XmlFileConfig {
+    var enabled = false
+    var stringNameCharMapping = emptyList<Map<String, String>>()
+    var stringNamePrefix = ""
+}

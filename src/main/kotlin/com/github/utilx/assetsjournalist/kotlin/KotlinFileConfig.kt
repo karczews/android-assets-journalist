@@ -10,8 +10,8 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg.java
+package com.github.utilx.assetsjournalist.kotlin
 
-import com.github.utilx.aafg.SourceFileConfig
+import com.github.utilx.assetsjournalist.SourceFileConfig
 
-open class JavaFileConfig : SourceFileConfig()
+open class KotlinFileConfig : SourceFileConfig()

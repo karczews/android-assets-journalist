@@ -10,11 +10,11 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg.kotlin
+package com.github.utilx.assetsjournalist.kotlin
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.aafg.internal.buildStringTrasformerUsing
-import com.github.utilx.aafg.internal.listAssets
+import com.github.utilx.assetsjournalist.internal.buildStringTrasformerUsing
+import com.github.utilx.assetsjournalist.internal.listAssets
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec

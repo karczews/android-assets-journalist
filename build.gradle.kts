@@ -19,19 +19,19 @@ repositories {
 
 gradlePlugin {
     plugins {
-        create("android-asset-file-generator") {
-            id = "com.github.utilx.android-asset-file-generator"
-            displayName ="Android Assets File Generator Plugin"
-            description = "Plugin that generates android assets list to string resources or source code"
-            implementationClass = "com.github.utilx.aafg.AssetFileGeneratorPlugin"
+        create("android-assets-journalist") {
+            id = "com.github.utilx.android-assets-journalist"
+            displayName ="Android Asset Files Listing Plugin"
+            description = "Plugin that generates android assets list as string resources or source code file"
+            implementationClass = "com.github.utilx.assetsjournalist.AssetsJournalistPlugin"
         }
     }
 }
 
 pluginBundle {
-    website = "http://github.com/karczews/android-asset-file-generator"
-    vcsUrl = "http://github.com/karczews/android-asset-file-generator"
-    tags = listOf("android", "assets", "file", "listing", "generator")
+    website = "http://github.com/karczews/android-assets-journalistr"
+    vcsUrl = "http://github.com/karczews/android-assets-journalist"
+    tags = listOf("android", "assets", "file", "listing", "generator", "journaling")
 }
 
 dependencies {

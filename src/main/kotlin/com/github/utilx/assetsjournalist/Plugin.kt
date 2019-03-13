@@ -10,16 +10,16 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg
+package com.github.utilx.assetsjournalist
 
 import com.android.build.gradle.AndroidConfig
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.aafg.java.GenerateJavaFileTask
-import com.github.utilx.aafg.java.JavaFileConfig
-import com.github.utilx.aafg.kotlin.GenerateKotlinFileTask
-import com.github.utilx.aafg.kotlin.KotlinFileConfig
-import com.github.utilx.aafg.xml.GenerateXmlFileTask
-import com.github.utilx.aafg.xml.XmlFileConfig
+import com.github.utilx.assetsjournalist.java.GenerateJavaFileTask
+import com.github.utilx.assetsjournalist.java.JavaFileConfig
+import com.github.utilx.assetsjournalist.kotlin.GenerateKotlinFileTask
+import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
+import com.github.utilx.assetsjournalist.xml.GenerateXmlFileTask
+import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -29,9 +29,9 @@ import org.gradle.kotlin.dsl.task
 import java.io.File
 
 /**
- * generated/aafg/src
+ * generated/assetsjournalist/src
  */
-private val GENERATED_SRC_DIR_NAME = listOf("generated", "aafg", "src").toFilePath()
+private val GENERATED_SRC_DIR_NAME = listOf("generated", "assetsjournalist", "src").toFilePath()
 
 private const val RES_OUTPUT_DIR_NAME = "res"
 private const val JAVA_OUTPUT_DIR_NAME = "java"
@@ -39,7 +39,7 @@ private const val KOTLIN_OUTPUT_DIR_NAME = "kotlin"
 
 private const val PRE_BUILD_TASK_NAME = "preBuild"
 
-private const val ROOT_EXTENSION_NAME = "androidAssetFileGenerator"
+private const val ROOT_EXTENSION_NAME = "androidAssetsJournalist"
 private const val XML_GENERATOR_EXTENSION_NAME = "xmlFile"
 private const val JAVA_GENERATOR_EXTENSION_NAME = "javaFile"
 private const val KOTLIN_GENERATOR_EXTENSION_NANE = "kotlinFile"
@@ -47,10 +47,10 @@ private const val KOTLIN_GENERATOR_EXTENSION_NANE = "kotlinFile"
 /**
  * res/values/strings.xml
  */
-private val XML_OUTPUT_FILE = listOf(RES_OUTPUT_DIR_NAME, "values", "asset-strings.xml").toFilePath()
+private val XML_OUTPUT_FILE = listOf(RES_OUTPUT_DIR_NAME, "values", "assets-strings.xml").toFilePath()
 
 
-open class AssetFileGeneratorPlugin : Plugin<Project> {
+open class AssetsJournalistPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class.java)
@@ -116,7 +116,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
             sourceSetName = sourceSet.name
         )
 
-        val xmlAssetFileTask = project.task<GenerateXmlFileTask>("generateAssetXmlFile${sourceSet.name}") {
+        val xmlAssetFileTask = project.task<GenerateXmlFileTask>("generateAssetsXmlFile${sourceSet.name}") {
             this.sourceSet = sourceSet
             this.outputFile = generatedXmlFile
         }.apply { configureUsing(xmlConfig) }
@@ -141,7 +141,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
             sourceSetName = sourceSet.name
         )
 
-        val generateJavaTask = project.task<GenerateJavaFileTask>("generateAssetJavaFile${sourceSet.name}") {
+        val generateJavaTask = project.task<GenerateJavaFileTask>("generateAssetsJavaFile${sourceSet.name}") {
             this.sourceSet = sourceSet
             this.outputSrcDir = outputSrcDir
         }.apply { configureUsing(extension) }
@@ -164,7 +164,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
             projectBuildDir = project.buildDir,
             sourceSetName = sourceSet.name
         )
-        val generateKotlinTask = project.task<GenerateKotlinFileTask>("generateAssetKotlinFile${sourceSet.name}") {
+        val generateKotlinTask = project.task<GenerateKotlinFileTask>("generateAssetsKotlinFile${sourceSet.name}") {
             this.sourceSet = sourceSet
             this.outputSrcDir = outputSrcDir
         }.apply { configureUsing(extension) }
@@ -181,7 +181,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     /**
      * Returns SourceSet dependant output directory where files will be generated
-     * usually returns something like <Project>/build/generated/aafg/src/<main>/
+     * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/
      */
     fun getGeneratedSrcDirForSourceSet(
         projectBuildDir: File,
@@ -191,7 +191,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     /**
      * Returns SourceSet dependant res directory where files will be generated
-     * usually returns something like <Project>/build/generated/aafg/src/<main>/res
+     * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/res
      */
     fun getGeneratedResOutputDirForSourceSet(
         projectBuildDir: File,
@@ -200,7 +200,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     /**
      * Returns SourceSet dependant java source root directory where files will be generated
-     * usually returns something like <Project>/build/generated/aafg/src/<main>/java
+     * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/java
      */
     fun getGeneratedJavaOutputDirForSourceSet(
         projectBuildDir: File,
@@ -209,7 +209,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     /**
      * Returns SourceSet dependant kotlin source root directory where files will be generated
-     * usually returns something like <Project>/build/generated/aafg/src/<main>/kotlin
+     * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/kotlin
      */
     fun getGeneratedKotlinOutputDirForSourceSet(
         projectBuildDir: File,
@@ -218,7 +218,7 @@ open class AssetFileGeneratorPlugin : Plugin<Project> {
 
     /**
      * Returns SourceSet dependant res directory where files will be generated
-     * usually returns something like <Project>/build/generated/aafg/src/<main>/res/values/strings.xml
+     * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/res/values/strings.xml
      */
     fun getOutpulXmFileForSourceSet(
         projectBuildDir: File,

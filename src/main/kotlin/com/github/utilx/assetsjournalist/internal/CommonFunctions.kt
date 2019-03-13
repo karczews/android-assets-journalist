@@ -10,10 +10,16 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.aafg.xml
+package com.github.utilx.assetsjournalist.internal
 
-open class XmlFileConfig {
-    var enabled = false
-    var stringNameCharMapping = emptyList<Map<String, String>>()
-    var stringNamePrefix = ""
-}
+import com.android.build.gradle.api.AndroidSourceSet
+
+fun AndroidSourceSet.listAssets(): List<String> =
+    assets
+        .sourceDirectoryTrees
+        .flatMap { assetFileTree ->
+            val assetBaseDir = assetFileTree.dir
+            assetFileTree.asFileTree.files
+                .map { it.relativeTo(assetBaseDir) }
+                .map { it.toString() }
+        }
