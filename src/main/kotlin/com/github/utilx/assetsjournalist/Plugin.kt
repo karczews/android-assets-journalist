@@ -64,7 +64,6 @@ open class AssetsJournalistPlugin : Plugin<Project> {
         val kotlinExtension =
             extensionAware.extensions.create(KOTLIN_GENERATOR_EXTENSION_NANE, KotlinFileConfig::class.java)
 
-
         val androidConfig = runCatching { project.extensions.findByType<AndroidConfig>()!! }
             .onFailure { throw IllegalStateException("Failed to locate android plugin extension, make sure plugin is applied after android gradle plugin") }
             .getOrThrow()

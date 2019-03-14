@@ -39,6 +39,7 @@ plugins {
     `kotlin-dsl`
     `java-gradle-plugin`
     `maven-publish`
+    id("jacoco")
     id("com.gradle.plugin-publish") version "0.10.1"
 }
 
@@ -100,5 +101,13 @@ tasks.withType<Test> {
         events = setOf ( TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED )
         showStandardStreams = true
         exceptionFormat = TestExceptionFormat.FULL
+    }
+}
+
+tasks.withType<JacocoReport> {
+    reports {
+        html.isEnabled = false
+        xml.isEnabled = true
+        csv.isEnabled = false
     }
 }
