@@ -1,7 +1,41 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+object Dependencies {
+    const val javaPoet = "com.squareup:javapoet:1.11.1"
+    const val kotlinPoet = "com.squareup:kotlinpoet:1.1.0"
+    const val mockk = "io.mockk:mockk:1.9.2.kotlin12"
+
+    object Kotlin {
+        const val version = "1.3.20"
+        const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$version"
+        const val test = "org.jetbrains.kotlin:kotlin-test:$version"
+        const val reflect = "org.jetbrains.kotlin:kotlin-reflect:$version"
+        const val plugin = "kotlin"
+    }
+
+    object JUnit5 {
+        const val version = "5.3.2"
+
+        const val juniperApi = "org.junit.jupiter:junit-jupiter-api:$version"
+        const val juniperParams = "org.junit.jupiter:junit-jupiter-params:$version"
+        const val juniperEngine = "org.junit.jupiter:junit-jupiter-engine:$version"
+        const val vintageEngine = "org.junit.vintage:junit-vintage-engine:$version"
+
+        object PlatformLauncher {
+            const val version = "1.1.0"
+            const val lib = "org.junit.platform:junit-platform-launcher:$version"
+        }
+    }
+
+    object Android {
+        const val gradleBuildTools = "com.android.tools.build:gradle:3.3.1"
+    }
+}
+
 plugins {
-    kotlin("jvm") version "1.3.21"
+    kotlin("jvm") version "1.3.20"
     `kotlin-dsl`
     `java-gradle-plugin`
     `maven-publish`
@@ -37,16 +71,18 @@ pluginBundle {
 dependencies {
 
     implementation(gradleApi())
-    implementation("com.squareup:javapoet:1.11.1")
-    implementation("com.squareup:kotlinpoet:1.1.0")
-    compileOnly("com.android.tools.build:gradle:3.3.1")
+    implementation(Dependencies.javaPoet)
+    implementation(Dependencies.kotlinPoet)
+    compileOnly(Dependencies.Android.gradleBuildTools)
     implementation(kotlin("stdlib-jdk8"))
 
-    testImplementation(kotlin("test"))
-    testImplementation(kotlin("test-junit"))
-    testImplementation("junit", "junit", "4.12")
-    testImplementation("io.mockk", "mockk", "1.9.2.kotlin12")
-    testImplementation("com.android.tools.build:gradle:3.3.1")
+    testImplementation(Dependencies.Kotlin.test)
+    //testImplementation(kotlin("test-junit"))
+    testImplementation(Dependencies.JUnit5.juniperApi)
+    testImplementation(Dependencies.JUnit5.juniperEngine)
+    testImplementation(Dependencies.JUnit5.PlatformLauncher.lib)
+    testImplementation(Dependencies.mockk)
+    testImplementation(Dependencies.Android.gradleBuildTools)
 
 }
 
@@ -56,4 +92,13 @@ configure<JavaPluginConvention> {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform {}
+    testLogging {
+        events = setOf ( TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED )
+        showStandardStreams = true
+        exceptionFormat = TestExceptionFormat.FULL
+    }
 }
