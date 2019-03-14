@@ -41,6 +41,7 @@ plugins {
     `maven-publish`
     id("jacoco")
     id("com.gradle.plugin-publish") version "0.10.1"
+    id("org.sonarqube") version "2.7"
 }
 
 group = "com.github.utilx"
