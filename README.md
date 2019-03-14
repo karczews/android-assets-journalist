@@ -1,6 +1,7 @@
 # Android Assets Journalist
 [![N|Solid](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/github/utilx/android-assets-journalist/com.github.utilx.android-assets-journalist.gradle.plugin/maven-metadata.xml.svg?label=gradle)](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/github/utilx/android-assets-journalist/com.github.utilx.android-assets-journalist.gradle.plugin/maven-metadata.xml.svg?label=gradle)
 [![Build Status](https://travis-ci.org/karczews/android-assets-journalist.svg?branch=master)](https://travis-ci.org/karczews/android-assets-journalist)
+[![codecov](https://codecov.io/gh/karczews/android-assets-journalist/branch/master/graph/badge.svg)](https://codecov.io/gh/karczews/android-assets-journalist)
 
 Android Assets Journalist is gradle plugin that can be used in Android project to generate listing of android asset files in certain library.
 
