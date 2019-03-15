@@ -16,9 +16,12 @@ import com.android.build.gradle.AndroidConfig
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.AndroidSourceSet
+import com.github.utilx.assetsjournalist.java.GenerateJavaFileTask
 import com.github.utilx.assetsjournalist.java.JavaFileConfig
 import com.github.utilx.assetsjournalist.kotlin.GenerateKotlinFileTask
 import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
+import com.github.utilx.assetsjournalist.xml.GenerateXmlFileTask
+import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.ExtensionAware
@@ -133,7 +136,175 @@ class PluginTest {
                         task.constValueReplacementExpressions == expectedReplaceInAssetsPath
             }
         }
+    }
 
+    @Nested
+    @DisplayName("Test Java setup")
+    inner class JavaSetup {
+        @BeforeEach
+        fun setUp() {
+            applyPlugin()
+        }
+
+        @Test
+        @DisplayName("Should make prebuild dependant on java file generation task")
+        fun shouldRegisteringPrebuildDependency() {
+            // given plugin is applied and extension enabled
+            javaFileExtension().enabled = true
+
+            // when
+            evaluateProject()
+
+            // then
+            assertPreBuildDependsOn(GenerateJavaFileTask::class.java)
+        }
+
+        @Test
+        @DisplayName("Should enable java file generation by default if no file generation enabled")
+        fun shouldEnableJavaFileGenerationByDefault() {
+            // given plugin is applied and extension enabled
+            javaFileExtension().enabled = false
+            kotlinFileExtension().enabled = false
+            xmlFileExtension().enabled = false
+
+            // when
+            evaluateProject()
+
+            // then
+            assertPreBuildDependsOn(GenerateJavaFileTask::class.java)
+        }
+
+        @Test
+        @DisplayName("Should not make prebuild dependant on java file generation task if extension disabled")
+        fun shouldNotRegisteringPrebuildDependency() {
+            // given plugin is applied and extension disabled but other is enabled to avoid defaulting to java enabled
+            kotlinFileExtension().enabled = true
+            javaFileExtension().enabled = false
+
+            // when
+            evaluateProject()
+
+            // then
+            assertTaskNotRegistered(GenerateJavaFileTask::class.java)
+        }
+
+        @Test
+        @DisplayName("Should register java source dir to project")
+        fun shouldRegisterJavaSrcDirectory() {
+            // given plugin is applied and kotlin extension enabled
+            javaFileExtension().enabled = true
+
+            // when
+            evaluateProject()
+
+            // then
+            assertSourceSetSrcDirRegistered(project.buildDir.path + "/generated/assetsjournalist/src/main/java")
+        }
+
+        @Test
+        @DisplayName("Test if task is configured correctly")
+        fun shouldConfigureJavaTaskCorrectly() {
+            // given plugin is applied and extension enabled
+            val expectedClassName = "testClassName"
+            val expectedPackageName = "test.package.name"
+            val expectedConstNamePrefix = "testPrefix_"
+            val expectedConstValuePrefix = "testValuePrefix_"
+            val expectedReplaceInAssetsPath = listOf(
+                mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY, "testMatch")),
+                mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY, "testReplace"))
+            )
+
+            javaFileExtension().apply {
+                enabled = true
+                className = expectedClassName
+                packageName = expectedPackageName
+                constNamePrefix = expectedConstNamePrefix
+                constValuePrefix = expectedConstValuePrefix
+                replaceInAssetsPath = expectedReplaceInAssetsPath
+            }
+
+            // when
+            evaluateProject()
+
+            // then
+            val task = project.tasks.find { it is GenerateJavaFileTask } as GenerateJavaFileTask
+            assertTrue {
+                task.className == expectedClassName &&
+                        task.packageName == expectedPackageName &&
+                        task.constNamePrefix == expectedConstNamePrefix &&
+                        task.constValuePrefix == expectedConstValuePrefix &&
+                        task.constValueReplacementExpressions == expectedReplaceInAssetsPath
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("Test Xml setup")
+    inner class XmlSetup {
+        @BeforeEach
+        fun setUp() {
+            applyPlugin()
+        }
+
+        @Test
+        @DisplayName("Should make prebuild dependant on xml file generation task")
+        fun shouldRegisteringPrebuildDependency() {
+            // given plugin is applied and extension enabled
+            xmlFileExtension().enabled = true
+
+            // when
+            evaluateProject()
+
+            // then
+            assertPreBuildDependsOn(GenerateXmlFileTask::class.java)
+        }
+
+        @Test
+        @DisplayName("Should not make prebuild dependant on xml file generation task if extension disabled")
+        fun shouldNotRegisteringPrebuildDependency() {
+            // given plugin is applied and extension disabled
+            xmlFileExtension().enabled = false
+
+            // when
+            evaluateProject()
+
+            // then
+            assertTaskNotRegistered(GenerateXmlFileTask::class.java)
+        }
+
+        @Test
+        @DisplayName("Should register xml res dir to project")
+        fun shouldRegisterXmlResDirectory() {
+            // given plugin is applied and kotlin extension enabled
+            xmlFileExtension().enabled = true
+
+            // when
+            evaluateProject()
+
+            // then
+            assertResDirRegistered(project.buildDir.path + "/generated/assetsjournalist/src/main/res")
+        }
+
+        @Test
+        @DisplayName("Test if xml file task is configured correctly")
+        fun shouldConfigureXmlTaskCorrectly() {
+            // given plugin is applied and extension enabled
+            val expectedStringNamePrefix = "testPrefix_"
+
+            xmlFileExtension().apply {
+                enabled = true
+                stringNamePrefix = expectedStringNamePrefix
+            }
+
+            // when
+            evaluateProject()
+
+            // then
+            val task = project.tasks.find { it is GenerateXmlFileTask } as GenerateXmlFileTask
+            assertTrue {
+                task.stringNamePrefix == expectedStringNamePrefix
+            }
+        }
     }
 
     //DefaultAndroidSourceSet
@@ -168,7 +339,18 @@ class PluginTest {
         val srcDirs = getSourceSet(setName).java.srcDirs
         assertTrue(
             srcDirs.contains(File(srcDir)),
-            "srcDir $srcDir is not registed in $setName sourceSet. Currently registered sets are $srcDirs"
+            "srcDir $srcDir is not registered in $setName sourceSet. Currently registered sets are $srcDirs"
+        )
+    }
+
+    private fun assertResDirRegistered(
+        resDir: String,
+        setName: String = SourceSet.MAIN_SOURCE_SET_NAME
+    ) {
+        val resDirs = getSourceSet(setName).res.srcDirs
+        assertTrue(
+            resDirs.contains(File(resDir)),
+            "resDir $resDir is not registered in $setName sourceSet. Currently registered sets are $resDirs"
         )
     }
 
@@ -188,6 +370,10 @@ class PluginTest {
 
     private fun javaFileExtension(): JavaFileConfig =
         ((pluginExtension() as ExtensionAware).extensions.findByType(JavaFileConfig::class.java))!!
+
+    private fun xmlFileExtension(): XmlFileConfig =
+        ((pluginExtension() as ExtensionAware).extensions.findByType(XmlFileConfig::class.java))!!
+
 
     private fun getSourceSet(name: String = SourceSet.MAIN_SOURCE_SET_NAME): AndroidSourceSet =
         project.extensions.findByType<AndroidConfig>()!!.sourceSets.findByName(name)!!
