@@ -39,11 +39,12 @@ class FileConstantsFactory(
             .let {
                 val constName = constNamePrefix +
                         constNameTransformer.apply(it) +
+                        DEFAULT_NAME_REPLACEMENT_CHAR +
                         it.hashCode().absoluteValue
 
                 val constValue = constValuePrefix + constValueTransformer.apply(it)
 
-                ConstNameValuePair(constName, constValue)
+                ConstNameValuePair(constName.toUpperCase(), constValue)
             }
     }
 
