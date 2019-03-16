@@ -24,17 +24,23 @@ androidAssetsJournalist {
         enabled = true
         className = "AssetFiles"
         packageName = "com.github.utilx"
-        constNamePrefix = "asset_"
+        constNamePrefix = "constprefixjava_"
+        constValuePrefix ="javavalpref_"
+        replaceInAssetsPath = [
+                [match: '^az', replaceWith: 'replaceJava'],
+                [match: 'd[abc]', replaceWith: 'java']
+        ]
     }
 
     kotlinFile {
         enabled = true
         className = "AssetFilesKt"
         packageName = "com.github.utilx"
-        constNamePrefix = "asset_"
+        constNamePrefix = "constprefixkt_"
+        constValuePrefix ="kotlinvalpref_"
         replaceInAssetsPath = [
-            [match: '^az', replaceWith: 'replaceAZ'],
-            [match: 'd[abc]', replaceWith: 'ds']
+            [match: '^az', replaceWith: 'replacekt'],
+            [match: 'd[abc]', replaceWith: 'kt']
         ]
     }
 }
