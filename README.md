@@ -48,8 +48,6 @@ Once plugin is applied, in order to configure plugin use `androidAssetFileGenera
 Following configuration presents all configuration options with default values or example values. Default values will be applied if not specified by integrator.
 ```groovy
 androidAssetsJournalist {
-    // specifies which source sets in library should be used. If not specified, main is used
-    sourceSets = [android.sourceSets.main]
 
     xmlFile {
         // enables xml string resource file generation
@@ -95,6 +93,9 @@ androidAssetsJournalist {
     }
 }
 ```
+
+##Limitations
+At the moment only main source set is supported. Library/App with multiple variants is not fully supported
 
 License
 ----

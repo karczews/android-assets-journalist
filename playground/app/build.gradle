@@ -22,7 +22,7 @@ androidAssetsJournalist {
 
     javaFile {
         enabled = true
-        className = "AssetFiles"
+        className = "AssetFilesJava"
         packageName = "com.github.utilx"
         constNamePrefix = "constprefixjava_"
         constValuePrefix ="javavalpref_"
@@ -34,7 +34,7 @@ androidAssetsJournalist {
 
     kotlinFile {
         enabled = true
-        className = "AssetFilesKt"
+        className = "AssetFilesKotlin"
         packageName = "com.github.utilx"
         constNamePrefix = "constprefixkt_"
         constValuePrefix ="kotlinvalpref_"
@@ -92,3 +92,12 @@ task kotlinTesting(type: GenerateKotlinFileTask) {
     className = "Assets"
     sourceSet = android.sourceSets.main
 }
+
+afterEvaluate {
+    println("sourcesets after evaluation " + android.sourceSets.main.java)
+}
+
+android.sourceSets.main.java {
+ //   srcDirs += "build/generated/assetsjournalist/src/main/java"
+}
+
