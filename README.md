@@ -44,7 +44,7 @@ object AssetFiles {
 # How to apply plugin
 [gradle-plugin-repository]
 # How to configure plugin
-Once plugin is applied, in order to configure plugin use `androidAssetFileGenerator` extension. 
+Once plugin is applied, in order to configure plugin use `androidAssetsJournalist` extension. 
 Following configuration presents all configuration options with default values or example values. Default values will be applied if not specified by integrator.
 ```groovy
 androidAssetsJournalist {
