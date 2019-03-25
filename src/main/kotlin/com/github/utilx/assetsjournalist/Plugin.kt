@@ -25,7 +25,6 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.task
 import java.io.File
 
 /**
@@ -142,20 +141,23 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             sourceSetName = sourceSet.name
         )
 
-        val xmlAssetFileTask =
-            project.task<GenerateXmlFileTask>("generateAssetsXmlFile${sourceSet.name.capitalize()}") {
-                this.sourceSet = sourceSet
-                this.outputFile = generatedXmlFile
-            }.apply { configureUsing(xmlConfig) }
+        val task = project.registerTask<GenerateXmlFileTask>("generateAssetsXmlFile${sourceSet.name.capitalize()}") {
+            this.sourceSet = sourceSet
+            this.outputFile = generatedXmlFile
 
-        // register new xml generation task
-        project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(xmlAssetFileTask)
+            configureUsing(xmlConfig)
 
-        project.logger.quiet(
-            "Configured xml generation task for [${sourceSet.name}] source set\n" +
-                    "Registered new res directory - $generatedResDirectory\n" +
-                    "Asset xml file will be generated at $generatedXmlFile"
-        )
+            project.logger.quiet(
+                "Configured xml generation task for [${sourceSet.name}] source set\n" +
+                        "Registered new res directory - $generatedResDirectory\n" +
+                        "Asset xml file will be generated at $generatedXmlFile"
+            )
+        }
+
+        project.tasks.named(PRE_BUILD_TASK_NAME).configure {
+            this.dependsOn(task.get())
+        }
+
     }
 
     private fun configureJavaTask(
@@ -168,22 +170,25 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             sourceSetName = sourceSet.name
         )
 
-        val generateJavaTask =
-            project.task<GenerateJavaFileTask>("generateAssetsJavaFile${sourceSet.name.capitalize()}") {
-                this.sourceSet = sourceSet
-                this.outputSrcDir = outputSrcDir
-            }.apply { configureUsing(extension) }
+        val task = project.registerTask<GenerateJavaFileTask>("generateAssetsJavaFile${sourceSet.name.capitalize()}") {
+            this.sourceSet = sourceSet
+            this.outputSrcDir = outputSrcDir
 
-        // sourceSet.java.srcDirs(outputSrcDir)
-        project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(generateJavaTask)
+            configureUsing(extension)
 
-        project.logger.quiet(
-            "Configured java generation task for [${sourceSet.name}] source set\n" +
-                    "Registered new java source directory - $outputSrcDir"
-        )
+            project.logger.quiet(
+                "Configured java generation task for [${sourceSet.name}] source set\n" +
+                        "Registered new java source directory - $outputSrcDir"
+            )
+        }
+
+        project.tasks.named(PRE_BUILD_TASK_NAME).configure {
+            this.dependsOn(task.get())
+        }
+
     }
 
-    fun configureKotlinTask(
+    private fun configureKotlinTask(
         project: Project,
         extension: KotlinFileConfig,
         sourceSet: AndroidSourceSet
@@ -192,19 +197,21 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             projectBuildDir = project.buildDir,
             sourceSetName = sourceSet.name
         )
-        val generateKotlinTask =
-            project.task<GenerateKotlinFileTask>("generateAssetsKotlinFile${sourceSet.name.capitalize()}") {
-                this.sourceSet = sourceSet
-                this.outputSrcDir = outputSrcDir
-            }.apply { configureUsing(extension) }
 
-        // sourceSet.java.srcDirs(outputSrcDir)
-        project.tasks.getByName(PRE_BUILD_TASK_NAME).dependsOn(generateKotlinTask)
+        val task = project.registerTask<GenerateKotlinFileTask>("generateAssetsKotlinFile${sourceSet.name.capitalize()}") {
+            this.sourceSet = sourceSet
+            this.outputSrcDir = outputSrcDir
+            configureUsing(extension)
 
-        project.logger.quiet(
-            "Configured kotlin generation task for [${sourceSet.name}] source set\n" +
-                    "Registered new kotlin source directory - $outputSrcDir"
-        )
+            project.logger.quiet(
+                "Configured kotlin generation task for [${sourceSet.name}] source set\n" +
+                        "Registered new kotlin source directory - $outputSrcDir"
+            )
+        }
+
+        project.tasks.named(PRE_BUILD_TASK_NAME).configure {
+            this.dependsOn(task.get())
+        }
 
     }
 
