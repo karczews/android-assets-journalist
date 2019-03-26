@@ -29,6 +29,8 @@ class StringTransformer(
         }
         return result
     }
+
+    operator fun invoke(stringValue: String) = apply(stringValue)
 }
 
 /**
