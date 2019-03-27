@@ -93,7 +93,7 @@ open class GenerateJavaFileTask : DefaultTask() {
             .build()
             .writeTo(outputSrcDir)
 
-        logger.quiet("generating asset java class $packageName.$className in $outputSrcDir")
+        logger.lifecycle("generating asset java class $packageName.$className in $outputSrcDir")
 
     }
 

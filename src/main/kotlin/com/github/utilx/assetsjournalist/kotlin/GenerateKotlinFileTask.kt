@@ -93,7 +93,7 @@ open class GenerateKotlinFileTask : DefaultTask() {
             .build()
             .writeTo(outputSrcDir)
 
-        logger.quiet("generating asset kotlin file $packageName.$className in $outputSrcDir")
+        logger.lifecycle("generating asset kotlin file $packageName.$className in $outputSrcDir")
     }
 
     fun configureUsing(config: KotlinFileConfig) {

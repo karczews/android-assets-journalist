@@ -75,7 +75,7 @@ open class GenerateXmlFileTask : DefaultTask() {
 
         }
 
-        logger.quiet("Created xml asset file at ${outputFile.absolutePath}")
+        logger.lifecycle("Created xml asset file at ${outputFile.absolutePath}")
     }
 
     private fun createStringName(filePath: String): String =

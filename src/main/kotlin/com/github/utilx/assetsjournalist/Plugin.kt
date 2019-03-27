@@ -97,7 +97,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
         project.afterEvaluate {
             extension.sourceSets
                 .ifEmpty {
-                    project.logger.quiet("No source set specified, using main")
+                    project.logger.lifecycle("No source set specified, using main")
                     runCatching { androidConfig.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)!! }
                         .onFailure { throw IllegalStateException("failed to locate ${SourceSet.MAIN_SOURCE_SET_NAME} sourceSet") }
                         .map { listOf(it) }
@@ -147,7 +147,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
 
             configureUsing(xmlConfig)
 
-            project.logger.quiet(
+            project.logger.lifecycle(
                 "Configured xml generation task for [${sourceSet.name}] source set\n" +
                         "Registered new res directory - $generatedResDirectory\n" +
                         "Asset xml file will be generated at $generatedXmlFile"
@@ -176,7 +176,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
 
             configureUsing(extension)
 
-            project.logger.quiet(
+            project.logger.lifecycle(
                 "Configured java generation task for [${sourceSet.name}] source set\n" +
                         "Registered new java source directory - $outputSrcDir"
             )
@@ -203,7 +203,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             this.outputSrcDir = outputSrcDir
             configureUsing(extension)
 
-            project.logger.quiet(
+            project.logger.lifecycle(
                 "Configured kotlin generation task for [${sourceSet.name}] source set\n" +
                         "Registered new kotlin source directory - $outputSrcDir"
             )
