@@ -21,5 +21,5 @@ fun AndroidSourceSet.listAssets(): List<String> =
             val assetBaseDir = assetFileTree.dir
             assetFileTree.asFileTree.files
                 .map { it.relativeTo(assetBaseDir) }
-                .map { it.toString() }
+                .map { it.invariantSeparatorsPath }
         }
