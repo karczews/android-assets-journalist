@@ -6,6 +6,7 @@ object Dependencies {
     const val javaPoet = "com.squareup:javapoet:1.11.1"
     const val kotlinPoet = "com.squareup:kotlinpoet:1.1.0"
     const val mockk = "io.mockk:mockk:1.9.2.kotlin12"
+    const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.13"
 
     object Kotlin {
         const val version = "1.3.20"
@@ -79,12 +80,12 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
     testImplementation(Dependencies.Kotlin.test)
-    //testImplementation(kotlin("test-junit"))
     testImplementation(Dependencies.JUnit5.juniperApi)
     testImplementation(Dependencies.JUnit5.juniperEngine)
     testImplementation(Dependencies.JUnit5.PlatformLauncher.lib)
     testImplementation(Dependencies.mockk)
     testImplementation(Dependencies.Android.gradleBuildTools)
+    testImplementation(Dependencies.assertk)
 
 }
 

@@ -15,10 +15,10 @@ package com.github.utilx.assetsjournalist.internal
 import kotlin.math.absoluteValue
 
 class FileConstantsFactory(
-    val constValuePrefix: String = "",
-    val constValueTransformer: StringTransformer,
-    val constNamePrefix: String = "",
-    val constNameTransformer: StringTransformer = StringTransformer(
+    private val constValuePrefix: String = "",
+    private val constValueTransformer: StringTransformer,
+    private val constNamePrefix: String = "",
+    private val constNameTransformer: StringTransformer = StringTransformer(
         listOf(
             Replacement(
                 DEFAULT_NOT_ALLOWED_CONST_NAME_CHAR_PATTERN.toRegex(),
