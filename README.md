@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/karczews/android-assets-journalist/branch/master/graph/badge.svg)](https://codecov.io/gh/karczews/android-assets-journalist)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=karczews_android-assets-journalist&metric=alert_status)](https://sonarcloud.io/dashboard?id=karczews_android-assets-journalist)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist?ref=badge_shield)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/karczews/android-assets-journalist/blob/master/LICENSE)
 
 Android Assets Journalist is gradle plugin that can be used in Android project to generate listing of android asset files in certain library.
 
