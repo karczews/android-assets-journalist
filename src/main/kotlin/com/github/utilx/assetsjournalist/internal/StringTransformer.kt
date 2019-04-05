@@ -14,7 +14,6 @@ package com.github.utilx.assetsjournalist.internal
 
 import com.github.utilx.assetsjournalist.SourceFileConfig.Companion.CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY
 import com.github.utilx.assetsjournalist.SourceFileConfig.Companion.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY
-import java.lang.IllegalStateException
 
 class StringTransformer(
     private val replacementsList: List<Replacement>
@@ -45,7 +44,9 @@ fun buildStringTransformerUsing(
             val regex = it[CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY]?.toRegex()
             val replacement = it[CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY]
             if (regex == null || replacement == null) {
-                throw IllegalStateException("problem with building value replacement map - provided entries: $extensionReplacementList")
+                throw IllegalStateException(
+                    "problem with building value replacement map - provided entries: $extensionReplacementList"
+                )
             }
             Replacement(regex, replacement)
         }

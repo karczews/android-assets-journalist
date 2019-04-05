@@ -95,17 +95,10 @@ androidAssetsJournalist {
 }
 ```
 
-##Limitations
+## Limitations
 At the moment only main source set is supported. Library/App with multiple variants is not fully supported
-
-License
-----
-
-Apache 2
-
-
-   [gradle-plugin-repository]: <https://plugins.gradle.org/plugin/com.github.utilx.android-assets-journalist>
-
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist?ref=badge_large)
+
+   [gradle-plugin-repository]: <https://plugins.gradle.org/plugin/com.github.utilx.android-assets-journalist>

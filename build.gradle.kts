@@ -43,6 +43,7 @@ plugins {
     id("jacoco")
     id("com.gradle.plugin-publish") version "0.10.1"
     id("org.sonarqube") version "2.7"
+    id("io.gitlab.arturbosch.detekt") version "1.0.0-RC14"
 }
 
 group = "com.github.utilx"
@@ -111,5 +112,15 @@ tasks.withType<JacocoReport> {
         html.isEnabled = false
         xml.isEnabled = true
         csv.isEnabled = false
+    }
+}
+
+
+detekt {
+    config = files("detekt-config.yml")
+    reports {
+        html {
+            enabled = true
+        }
     }
 }
