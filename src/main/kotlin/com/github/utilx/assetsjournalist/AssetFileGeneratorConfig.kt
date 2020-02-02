@@ -13,8 +13,43 @@
 package com.github.utilx.assetsjournalist
 
 import com.android.build.gradle.api.AndroidSourceSet
+import com.github.utilx.assetsjournalist.java.JavaFileConfig
+import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
+import com.github.utilx.assetsjournalist.xml.XmlFileConfig
+import groovy.lang.Closure
+import org.gradle.api.Action
+import org.gradle.kotlin.dsl.invoke
+import org.gradle.util.ConfigureUtil
 
 open class AssetFileGeneratorConfig {
 
     var sourceSets = emptyList<AndroidSourceSet>()
+
+    val xmlFile = XmlFileConfig()
+    val javaFile = JavaFileConfig()
+    val kotlinFile = KotlinFileConfig()
+
+    fun xmlFile(closure: Closure<*>) {
+        ConfigureUtil.configure(closure, xmlFile)
+    }
+
+    fun xmlFile(action: Action<XmlFileConfig>) {
+        action(xmlFile)
+    }
+
+    fun javaFile(closure: Closure<*>) {
+        ConfigureUtil.configure(closure, javaFile)
+    }
+
+    fun javaFile(action: Action<JavaFileConfig>) {
+        action(javaFile)
+    }
+
+    fun kotlinFile(closure: Closure<*>) {
+        ConfigureUtil.configure(closure, kotlinFile)
+    }
+
+    fun kotlinFile(action: Action<KotlinFileConfig>) {
+        action(kotlinFile)
+    }
 }
