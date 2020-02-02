@@ -42,7 +42,7 @@ plugins {
     `maven-publish`
     id("jacoco")
     id("com.gradle.plugin-publish") version "0.10.1"
-    id("org.sonarqube") version "2.7"
+    id("org.sonarqube") version "2.7.1"
     id("io.gitlab.arturbosch.detekt") version "1.0.0-RC14"
 }
 
@@ -70,6 +70,10 @@ pluginBundle {
     website = "http://github.com/karczews/android-assets-journalist"
     vcsUrl = "http://github.com/karczews/android-assets-journalist"
     tags = listOf("android", "assets", "file", "listing", "generator", "journaling")
+}
+
+sonarqube {
+    
 }
 
 dependencies {
