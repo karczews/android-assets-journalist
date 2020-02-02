@@ -22,8 +22,8 @@ import com.github.utilx.assetsjournalist.xml.GenerateXmlFileTask
 import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import java.io.File
 
@@ -37,29 +37,20 @@ private const val JAVA_OUTPUT_DIR_NAME = "java"
 private const val KOTLIN_OUTPUT_DIR_NAME = "kotlin"
 private const val PRE_BUILD_TASK_NAME = "preBuild"
 internal const val ROOT_EXTENSION_NAME = "androidAssetsJournalist"
-internal const val XML_GENERATOR_EXTENSION_NAME = "xmlFile"
-internal const val JAVA_GENERATOR_EXTENSION_NAME = "javaFile"
-internal const val KOTLIN_GENERATOR_EXTENSION_NAME = "kotlinFile"
 
 /**
  * res/values/strings.xml
  */
 private val XmlOutputFile = listOf(RES_OUTPUT_DIR_NAME, "values", "assets-strings.xml").toFilePath()
 
-
 open class AssetsJournalistPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class.java)
-        val extensionAware = extension as ExtensionAware
+        val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class)
 
-        val xmlExtension =
-            extensionAware.extensions.create(XML_GENERATOR_EXTENSION_NAME, XmlFileConfig::class.java)
-
-        val javaExtension = extensionAware.extensions.create(JAVA_GENERATOR_EXTENSION_NAME, JavaFileConfig::class.java)
-
-        val kotlinExtension =
-            extensionAware.extensions.create(KOTLIN_GENERATOR_EXTENSION_NAME, KotlinFileConfig::class.java)
+        val xmlExtension = extension.xmlFile
+        val javaExtension = extension.javaFile
+        val kotlinExtension = extension.kotlinFile
 
         val androidConfig = runCatching { project.extensions.findByType<AndroidConfig>()!! }
             .onFailure {
@@ -230,53 +221,53 @@ open class AssetsJournalistPlugin : Plugin<Project> {
         }
 
     }
-
-    /**
-     * Returns SourceSet dependant output directory where files will be generated
-     * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/
-     */
-    fun getGeneratedSrcDirForSourceSet(
-        projectBuildDir: File,
-        sourceSetName: String
-    ) = File(projectBuildDir, listOf(GeneratedSourceDir, sourceSetName).toFilePath())
-
-
-    /**
-     * Returns SourceSet dependant res directory where files will be generated
-     * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/res
-     */
-    fun getGeneratedResOutputDirForSourceSet(
-        projectBuildDir: File,
-        sourceSetName: String
-    ) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), RES_OUTPUT_DIR_NAME)
-
-    /**
-     * Returns SourceSet dependant java source root directory where files will be generated
-     * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/java
-     */
-    fun getGeneratedJavaOutputDirForSourceSet(
-        projectBuildDir: File,
-        sourceSetName: String
-    ) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), JAVA_OUTPUT_DIR_NAME)
-
-    /**
-     * Returns SourceSet dependant kotlin source root directory where files will be generated
-     * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/kotlin
-     */
-    fun getGeneratedKotlinOutputDirForSourceSet(
-        projectBuildDir: File,
-        sourceSetName: String
-    ) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), KOTLIN_OUTPUT_DIR_NAME)
-
-    /**
-     * Returns SourceSet dependant res directory where files will be generated
-     * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/res/values/strings.xml
-     */
-    fun getOutpulXmFileForSourceSet(
-        projectBuildDir: File,
-        sourceSetName: String
-    ) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), XmlOutputFile)
 }
+
+/**
+ * Returns SourceSet dependant output directory where files will be generated
+ * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/
+ */
+private fun getGeneratedSrcDirForSourceSet(
+    projectBuildDir: File,
+    sourceSetName: String
+) = File(projectBuildDir, listOf(GeneratedSourceDir, sourceSetName).toFilePath())
+
+
+/**
+ * Returns SourceSet dependant res directory where files will be generated
+ * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/res
+ */
+private fun getGeneratedResOutputDirForSourceSet(
+    projectBuildDir: File,
+    sourceSetName: String
+) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), RES_OUTPUT_DIR_NAME)
+
+/**
+ * Returns SourceSet dependant java source root directory where files will be generated
+ * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/java
+ */
+private fun getGeneratedJavaOutputDirForSourceSet(
+    projectBuildDir: File,
+    sourceSetName: String
+) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), JAVA_OUTPUT_DIR_NAME)
+
+/**
+ * Returns SourceSet dependant kotlin source root directory where files will be generated
+ * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/kotlin
+ */
+private fun getGeneratedKotlinOutputDirForSourceSet(
+    projectBuildDir: File,
+    sourceSetName: String
+) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), KOTLIN_OUTPUT_DIR_NAME)
+
+/**
+ * Returns SourceSet dependant res directory where files will be generated
+ * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/res/values/strings.xml
+ */
+private fun getOutpulXmFileForSourceSet(
+    projectBuildDir: File,
+    sourceSetName: String
+) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), XmlOutputFile)
 
 private fun <T> Iterable<T>.toFilePath(): String {
     return this.joinToString(separator = File.separator)
