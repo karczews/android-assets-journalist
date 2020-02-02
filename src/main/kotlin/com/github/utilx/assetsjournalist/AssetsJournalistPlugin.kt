@@ -22,7 +22,6 @@ import com.github.utilx.assetsjournalist.xml.GenerateXmlFileTask
 import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.findByType
 import java.io.File
@@ -37,9 +36,6 @@ private const val JAVA_OUTPUT_DIR_NAME = "java"
 private const val KOTLIN_OUTPUT_DIR_NAME = "kotlin"
 private const val PRE_BUILD_TASK_NAME = "preBuild"
 internal const val ROOT_EXTENSION_NAME = "androidAssetsJournalist"
-internal const val XML_GENERATOR_EXTENSION_NAME = "xmlFile"
-internal const val JAVA_GENERATOR_EXTENSION_NAME = "javaFile"
-internal const val KOTLIN_GENERATOR_EXTENSION_NAME = "kotlinFile"
 
 /**
  * res/values/strings.xml
