@@ -17,16 +17,13 @@ import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.AndroidSourceSet
 import com.github.utilx.assetsjournalist.java.GenerateJavaFileTask
-import com.github.utilx.assetsjournalist.java.JavaFileConfig
 import com.github.utilx.assetsjournalist.kotlin.GenerateKotlinFileTask
-import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
 import com.github.utilx.assetsjournalist.xml.GenerateXmlFileTask
-import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.SourceSet
-import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.getByName
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -41,6 +38,14 @@ import kotlin.test.assertTrue
 class PluginTest {
 
     private val project: Project = ProjectBuilder.builder().build()
+    private val androidAssetsJournalist: AssetFileGeneratorConfig
+        get() = project.extensions.getByName<AssetFileGeneratorConfig>("androidAssetsJournalist")
+    private val kotlinFileExtension
+        get() = androidAssetsJournalist.kotlinFile
+    private val javaFileExtension
+        get() = androidAssetsJournalist.javaFile
+    private val xmlFileExtension
+        get() = androidAssetsJournalist.xmlFile
 
     @Nested
     @DisplayName("Test failure cases")
@@ -66,7 +71,7 @@ class PluginTest {
         @DisplayName("Should make prebuild dependant on kotlin file generation task")
         fun shouldRegisteringPrebuildDependency() {
             // given plugin is applied and kotlin extension enabled
-            kotlinFileExtension().enabled = true
+            kotlinFileExtension.enabled = true
 
             // when
             evaluateProject()
@@ -79,7 +84,7 @@ class PluginTest {
         @DisplayName("Should not make prebuild dependant on kotlin file generation task if extension disabled")
         fun shouldNotRegisteringPrebuildDependency() {
             // given plugin is applied and kotlin extension disabled
-            kotlinFileExtension().enabled = false
+            kotlinFileExtension.enabled = false
 
             // when
             evaluateProject()
@@ -92,7 +97,7 @@ class PluginTest {
         @DisplayName("Should register kotlin source dir to project")
         fun shouldRegisterKotlinSrcDirectory() {
             // given plugin is applied and kotlin extension enabled
-            kotlinFileExtension().enabled = true
+            kotlinFileExtension.enabled = true
 
             // when
             evaluateProject()
@@ -114,7 +119,7 @@ class PluginTest {
                 mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY, "testReplace"))
             )
 
-            kotlinFileExtension().apply {
+            kotlinFileExtension.apply {
                 enabled = true
                 className = expectedClassName
                 packageName = expectedPackageName
@@ -150,7 +155,7 @@ class PluginTest {
         @DisplayName("Should make prebuild dependant on java file generation task")
         fun shouldRegisteringPrebuildDependency() {
             // given plugin is applied and extension enabled
-            javaFileExtension().enabled = true
+            javaFileExtension.enabled = true
 
             // when
             evaluateProject()
@@ -163,9 +168,9 @@ class PluginTest {
         @DisplayName("Should enable java file generation by default if no file generation enabled")
         fun shouldEnableJavaFileGenerationByDefault() {
             // given plugin is applied and extension enabled
-            javaFileExtension().enabled = false
-            kotlinFileExtension().enabled = false
-            xmlFileExtension().enabled = false
+            javaFileExtension.enabled = false
+            kotlinFileExtension.enabled = false
+            xmlFileExtension.enabled = false
 
             // when
             evaluateProject()
@@ -178,8 +183,8 @@ class PluginTest {
         @DisplayName("Should not make prebuild dependant on java file generation task if extension disabled")
         fun shouldNotRegisteringPrebuildDependency() {
             // given plugin is applied and extension disabled but other is enabled to avoid defaulting to java enabled
-            kotlinFileExtension().enabled = true
-            javaFileExtension().enabled = false
+            kotlinFileExtension.enabled = true
+            javaFileExtension.enabled = false
 
             // when
             evaluateProject()
@@ -192,7 +197,7 @@ class PluginTest {
         @DisplayName("Should register java source dir to project")
         fun shouldRegisterJavaSrcDirectory() {
             // given plugin is applied and kotlin extension enabled
-            javaFileExtension().enabled = true
+            javaFileExtension.enabled = true
 
             // when
             evaluateProject()
@@ -214,7 +219,7 @@ class PluginTest {
                 mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY, "testReplace"))
             )
 
-            javaFileExtension().apply {
+            javaFileExtension.apply {
                 enabled = true
                 className = expectedClassName
                 packageName = expectedPackageName
@@ -250,7 +255,7 @@ class PluginTest {
         @DisplayName("Should make prebuild dependant on xml file generation task")
         fun shouldRegisteringPrebuildDependency() {
             // given plugin is applied and extension enabled
-            xmlFileExtension().enabled = true
+            xmlFileExtension.enabled = true
 
             // when
             evaluateProject()
@@ -263,7 +268,7 @@ class PluginTest {
         @DisplayName("Should not make prebuild dependant on xml file generation task if extension disabled")
         fun shouldNotRegisteringPrebuildDependency() {
             // given plugin is applied and extension disabled
-            xmlFileExtension().enabled = false
+            xmlFileExtension.enabled = false
 
             // when
             evaluateProject()
@@ -276,7 +281,7 @@ class PluginTest {
         @DisplayName("Should register xml res dir to project")
         fun shouldRegisterXmlResDirectory() {
             // given plugin is applied and kotlin extension enabled
-            xmlFileExtension().enabled = true
+            xmlFileExtension.enabled = true
 
             // when
             evaluateProject()
@@ -291,7 +296,7 @@ class PluginTest {
             // given plugin is applied and extension enabled
             val expectedStringNamePrefix = "testPrefix_"
 
-            xmlFileExtension().apply {
+            xmlFileExtension.apply {
                 enabled = true
                 stringNamePrefix = expectedStringNamePrefix
             }
@@ -360,22 +365,10 @@ class PluginTest {
     }
 
     private fun androidExtension(): BaseExtension =
-        project.extensions.findByType(BaseExtension::class.java)!!
-
-    private fun pluginExtension(): AssetFileGeneratorConfig =
-        project.extensions.findByType(AssetFileGeneratorConfig::class.java)!!
-
-    private fun kotlinFileExtension(): KotlinFileConfig =
-        ((pluginExtension() as ExtensionAware).extensions.findByType(KotlinFileConfig::class.java))!!
-
-    private fun javaFileExtension(): JavaFileConfig =
-        ((pluginExtension() as ExtensionAware).extensions.findByType(JavaFileConfig::class.java))!!
-
-    private fun xmlFileExtension(): XmlFileConfig =
-        ((pluginExtension() as ExtensionAware).extensions.findByType(XmlFileConfig::class.java))!!
+        project.extensions.getByType(BaseExtension::class)
 
 
     private fun getSourceSet(name: String = SourceSet.MAIN_SOURCE_SET_NAME): AndroidSourceSet =
-        project.extensions.findByType<AndroidConfig>()!!.sourceSets.findByName(name)!!
+        project.extensions.getByType<AndroidConfig>().sourceSets.getByName(name)
 }
 

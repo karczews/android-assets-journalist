@@ -23,6 +23,7 @@ import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import java.io.File
 
@@ -42,11 +43,10 @@ internal const val ROOT_EXTENSION_NAME = "androidAssetsJournalist"
  */
 private val XmlOutputFile = listOf(RES_OUTPUT_DIR_NAME, "values", "assets-strings.xml").toFilePath()
 
-
 open class AssetsJournalistPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class.java)
+        val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class)
 
         val xmlExtension = extension.xmlFile
         val javaExtension = extension.javaFile

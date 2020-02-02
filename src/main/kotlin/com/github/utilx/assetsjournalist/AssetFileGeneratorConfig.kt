@@ -18,7 +18,6 @@ import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
 import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import groovy.lang.Closure
 import org.gradle.api.Action
-import org.gradle.kotlin.dsl.invoke
 import org.gradle.util.ConfigureUtil
 
 open class AssetFileGeneratorConfig {
@@ -34,7 +33,7 @@ open class AssetFileGeneratorConfig {
     }
 
     fun xmlFile(action: Action<XmlFileConfig>) {
-        action(xmlFile)
+        action.execute(xmlFile)
     }
 
     fun javaFile(closure: Closure<*>) {
@@ -42,7 +41,7 @@ open class AssetFileGeneratorConfig {
     }
 
     fun javaFile(action: Action<JavaFileConfig>) {
-        action(javaFile)
+        action.execute(javaFile)
     }
 
     fun kotlinFile(closure: Closure<*>) {
@@ -50,6 +49,6 @@ open class AssetFileGeneratorConfig {
     }
 
     fun kotlinFile(action: Action<KotlinFileConfig>) {
-        action(kotlinFile)
+        action.execute(kotlinFile)
     }
 }

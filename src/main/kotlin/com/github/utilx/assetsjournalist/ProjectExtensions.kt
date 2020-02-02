@@ -14,6 +14,8 @@ package com.github.utilx.assetsjournalist
 
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.register
 
 
 /**
@@ -21,4 +23,7 @@ import org.gradle.api.Task
  * and adds it to this project tasks container.
  */
 inline fun <reified type : Task> Project.registerTask(name: String, noinline configuration: type.() -> Unit) =
-    tasks.register(name, type::class.java, configuration)
+    tasks.register(name, type::class, configuration)
+
+val Project.androidAssetsJournalist: AssetFileGeneratorConfig
+    get() = extensions.getByType()
