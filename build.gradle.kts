@@ -3,10 +3,10 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 object Dependencies {
-    const val javaPoet = "com.squareup:javapoet:1.11.1"
-    const val kotlinPoet = "com.squareup:kotlinpoet:1.1.0"
-    const val mockk = "io.mockk:mockk:1.9.2.kotlin12"
-    const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.13"
+    const val javaPoet = "com.squareup:javapoet:1.12.1"
+    const val kotlinPoet = "com.squareup:kotlinpoet:1.5.0"
+    const val mockk = "io.mockk:mockk:1.9.3"
+    const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.21"
 
     object Kotlin {
         const val version = "1.3.20"
