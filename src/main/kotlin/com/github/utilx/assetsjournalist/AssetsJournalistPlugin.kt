@@ -159,7 +159,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             }
 
         project.tasks.named(PRE_BUILD_TASK_NAME).configure {
-            this.dependsOn(task.get())
+            dependsOn(task)
         }
 
     }
@@ -188,7 +188,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             }
 
         project.tasks.named(PRE_BUILD_TASK_NAME).configure {
-            this.dependsOn(task.get())
+            dependsOn(task)
         }
 
     }
@@ -217,7 +217,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
                 }
 
         project.tasks.named(PRE_BUILD_TASK_NAME).configure {
-            this.dependsOn(task.get())
+            dependsOn(task)
         }
 
     }
