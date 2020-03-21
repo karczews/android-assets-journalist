@@ -21,6 +21,7 @@ import com.github.utilx.assetsjournalist.kotlin.GenerateKotlinFileTask
 import com.github.utilx.assetsjournalist.xml.GenerateXmlFileTask
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.getByType
@@ -135,10 +136,10 @@ class PluginTest {
             val task = project.tasks.find { it is GenerateKotlinFileTask } as GenerateKotlinFileTask
             assertTrue {
                 task.className == expectedClassName &&
-                        task.packageName == expectedPackageName &&
-                        task.constNamePrefix == expectedConstNamePrefix &&
-                        task.constValuePrefix == expectedConstValuePrefix &&
-                        task.constValueReplacementExpressions == expectedReplaceInAssetsPath
+                    task.packageName == expectedPackageName &&
+                    task.constNamePrefix == expectedConstNamePrefix &&
+                    task.constValuePrefix == expectedConstValuePrefix &&
+                    task.constValueReplacementExpressions == expectedReplaceInAssetsPath
             }
         }
     }
@@ -235,10 +236,10 @@ class PluginTest {
             val task = project.tasks.find { it is GenerateJavaFileTask } as GenerateJavaFileTask
             assertTrue {
                 task.className == expectedClassName &&
-                        task.packageName == expectedPackageName &&
-                        task.constNamePrefix == expectedConstNamePrefix &&
-                        task.constValuePrefix == expectedConstValuePrefix &&
-                        task.constValueReplacementExpressions == expectedReplaceInAssetsPath
+                    task.packageName == expectedPackageName &&
+                    task.constNamePrefix == expectedConstNamePrefix &&
+                    task.constValuePrefix == expectedConstValuePrefix &&
+                    task.constValueReplacementExpressions == expectedReplaceInAssetsPath
             }
         }
     }
@@ -326,15 +327,11 @@ class PluginTest {
         assertNull(task, "task $taskClass should not be registered")
     }
 
-    private fun <T : Task> assertPreBuildDependsOn(taskClass: Class<T>) {
-        val task = project.tasks.find { taskClass.isInstance(it) }
-        assertNotNull(task, "failed to locate $taskClass task")
-        assertPreBuildDependsOn(task)
-    }
+    private inline fun <reified T : Task> assertPreBuildDependsOn(taskClass: Class<T>) {
+        val result = project.tasks.findByPath("preBuild")?.dependsOn
+            ?.find { it is T || (it is Provider<*> && it.get() is T) }
 
-    private fun assertPreBuildDependsOn(task: Task) {
-        val result = project.tasks.findByPath("preBuild")?.dependsOn?.find { it == task }
-        assertNotNull(result, "preBuild does not depend on $task")
+        assertNotNull(result, "preBuild does not depend on $taskClass")
     }
 
     private fun assertSourceSetSrcDirRegistered(
