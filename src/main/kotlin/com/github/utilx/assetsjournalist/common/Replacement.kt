@@ -10,9 +10,9 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.assetsjournalist.internal
+package com.github.utilx.assetsjournalist.common
 
 /**
  * Class representing certain regexp match that should be replaced with given string
  */
-data class Replacement(val match: Regex, val replaceWith: String)
+internal data class Replacement(val match: Regex, val replaceWith: String)

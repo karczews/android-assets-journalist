@@ -10,7 +10,7 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.assetsjournalist.internal
+package com.github.utilx.assetsjournalist.common
 
 import assertk.assertThat
 import assertk.assertions.endsWith
@@ -54,7 +54,10 @@ class FileConstantsFactoryTest {
         val replacement1 = Replacement("^a".toRegex(), "b")
         val replacement2 = Replacement("^b".toRegex(), "c")
 
-        val factory = createFactory(constValueTransformer = StringTransformer(listOf(replacement1, replacement2)))
+        val factory = createFactory(constValueTransformer = StringTransformer(
+            listOf(replacement1, replacement2)
+        )
+        )
 
         // when
         val result = factory.toConstNameValuePair("afolder/file.txt")
@@ -69,7 +72,10 @@ class FileConstantsFactoryTest {
         val replacement1 = Replacement("^a".toRegex(), "b")
         val replacement2 = Replacement("^b".toRegex(), "c")
 
-        val factory = createFactory(constNameTransformer = StringTransformer(listOf(replacement1, replacement2)))
+        val factory = createFactory(constNameTransformer = StringTransformer(
+            listOf(replacement1, replacement2)
+        )
+        )
 
         // when
         val result = factory.toConstNameValuePair("afolder/file.txt")
@@ -99,7 +105,9 @@ class FileConstantsFactoryTest {
         val expectedValue = "FOLDER_F_FILE_TXT"
         val factory = FileConstantsFactory(
             constValuePrefix = "",
-            constValueTransformer = StringTransformer(emptyList()),
+            constValueTransformer = StringTransformer(
+                emptyList()
+            ),
             constNamePrefix = ""
         )
 
@@ -112,9 +120,13 @@ class FileConstantsFactoryTest {
 
     private fun createFactory(
         constValuePrefix: String = "",
-        constValueTransformer: StringTransformer = StringTransformer(emptyList()),
+        constValueTransformer: StringTransformer = StringTransformer(
+            emptyList()
+        ),
         constNamePrefix: String = "",
-        constNameTransformer: StringTransformer = StringTransformer(emptyList())
+        constNameTransformer: StringTransformer = StringTransformer(
+            emptyList()
+        )
     ) = FileConstantsFactory(
         constValuePrefix = constValuePrefix,
         constValueTransformer = constValueTransformer,

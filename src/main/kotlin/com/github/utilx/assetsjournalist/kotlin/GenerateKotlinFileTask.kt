@@ -13,9 +13,9 @@
 package com.github.utilx.assetsjournalist.kotlin
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.assetsjournalist.internal.FileConstantsFactory
-import com.github.utilx.assetsjournalist.internal.buildStringTransformerUsing
-import com.github.utilx.assetsjournalist.internal.listAssets
+import com.github.utilx.assetsjournalist.common.FileConstantsFactory
+import com.github.utilx.assetsjournalist.common.buildStringTransformerUsing
+import com.github.utilx.assetsjournalist.common.listAssets
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
@@ -61,7 +61,9 @@ open class GenerateKotlinFileTask : DefaultTask() {
     fun generateKotlinFile() {
         val fileConstantsFactory = FileConstantsFactory(
             constValuePrefix = constValuePrefix,
-            constValueTransformer = buildStringTransformerUsing(constValueReplacementExpressions),
+            constValueTransformer = buildStringTransformerUsing(
+                constValueReplacementExpressions
+            ),
             constNamePrefix = constNamePrefix
         )
 
