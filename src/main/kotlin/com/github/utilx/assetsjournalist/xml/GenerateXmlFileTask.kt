@@ -13,7 +13,7 @@
 package com.github.utilx.assetsjournalist.xml
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.assetsjournalist.internal.listAssets
+import com.github.utilx.assetsjournalist.common.listAssets
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.Input

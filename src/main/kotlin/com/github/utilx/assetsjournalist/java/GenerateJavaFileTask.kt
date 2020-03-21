@@ -13,9 +13,9 @@
 package com.github.utilx.assetsjournalist.java
 
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.assetsjournalist.internal.FileConstantsFactory
-import com.github.utilx.assetsjournalist.internal.buildStringTransformerUsing
-import com.github.utilx.assetsjournalist.internal.listAssets
+import com.github.utilx.assetsjournalist.common.FileConstantsFactory
+import com.github.utilx.assetsjournalist.common.buildStringTransformerUsing
+import com.github.utilx.assetsjournalist.common.listAssets
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
@@ -60,7 +60,9 @@ open class GenerateJavaFileTask : DefaultTask() {
     fun generateJavaFile() {
         val fileConstantsFactory = FileConstantsFactory(
             constValuePrefix = constValuePrefix,
-            constValueTransformer = buildStringTransformerUsing(constValueReplacementExpressions),
+            constValueTransformer = buildStringTransformerUsing(
+                constValueReplacementExpressions
+            ),
             constNamePrefix = constNamePrefix
         )
 

@@ -10,11 +10,11 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.github.utilx.assetsjournalist.internal
+package com.github.utilx.assetsjournalist.common
 
 import kotlin.math.absoluteValue
 
-class FileConstantsFactory(
+internal class FileConstantsFactory(
     private val constValuePrefix: String = "",
     private val constValueTransformer: StringTransformer,
     private val constNamePrefix: String = "",
@@ -39,12 +39,15 @@ class FileConstantsFactory(
             .let {
                 val constName = constNamePrefix +
                         constNameTransformer.apply(it) +
-                        DEFAULT_NAME_REPLACEMENT_CHAR +
+                    DEFAULT_NAME_REPLACEMENT_CHAR +
                         it.hashCode().absoluteValue
 
                 val constValue = constValuePrefix + constValueTransformer.apply(it)
 
-                ConstNameValuePair(constName.toUpperCase(), constValue)
+                ConstNameValuePair(
+                    constName.toUpperCase(),
+                    constValue
+                )
             }
     }
 
