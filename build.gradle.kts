@@ -31,12 +31,12 @@ object Dependencies {
     }
 
     object Android {
-        const val gradleBuildTools = "com.android.tools.build:gradle:3.3.1"
+        const val gradleBuildTools = "com.android.tools.build:gradle:3.5.3"
     }
 }
 
 plugins {
-    kotlin("jvm") version "1.3.20"
+    kotlin("jvm") version "1.3.41"
     `kotlin-dsl`
     `java-gradle-plugin`
     `maven-publish`
@@ -47,7 +47,7 @@ plugins {
 }
 
 group = "com.github.utilx"
-version = "0.10.0"
+version = "0.10.1"
 
 repositories {
     mavenCentral()
