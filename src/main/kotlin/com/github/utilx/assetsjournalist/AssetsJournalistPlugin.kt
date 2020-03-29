@@ -25,6 +25,7 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.register
 import java.io.File
 
 /**
@@ -44,8 +45,11 @@ internal const val ROOT_EXTENSION_NAME = "androidAssetsJournalist"
 private val XmlOutputFile = listOf(RES_OUTPUT_DIR_NAME, "values", "assets-strings.xml").toFilePath()
 
 open class AssetsJournalistPlugin : Plugin<Project> {
+    override fun apply(target: Project) = ProjectScopedConfiguration(target).apply()
+}
 
-    override fun apply(project: Project) {
+private class ProjectScopedConfiguration(private val project: Project) {
+    fun apply() {
         val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class)
 
         val xmlExtension = extension.xmlFile
@@ -56,13 +60,13 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             .onFailure {
                 throw IllegalStateException(
                     "Failed to locate android plugin extension, " +
-                            "make sure plugin is applied after android gradle plugin"
+                        "make sure plugin is applied after android gradle plugin"
                 )
             }
             .getOrThrow()
 
         // workaround - need to register sourceset here before evaluation
-        registerSourceSets(project, androidConfig)
+        registerSourceSets(androidConfig)
 
         project.afterEvaluate {
             extension.sourceSets
@@ -82,22 +86,21 @@ open class AssetsJournalistPlugin : Plugin<Project> {
                     }
 
                     if (xmlExtension.enabled) {
-                        configureXmlTask(project, xmlExtension, sourceSet)
+                        configureXmlTask(xmlExtension, sourceSet)
                     }
 
                     if (javaExtension.enabled) {
-                        configureJavaTask(project, javaExtension, sourceSet)
+                        configureJavaTask(javaExtension, sourceSet)
                     }
 
                     if (kotlinExtension.enabled) {
-                        configureKotlinTask(project, kotlinExtension, sourceSet)
+                        configureKotlinTask(kotlinExtension, sourceSet)
                     }
                 }
         }
     }
 
     private fun registerSourceSets(
-        project: Project,
         androidConfig: AndroidConfig
     ) {
 
@@ -128,7 +131,6 @@ open class AssetsJournalistPlugin : Plugin<Project> {
     }
 
     private fun configureXmlTask(
-        project: Project,
         xmlConfig: XmlFileConfig,
         sourceSet: AndroidSourceSet
     ) {
@@ -144,8 +146,8 @@ open class AssetsJournalistPlugin : Plugin<Project> {
             sourceSetName = sourceSet.name
         )
 
-        val task = project
-            .registerTask<GenerateXmlFileTask>("generateAssetsXmlFile${sourceSet.name.capitalize()}") {
+        val task = project.tasks
+            .register<GenerateXmlFileTask>("generateAssetsXmlFile${sourceSet.name.capitalize()}") {
                 this.sourceSet = sourceSet
                 this.outputFile = generatedXmlFile
 
@@ -153,8 +155,8 @@ open class AssetsJournalistPlugin : Plugin<Project> {
 
                 project.logger.lifecycle(
                     "Configured xml generation task for [${sourceSet.name}] source set\n" +
-                            "Registered new res directory - $generatedResDirectory\n" +
-                            "Asset xml file will be generated at $generatedXmlFile"
+                        "Registered new res directory - $generatedResDirectory\n" +
+                        "Asset xml file will be generated at $generatedXmlFile"
                 )
             }
 
@@ -165,7 +167,6 @@ open class AssetsJournalistPlugin : Plugin<Project> {
     }
 
     private fun configureJavaTask(
-        project: Project,
         extension: JavaFileConfig,
         sourceSet: AndroidSourceSet
     ) {
@@ -175,7 +176,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
         )
 
         val task = project
-            .registerTask<GenerateJavaFileTask>("generateAssetsJavaFile${sourceSet.name.capitalize()}") {
+            .tasks.register<GenerateJavaFileTask>("generateAssetsJavaFile${sourceSet.name.capitalize()}") {
                 this.sourceSet = sourceSet
                 this.outputSrcDir = outputSrcDir
 
@@ -183,7 +184,7 @@ open class AssetsJournalistPlugin : Plugin<Project> {
 
                 project.logger.lifecycle(
                     "Configured java generation task for [${sourceSet.name}] source set\n" +
-                            "Registered new java source directory - $outputSrcDir"
+                        "Registered new java source directory - $outputSrcDir"
                 )
             }
 
@@ -194,7 +195,6 @@ open class AssetsJournalistPlugin : Plugin<Project> {
     }
 
     private fun configureKotlinTask(
-        project: Project,
         extension: KotlinFileConfig,
         sourceSet: AndroidSourceSet
     ) {
@@ -204,15 +204,15 @@ open class AssetsJournalistPlugin : Plugin<Project> {
         )
 
         val task =
-            project
-                .registerTask<GenerateKotlinFileTask>("generateAssetsKotlinFile${sourceSet.name.capitalize()}") {
+            project.tasks
+                .register<GenerateKotlinFileTask>("generateAssetsKotlinFile${sourceSet.name.capitalize()}") {
                     this.sourceSet = sourceSet
                     this.outputSrcDir = outputSrcDir
                     configureUsing(extension)
 
                     project.logger.lifecycle(
                         "Configured kotlin generation task for [${sourceSet.name}] source set\n" +
-                                "Registered new kotlin source directory - $outputSrcDir"
+                            "Registered new kotlin source directory - $outputSrcDir"
                     )
                 }
 
