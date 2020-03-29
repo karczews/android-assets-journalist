@@ -47,7 +47,7 @@ plugins {
 }
 
 group = "com.github.utilx"
-version = "0.11.0"
+version = "0.11.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
