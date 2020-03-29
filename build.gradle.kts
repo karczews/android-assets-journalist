@@ -9,7 +9,7 @@ object Dependencies {
     const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.21"
 
     object Kotlin {
-        const val version = "1.3.41"
+        const val version = "1.3.51"
         const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$version"
         const val test = "org.jetbrains.kotlin:kotlin-test:$version"
         const val reflect = "org.jetbrains.kotlin:kotlin-reflect:$version"

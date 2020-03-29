@@ -13,21 +13,24 @@
 package com.github.utilx.assetsjournalist
 
 import com.android.build.gradle.AndroidConfig
-import com.android.build.gradle.api.AndroidSourceSet
+import com.android.build.gradle.api.BaseVariant
 import com.github.utilx.assetsjournalist.java.GenerateJavaFileTask
 import com.github.utilx.assetsjournalist.java.JavaFileConfig
 import com.github.utilx.assetsjournalist.kotlin.GenerateKotlinFileTask
 import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
 import com.github.utilx.assetsjournalist.xml.GenerateXmlFileTask
 import com.github.utilx.assetsjournalist.xml.XmlFileConfig
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.register
+import org.gradle.util.GradleVersion
+import java.io.File
 
-private const val PRE_BUILD_TASK_NAME = "preBuild"
+internal const val MIN_GRADLE_VERSION = "5.3"
+
 internal const val ROOT_EXTENSION_NAME = "androidAssetsJournalist"
 
 open class AssetsJournalistPlugin : Plugin<Project> {
@@ -35,160 +38,125 @@ open class AssetsJournalistPlugin : Plugin<Project> {
 }
 
 private class ProjectScopedConfiguration(private val project: Project) {
+
     /**
      * <builddir>/generated/assetsjournalist/src
      */
     private val rootGeneratedBuildDir = project.buildDir.resolve("generated").resolve("assetsjournalist").resolve("src")
 
     fun apply() {
-        val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class)
+        if (GradleVersion.current() < GradleVersion.version(MIN_GRADLE_VERSION)) {
+            throw GradleException("Current gradle versions is ${GradleVersion.current()}, AssetsJournalistPlugin supports only gradle $MIN_GRADLE_VERSION+")
+        }
 
+        if (project.extensions.findByType<AndroidConfig>() == null) {
+            throw GradleException("Failed to locate android plugin extension, make sure plugin is applied after android gradle plugin")
+        }
+
+        val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class)
         val xmlExtension = extension.xmlFile
         val javaExtension = extension.javaFile
         val kotlinExtension = extension.kotlinFile
 
-        val androidConfig = runCatching { project.extensions.findByType<AndroidConfig>()!! }
-            .onFailure {
-                throw IllegalStateException(
-                    "Failed to locate android plugin extension, " +
-                        "make sure plugin is applied after android gradle plugin"
-                )
-            }
-            .getOrThrow()
-
-        // workaround - need to register sourceset here before evaluation
-        registerSourceSets(androidConfig)
-
         project.afterEvaluate {
-            extension.sourceSets
-                .ifEmpty {
-                    runCatching { androidConfig.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)!! }
-                        .onFailure {
-                            throw IllegalStateException("failed to locate ${SourceSet.MAIN_SOURCE_SET_NAME} sourceSet")
-                        }
-                        .map { listOf(it) }
-                        .getOrThrow()
-                }.forEach { sourceSet ->
-
-                    if (!xmlExtension.enabled && !javaExtension.enabled && !kotlinExtension.enabled) {
-                        project.logger.warn("No file type enabled, enabling java file generation")
-                        javaExtension.enabled = true
-                    }
-
-                    if (xmlExtension.enabled) {
-                        configureXmlTask(xmlExtension, sourceSet)
-                    }
-
-                    if (javaExtension.enabled) {
-                        configureJavaTask(javaExtension, sourceSet)
-                    }
-
-                    if (kotlinExtension.enabled) {
-                        configureKotlinTask(kotlinExtension, sourceSet)
-                    }
+            buildVariants.configureEach {
+                if (!xmlExtension.enabled && !javaExtension.enabled && !kotlinExtension.enabled) {
+                    project.logger.warn("No file type enabled, enabling java file generation")
+                    javaExtension.enabled = true
                 }
+
+                if (xmlExtension.enabled) {
+                    configureXmlTask(xmlExtension, this)
+                }
+
+                if (javaExtension.enabled) {
+                    configureJavaTask(javaExtension, this)
+                }
+
+                if (kotlinExtension.enabled) {
+                    configureKotlinTask(kotlinExtension, this)
+                }
+
+            }
         }
-    }
-
-    private fun registerSourceSets(
-        androidConfig: AndroidConfig
-    ) {
-
-        runCatching { androidConfig.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)!! }
-            .onSuccess {
-                it.java.srcDirs(
-                    getGeneratedJavaOutputDirForSourceSet(SourceSet.MAIN_SOURCE_SET_NAME)
-                )
-            }
-            .onSuccess {
-                it.java.srcDirs(
-                    getGeneratedKotlinOutputDirForSourceSet(SourceSet.MAIN_SOURCE_SET_NAME)
-                )
-            }.onSuccess {
-                it.res.srcDirs(
-                    getGeneratedResOutputDirForSourceSet(SourceSet.MAIN_SOURCE_SET_NAME)
-                )
-            }
     }
 
     private fun configureXmlTask(
         xmlConfig: XmlFileConfig,
-        sourceSet: AndroidSourceSet
+        variant: BaseVariant
     ) {
-        //Register new res directory to provided sourceSet so all generated xml files are accessible in the project
-        val generatedResDirectory = getGeneratedResOutputDirForSourceSet(sourceSet.name)
-        //sourceSet.res.srcDirs(generatedResDirectory)
-
-        val generatedXmlFile = getOutputXmFileForSourceSet(sourceSet.name)
-
         val task = project.tasks
-            .register<GenerateXmlFileTask>("generateAssetsXmlFile${sourceSet.name.capitalize()}") {
-                this.sourceSet = sourceSet
-                this.outputFile = generatedXmlFile
+            .register<GenerateXmlFileTask>("generateAssetsXmlFile${variant.name.capitalize()}") {
 
+                //Register new res directory to provided sourceSet so all generated xml files are accessible in the project
+                val generatedResDirectory = getGeneratedResOutputDirForSourceSet(variant.name)
+                val generatedXmlFile = getOutputXmFileForSourceSet(variant.name)
+
+                assetFiles.setFrom(variant.assetDirs())
+
+                outputFile.set(generatedXmlFile)
                 configureUsing(xmlConfig)
 
-                project.logger.lifecycle(
-                    "Configured xml generation task for [${sourceSet.name}] source set\n" +
+                project.logger.debug(
+                    "Configured xml generation task for [${variant.name}] variant\n" +
                         "Registered new res directory - $generatedResDirectory\n" +
                         "Asset xml file will be generated at $generatedXmlFile"
                 )
             }
 
-        project.tasks.named(PRE_BUILD_TASK_NAME).configure {
-            dependsOn(task)
-        }
-
+        // Have to configure task here until agp supports task provider https://issuetracker.google.com/issues/150799913
+        variant.registerGeneratedResFolders(task.get().outputs.files)
     }
 
     private fun configureJavaTask(
         extension: JavaFileConfig,
-        sourceSet: AndroidSourceSet
+        variant: BaseVariant
     ) {
-        val outputSrcDir = getGeneratedJavaOutputDirForSourceSet(sourceSet.name)
+        val outputSrcDir = getGeneratedJavaOutputDirForSourceSet(variant.name)
 
         val task = project
-            .tasks.register<GenerateJavaFileTask>("generateAssetsJavaFile${sourceSet.name.capitalize()}") {
-                this.sourceSet = sourceSet
-                this.outputSrcDir = outputSrcDir
+            .tasks.register<GenerateJavaFileTask>("generateAssetsJavaFile${variant.name.capitalize()}") {
+                val outputSrcDir = getGeneratedJavaOutputDirForSourceSet(variant.name)
+
+                assetFiles.setFrom(variant.assetDirs())
+                this.outputSrcDir.set(outputSrcDir)
 
                 configureUsing(extension)
 
-                project.logger.lifecycle(
-                    "Configured java generation task for [${sourceSet.name}] source set\n" +
+                project.logger.debug(
+                    "Configured java generation task for [${variant.name}] variant set\n" +
                         "Registered new java source directory - $outputSrcDir"
                 )
             }
 
-        project.tasks.named(PRE_BUILD_TASK_NAME).configure {
-            dependsOn(task)
-        }
-
+        // Have to configure task here until agp supports task provider https://issuetracker.google.com/issues/150799913
+        variant.registerJavaGeneratingTask(task.get(), outputSrcDir)
     }
 
     private fun configureKotlinTask(
         extension: KotlinFileConfig,
-        sourceSet: AndroidSourceSet
+        variant: BaseVariant
     ) {
-        val outputSrcDir = getGeneratedKotlinOutputDirForSourceSet(sourceSet.name)
+        val outputSrcDir = getGeneratedKotlinOutputDirForSourceSet(variant.name)
 
         val task =
             project.tasks
-                .register<GenerateKotlinFileTask>("generateAssetsKotlinFile${sourceSet.name.capitalize()}") {
-                    this.sourceSet = sourceSet
-                    this.outputSrcDir = outputSrcDir
+                .register<GenerateKotlinFileTask>("generateAssetsKotlinFile${variant.name.capitalize()}") {
+                    assetFiles.setFrom(variant.assetDirs())
+                    this.outputSrcDir.set(outputSrcDir)
                     configureUsing(extension)
 
-                    project.logger.lifecycle(
-                        "Configured kotlin generation task for [${sourceSet.name}] source set\n" +
+                    project.logger.debug(
+                        "Configured kotlin generation task for [${variant.name}] variant set\n" +
                             "Registered new kotlin source directory - $outputSrcDir"
                     )
                 }
 
-        project.tasks.named(PRE_BUILD_TASK_NAME).configure {
-            dependsOn(task)
-        }
+        // Have to configure task here until agp supports task provider https://issuetracker.google.com/issues/150799913
+        variant.registerJavaGeneratingTask(task.get(), outputSrcDir)
     }
+
+    private fun BaseVariant.assetDirs(): Collection<File> = sourceSets.flatMap { it.assetsDirectories }
 
     /**
      * Returns java source root directory where files will be generated for given variant.

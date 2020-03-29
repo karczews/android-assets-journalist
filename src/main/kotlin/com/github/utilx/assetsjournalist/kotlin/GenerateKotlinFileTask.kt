@@ -12,7 +12,6 @@
 
 package com.github.utilx.assetsjournalist.kotlin
 
-import com.android.build.gradle.api.AndroidSourceSet
 import com.github.utilx.assetsjournalist.common.FileConstantsFactory
 import com.github.utilx.assetsjournalist.common.buildStringTransformerUsing
 import com.github.utilx.assetsjournalist.common.listAssets
@@ -21,53 +20,49 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.FileTree
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import java.io.File
+import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.property
 
 
-open class GenerateKotlinFileTask : DefaultTask() {
+open class GenerateKotlinFileTask @javax.inject.Inject constructor(objects: ObjectFactory) : DefaultTask() {
 
     @get:OutputDirectory
-    lateinit var outputSrcDir: File
+    val outputSrcDir = objects.directoryProperty()
 
     @get:Input
-    var className = "AssetFileKt"
+    var className = objects.property<String>().value("AssetFileKt")
 
     @get:Input
-    var packageName = ""
+    var packageName = objects.property<String>().value("")
 
     @get:Input
-    var constNamePrefix = ""
-    @get:Input
-    var constValuePrefix = ""
-    @get:Input
-    var constValueReplacementExpressions = emptyList<Map<String, String>>()
+    var constNamePrefix = objects.property<String>().value("")
 
-    lateinit var sourceSet: AndroidSourceSet
+    @get:Input
+    var constValuePrefix = objects.property<String>().value("")
 
-    /**
-     * This is mainly to capture all input files and prevent running task multiple times to the same file set
-     */
-    @InputFiles
-    fun getInputFiles(): FileTree {
-        return sourceSet.assets.sourceFiles
-    }
+    @get:Input
+    var constValueReplacementExpressions = objects.listProperty<Map<String, String>>()
+
+    @get:InputFiles
+    val assetFiles = objects.fileCollection()
 
     @TaskAction
     fun generateKotlinFile() {
         val fileConstantsFactory = FileConstantsFactory(
-            constValuePrefix = constValuePrefix,
+            constValuePrefix = constValuePrefix.get(),
             constValueTransformer = buildStringTransformerUsing(
-                constValueReplacementExpressions
+                constValueReplacementExpressions.get()
             ),
-            constNamePrefix = constNamePrefix
+            constNamePrefix = constNamePrefix.get()
         )
 
-        val properties = sourceSet.listAssets()
+        val properties = assetFiles.listAssets(project)
             .asSequence()
             .map(fileConstantsFactory::toConstNameValuePair)
             // remove duplicate entries
@@ -81,29 +76,29 @@ open class GenerateKotlinFileTask : DefaultTask() {
             .asIterable()
 
         // create type spec for object and include all properties
-        val objectSpec = TypeSpec.objectBuilder(className)
+        val objectSpec = TypeSpec.objectBuilder(className.get())
             .addProperties(properties)
             .addKdoc(
                 "This class is generated using android-assets-journalist gradle plugin. \n" +
-                        "Do not modify this class because all changes will be overwritten"
+                    "Do not modify this class because all changes will be overwritten"
             )
             .build()
 
         // generating kt file
-        FileSpec.builder(packageName, className)
+        FileSpec.builder(packageName.get(), className.get())
             .addType(objectSpec)
             .build()
-            .writeTo(outputSrcDir)
+            .writeTo(outputSrcDir.asFile.get())
 
-        logger.lifecycle("generating asset kotlin file $packageName.$className in $outputSrcDir")
+        logger.lifecycle("generating asset kotlin file ${packageName.get()}.${className.get()} in ${outputSrcDir.asFile.get()}")
     }
 
     fun configureUsing(config: KotlinFileConfig) {
-        this.constNamePrefix = config.constNamePrefix
-        this.constValuePrefix = config.constValuePrefix
-        this.packageName = config.packageName
-        this.className = config.className
+        this.constNamePrefix.set(config.constNamePrefix)
+        this.constValuePrefix.set(config.constValuePrefix)
+        this.packageName.set(config.packageName)
+        this.className.set(config.className)
 
-        this.constValueReplacementExpressions = config.replaceInAssetsPath
+        this.constValueReplacementExpressions.set(config.replaceInAssetsPath)
     }
 }

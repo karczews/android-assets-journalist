@@ -25,9 +25,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.hasPlugin
 
-val Project.androidAssetsJournalist: AssetFileGeneratorConfig
-    get() = extensions.getByType()
-
 internal val Project.buildVariants: DomainObjectSet<out BaseVariant>
     get() {
         val plugins = project.plugins

@@ -5,16 +5,31 @@ import com.github.utilx.assetsjournalist.kotlin.*
 
 apply plugin: 'com.android.application'
 
+apply plugin: 'com.github.utilx.android-assets-journalist'
+
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
-apply plugin: 'com.github.utilx.android-assets-journalist'
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "com.github.utilx.playground"
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
 
 androidAssetsJournalist {
-
-    sourceSets = [android.sourceSets.main]
-
     xmlFile {
         enabled = true
         stringNamePrefix = "prefix_"
@@ -39,27 +54,9 @@ androidAssetsJournalist {
         constNamePrefix = "constprefixkt_"
         constValuePrefix ="kotlinvalpref_"
         replaceInAssetsPath = [
-            [match: '^az', replaceWith: 'replacekt'],
-            [match: 'd[abc]', replaceWith: 'kt']
+                [match: '^az', replaceWith: 'replacekt'],
+                [match: 'd[abc]', replaceWith: 'kt']
         ]
-    }
-}
-
-android {
-    compileSdkVersion 28
-    defaultConfig {
-        applicationId "com.github.utilx.playground"
-        minSdkVersion 15
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
     }
 }
 
@@ -73,31 +70,3 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 }
-
-task xmlTesting(type: GenerateXmlFileTask) {
-    outputFile = file('build/output/xml/t.xml')
-    sourceSet = android.sourceSets.main
-}
-
-task javaTesting(type: GenerateJavaFileTask) {
-    outputSrcDir = file('build/output/src')
-    packageName = "com.github.utilx"
-    className = "Assets"
-    sourceSet = android.sourceSets.main
-}
-
-task kotlinTesting(type: GenerateKotlinFileTask) {
-    outputSrcDir = file('build/output/src')
-    packageName = "com.github.utilx"
-    className = "Assets"
-    sourceSet = android.sourceSets.main
-}
-
-afterEvaluate {
-    println("sourcesets after evaluation " + android.sourceSets.main.java)
-}
-
-android.sourceSets.main.java {
- //   srcDirs += "build/generated/assetsjournalist/src/main/java"
-}
-

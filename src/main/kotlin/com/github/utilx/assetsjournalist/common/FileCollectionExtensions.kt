@@ -12,14 +12,15 @@
 
 package com.github.utilx.assetsjournalist.common
 
-import com.android.build.gradle.api.AndroidSourceSet
+import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 
-internal fun AndroidSourceSet.listAssets(): List<String> =
-    assets
-        .sourceDirectoryTrees
-        .flatMap { assetFileTree ->
-            val assetBaseDir = assetFileTree.dir
-            assetFileTree.asFileTree.files
-                .map { it.relativeTo(assetBaseDir) }
-                .map { it.invariantSeparatorsPath }
-        }
+/**
+ * Returns list of assets path relative to assets root directory.
+ *
+ * ex. somedir/asserts/dir1/dir2/asset returns dir1/dir2/asset
+ */
+fun FileCollection.listAssets(project: Project): List<String> = files.flatMap { rootAssetDir ->
+    project.files(rootAssetDir).asFileTree.files
+        .map { it.toRelativeString(rootAssetDir) }
+}

@@ -12,7 +12,6 @@
 
 package com.github.utilx.assetsjournalist.java
 
-import com.android.build.gradle.api.AndroidSourceSet
 import com.github.utilx.assetsjournalist.common.FileConstantsFactory
 import com.github.utilx.assetsjournalist.common.buildStringTransformerUsing
 import com.github.utilx.assetsjournalist.common.listAssets
@@ -21,53 +20,50 @@ import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.FileTree
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import java.io.File
+import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.property
 import javax.lang.model.element.Modifier
 
-open class GenerateJavaFileTask : DefaultTask() {
+open class GenerateJavaFileTask @javax.inject.Inject constructor(objects: ObjectFactory) : DefaultTask() {
 
     @get:OutputDirectory
-    lateinit var outputSrcDir: File
+    val outputSrcDir = objects.directoryProperty()
 
     @get:Input
-    var className = "AssetFile"
-    @get:Input
-    var packageName = ""
-    @get:Input
-    var constNamePrefix = ""
-    @get:Input
-    var constValuePrefix = ""
-    @get:Input
-    var constValueReplacementExpressions = emptyList<Map<String, String>>()
+    val className = objects.property<String>().value("AssetFile")
 
-    lateinit var sourceSet: AndroidSourceSet
+    @get:Input
+    val packageName = objects.property<String>().value("")
 
+    @get:Input
+    val constNamePrefix = objects.property<String>().value("")
 
-    /**
-     * This is mainly to capture all input files and prevent running task multiple times to the same file set
-     */
-    @InputFiles
-    fun getInputFiles(): FileTree {
-        return sourceSet.assets.sourceFiles
-    }
+    @get:Input
+    val constValuePrefix = objects.property<String>().value("")
+
+    @get:Input
+    val constValueReplacementExpressions = objects.listProperty<Map<String, String>>()
+
+    @get:InputFiles
+    val assetFiles = objects.fileCollection()
 
     @TaskAction
     fun generateJavaFile() {
         val fileConstantsFactory = FileConstantsFactory(
-            constValuePrefix = constValuePrefix,
+            constValuePrefix = constValuePrefix.get(),
             constValueTransformer = buildStringTransformerUsing(
-                constValueReplacementExpressions
+                constValueReplacementExpressions.get()
             ),
-            constNamePrefix = constNamePrefix
+            constNamePrefix = constNamePrefix.get()
         )
 
         // converting asset listing to class fields specs
-        val fields = sourceSet.listAssets()
+        val fields = assetFiles.listAssets(project)
             .asSequence()
             .map(fileConstantsFactory::toConstNameValuePair)
             // remove duplicate entries
@@ -81,30 +77,29 @@ open class GenerateJavaFileTask : DefaultTask() {
             .asIterable()
 
         // creating class spec that includes previous field specs
-        val typeSpec = TypeSpec.classBuilder(className)
+        val typeSpec = TypeSpec.classBuilder(className.get())
             .addJavadoc(
                 "This class is generated using android-assets-journalist gradle plugin. \n" +
-                        "Do not modify this class because all changes will be overwritten"
+                    "Do not modify this class because all changes will be overwritten"
             )
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
             .addFields(fields)
             .build()
 
         // generate class file at
-        JavaFile.builder(packageName, typeSpec)
+        JavaFile.builder(packageName.get(), typeSpec)
             .build()
-            .writeTo(outputSrcDir)
+            .writeTo(outputSrcDir.asFile.get())
 
-        logger.lifecycle("generating asset java class $packageName.$className in $outputSrcDir")
+        logger.lifecycle("generating asset java class ${packageName.get()}.${className.get()} in ${outputSrcDir.get()}")
 
     }
 
     fun configureUsing(config: JavaFileConfig) {
-        this.className = config.className
-        this.constNamePrefix = config.constNamePrefix
-        this.constValuePrefix = config.constValuePrefix
-        this.packageName = config.packageName
-
-        this.constValueReplacementExpressions = config.replaceInAssetsPath
+        this.className.set(config.className)
+        this.constNamePrefix.set(config.constNamePrefix)
+        this.constValuePrefix.set(config.constValuePrefix)
+        this.packageName.set(config.packageName)
+        this.constValueReplacementExpressions.set(config.replaceInAssetsPath)
     }
 }

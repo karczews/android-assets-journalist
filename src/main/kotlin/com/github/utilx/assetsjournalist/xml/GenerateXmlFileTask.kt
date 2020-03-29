@@ -12,15 +12,15 @@
 
 package com.github.utilx.assetsjournalist.xml
 
-import com.android.build.gradle.api.AndroidSourceSet
 import com.github.utilx.assetsjournalist.common.listAssets
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.FileTree
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import java.io.File
+import org.gradle.kotlin.dsl.listProperty
+import org.gradle.kotlin.dsl.property
 import java.io.FileWriter
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
@@ -33,36 +33,33 @@ private const val NAME_XML_ATTRIBUTE = "name"
 private const val NOT_ALLOWED_STRING_NAME_CHAR_PATTERN = "[^A-Za-z0-9]"
 private const val DEFAULT_NAME_REPLACEMENT_CHAR = "_"
 
-open class GenerateXmlFileTask : DefaultTask() {
+open class GenerateXmlFileTask @javax.inject.Inject constructor(objects: ObjectFactory) : DefaultTask() {
 
     private val notAllowedStringNameCharsRegex by lazy { NOT_ALLOWED_STRING_NAME_CHAR_PATTERN.toRegex() }
 
-    @get:OutputFile
-    lateinit var outputFile: File
     @get:Input
-    var stringNameCharMapping = emptyList<Map<String, String>>()
-    @get:Input
-    var stringNamePrefix = ""
-    lateinit var sourceSet: AndroidSourceSet
+    val stringNameCharMapping = objects.listProperty<Map<String, String>>()
 
-    /**
-     * This is mainly to capture all input files and prevent running task multiple times to the same file set
-     */
-    @InputFiles
-    fun getInputFiles(): FileTree {
-        return sourceSet.assets.sourceFiles
-    }
+    @get:Input
+    val stringNamePrefix = objects.property<String>()
+
+    @get:InputFiles
+    val assetFiles = objects.fileCollection()
+
+    @get:OutputFile
+    val outputFile = objects.fileProperty()
 
     @TaskAction
     fun generateXml() {
-        FileWriter(outputFile).use { fileWriter ->
+        FileWriter(outputFile.asFile.get()).use { fileWriter ->
             val writer = XMLOutputFactory.newInstance().createXMLStreamWriter(fileWriter)
-            val list = sourceSet.listAssets()
+
+            val list = assetFiles.listAssets(project)
 
             writer.document {
                 writeComment(
                     "This is XML file generated with asset file generator. " +
-                            "All changes done here will be overwritten."
+                        "All changes done here will be overwritten."
                 )
                 element(RESOURCE_XML_TAG) {
                     list.forEach {
@@ -74,22 +71,21 @@ open class GenerateXmlFileTask : DefaultTask() {
                 }
             }
 
+            logger.lifecycle("Created xml asset file at ${outputFile.asFile.get().path}")
         }
-
-        logger.lifecycle("Created xml asset file at ${outputFile.absolutePath}")
     }
 
     private fun createStringName(filePath: String): String =
         filePath.replace(notAllowedStringNameCharsRegex, DEFAULT_NAME_REPLACEMENT_CHAR)
             .let { it + DEFAULT_NAME_REPLACEMENT_CHAR + filePath.hashCode().absoluteValue }
-            .let { stringNamePrefix + it }
+            .let { stringNamePrefix.get() + it }
 
     /**
      * Configure task using provided config
      */
     fun configureUsing(config: XmlFileConfig) {
-        this.stringNamePrefix = config.stringNamePrefix
-        this.stringNameCharMapping = config.stringNameCharMapping
+        this.stringNamePrefix.set(config.stringNamePrefix)
+        this.stringNameCharMapping.addAll(config.stringNameCharMapping)
     }
 }
 
