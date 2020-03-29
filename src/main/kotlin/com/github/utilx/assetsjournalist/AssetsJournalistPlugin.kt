@@ -26,29 +26,20 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.register
-import java.io.File
 
-/**
- * generated/assetsjournalist/src
- */
-private val GeneratedSourceDir = listOf("generated", "assetsjournalist", "src").toFilePath()
-
-private const val RES_OUTPUT_DIR_NAME = "res"
-private const val JAVA_OUTPUT_DIR_NAME = "java"
-private const val KOTLIN_OUTPUT_DIR_NAME = "kotlin"
 private const val PRE_BUILD_TASK_NAME = "preBuild"
 internal const val ROOT_EXTENSION_NAME = "androidAssetsJournalist"
-
-/**
- * res/values/strings.xml
- */
-private val XmlOutputFile = listOf(RES_OUTPUT_DIR_NAME, "values", "assets-strings.xml").toFilePath()
 
 open class AssetsJournalistPlugin : Plugin<Project> {
     override fun apply(target: Project) = ProjectScopedConfiguration(target).apply()
 }
 
 private class ProjectScopedConfiguration(private val project: Project) {
+    /**
+     * <builddir>/generated/assetsjournalist/src
+     */
+    private val rootGeneratedBuildDir = project.buildDir.resolve("generated").resolve("assetsjournalist").resolve("src")
+
     fun apply() {
         val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class)
 
@@ -71,7 +62,6 @@ private class ProjectScopedConfiguration(private val project: Project) {
         project.afterEvaluate {
             extension.sourceSets
                 .ifEmpty {
-                    project.logger.lifecycle("No source set specified, using main")
                     runCatching { androidConfig.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)!! }
                         .onFailure {
                             throw IllegalStateException("failed to locate ${SourceSet.MAIN_SOURCE_SET_NAME} sourceSet")
@@ -107,25 +97,16 @@ private class ProjectScopedConfiguration(private val project: Project) {
         runCatching { androidConfig.sourceSets.findByName(SourceSet.MAIN_SOURCE_SET_NAME)!! }
             .onSuccess {
                 it.java.srcDirs(
-                    getGeneratedJavaOutputDirForSourceSet(
-                        projectBuildDir = project.buildDir,
-                        sourceSetName = SourceSet.MAIN_SOURCE_SET_NAME
-                    )
+                    getGeneratedJavaOutputDirForSourceSet(SourceSet.MAIN_SOURCE_SET_NAME)
                 )
             }
             .onSuccess {
                 it.java.srcDirs(
-                    getGeneratedKotlinOutputDirForSourceSet(
-                        projectBuildDir = project.buildDir,
-                        sourceSetName = SourceSet.MAIN_SOURCE_SET_NAME
-                    )
+                    getGeneratedKotlinOutputDirForSourceSet(SourceSet.MAIN_SOURCE_SET_NAME)
                 )
             }.onSuccess {
                 it.res.srcDirs(
-                    getGeneratedResOutputDirForSourceSet(
-                        projectBuildDir = project.buildDir,
-                        sourceSetName = SourceSet.MAIN_SOURCE_SET_NAME
-                    )
+                    getGeneratedResOutputDirForSourceSet(SourceSet.MAIN_SOURCE_SET_NAME)
                 )
             }
     }
@@ -135,16 +116,10 @@ private class ProjectScopedConfiguration(private val project: Project) {
         sourceSet: AndroidSourceSet
     ) {
         //Register new res directory to provided sourceSet so all generated xml files are accessible in the project
-        val generatedResDirectory = getGeneratedResOutputDirForSourceSet(
-            projectBuildDir = project.buildDir,
-            sourceSetName = sourceSet.name
-        )
+        val generatedResDirectory = getGeneratedResOutputDirForSourceSet(sourceSet.name)
         //sourceSet.res.srcDirs(generatedResDirectory)
 
-        val generatedXmlFile = getOutpulXmFileForSourceSet(
-            projectBuildDir = project.buildDir,
-            sourceSetName = sourceSet.name
-        )
+        val generatedXmlFile = getOutputXmFileForSourceSet(sourceSet.name)
 
         val task = project.tasks
             .register<GenerateXmlFileTask>("generateAssetsXmlFile${sourceSet.name.capitalize()}") {
@@ -170,10 +145,7 @@ private class ProjectScopedConfiguration(private val project: Project) {
         extension: JavaFileConfig,
         sourceSet: AndroidSourceSet
     ) {
-        val outputSrcDir = getGeneratedJavaOutputDirForSourceSet(
-            projectBuildDir = project.buildDir,
-            sourceSetName = sourceSet.name
-        )
+        val outputSrcDir = getGeneratedJavaOutputDirForSourceSet(sourceSet.name)
 
         val task = project
             .tasks.register<GenerateJavaFileTask>("generateAssetsJavaFile${sourceSet.name.capitalize()}") {
@@ -198,10 +170,7 @@ private class ProjectScopedConfiguration(private val project: Project) {
         extension: KotlinFileConfig,
         sourceSet: AndroidSourceSet
     ) {
-        val outputSrcDir = getGeneratedKotlinOutputDirForSourceSet(
-            projectBuildDir = project.buildDir,
-            sourceSetName = sourceSet.name
-        )
+        val outputSrcDir = getGeneratedKotlinOutputDirForSourceSet(sourceSet.name)
 
         val task =
             project.tasks
@@ -219,56 +188,37 @@ private class ProjectScopedConfiguration(private val project: Project) {
         project.tasks.named(PRE_BUILD_TASK_NAME).configure {
             dependsOn(task)
         }
-
     }
-}
 
-/**
- * Returns SourceSet dependant output directory where files will be generated
- * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/
- */
-private fun getGeneratedSrcDirForSourceSet(
-    projectBuildDir: File,
-    sourceSetName: String
-) = File(projectBuildDir, listOf(GeneratedSourceDir, sourceSetName).toFilePath())
+    /**
+     * Returns java source root directory where files will be generated for given variant.
+     *
+     * ex. <Project>/build/generated/assetsjournalist/src/<main>/java
+     */
+    private fun getGeneratedJavaOutputDirForSourceSet(variantName: String) = rootGeneratedBuildDir
+        .resolve(variantName).resolve("java")
 
+    /**
+     * Returns res directory where files will be generated.
+     *
+     * ex. <Project>/build/generated/assetsjournalist/src/<main>/res/
+     */
+    private fun getGeneratedResOutputDirForSourceSet(variantName: String) = rootGeneratedBuildDir
+        .resolve(variantName).resolve("res")
 
-/**
- * Returns SourceSet dependant res directory where files will be generated
- * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/res
- */
-private fun getGeneratedResOutputDirForSourceSet(
-    projectBuildDir: File,
-    sourceSetName: String
-) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), RES_OUTPUT_DIR_NAME)
+    /**
+     * Returns path to xml file to be generated.
+     *
+     * ex. <Project>/build/generated/assetsjournalist/src/<main>/res/values/assets-strings.xml
+     */
+    private fun getOutputXmFileForSourceSet(variantName: String) = rootGeneratedBuildDir
+        .resolve(variantName).resolve("res").resolve("values").resolve("assets-strings.xml")
 
-/**
- * Returns SourceSet dependant java source root directory where files will be generated
- * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/java
- */
-private fun getGeneratedJavaOutputDirForSourceSet(
-    projectBuildDir: File,
-    sourceSetName: String
-) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), JAVA_OUTPUT_DIR_NAME)
-
-/**
- * Returns SourceSet dependant kotlin source root directory where files will be generated
- * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/kotlin
- */
-private fun getGeneratedKotlinOutputDirForSourceSet(
-    projectBuildDir: File,
-    sourceSetName: String
-) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), KOTLIN_OUTPUT_DIR_NAME)
-
-/**
- * Returns SourceSet dependant res directory where files will be generated
- * usually returns something like <Project>/build/generated/assetsjournalist/src/<main>/res/values/strings.xml
- */
-private fun getOutpulXmFileForSourceSet(
-    projectBuildDir: File,
-    sourceSetName: String
-) = File(getGeneratedSrcDirForSourceSet(projectBuildDir, sourceSetName), XmlOutputFile)
-
-private fun <T> Iterable<T>.toFilePath(): String {
-    return this.joinToString(separator = File.separator)
+    /**
+     * Returns kotlin source root directory where files will be generated for given variant.
+     *
+     * ex. <Project>/build/generated/assetsjournalist/src/<main>/kotlin
+     */
+    private fun getGeneratedKotlinOutputDirForSourceSet(variantName: String) = rootGeneratedBuildDir
+        .resolve(variantName).resolve("kotlin")
 }
