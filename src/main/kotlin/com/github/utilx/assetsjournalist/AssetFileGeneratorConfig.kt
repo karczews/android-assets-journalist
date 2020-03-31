@@ -22,6 +22,7 @@ import org.gradle.util.ConfigureUtil
 
 open class AssetFileGeneratorConfig {
 
+    @Deprecated("will now use source set defined for each variant")
     var sourceSets = emptyList<AndroidSourceSet>()
 
     val xmlFile = XmlFileConfig()

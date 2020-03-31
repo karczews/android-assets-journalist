@@ -96,8 +96,8 @@ androidAssetsJournalist {
 }
 ```
 
-## Limitations
-At the moment only main source set is supported. Library/App with multiple variants is not fully supported
+## What's new:
+0.11.0 - Added library/application variant support
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist?ref=badge_large)

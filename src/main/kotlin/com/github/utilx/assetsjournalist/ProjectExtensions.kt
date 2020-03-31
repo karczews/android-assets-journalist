@@ -12,18 +12,27 @@
 
 package com.github.utilx.assetsjournalist
 
+import com.android.build.gradle.AppExtension
+import com.android.build.gradle.AppPlugin
+import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.LibraryPlugin
+import com.android.build.gradle.TestExtension
+import com.android.build.gradle.TestPlugin
+import com.android.build.gradle.api.BaseVariant
+import org.gradle.api.DomainObjectSet
+import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.hasPlugin
 
-
-/**
- * Registers a [Task] with the given [name] and [type], configures it with the given [configuration] action,
- * and adds it to this project tasks container.
- */
-inline fun <reified type : Task> Project.registerTask(name: String, noinline configuration: type.() -> Unit) =
-    tasks.register(name, type::class, configuration)
-
-val Project.androidAssetsJournalist: AssetFileGeneratorConfig
-    get() = extensions.getByType()
+internal val Project.buildVariants: DomainObjectSet<out BaseVariant>
+    get() {
+        val plugins = project.plugins
+        val extensions = project.extensions
+        return when {
+            plugins.hasPlugin(LibraryPlugin::class) -> extensions.getByType(LibraryExtension::class).libraryVariants
+            plugins.hasPlugin(AppPlugin::class) -> extensions.getByType(AppExtension::class).applicationVariants
+            plugins.hasPlugin(TestPlugin::class) -> extensions.getByType(TestExtension::class).applicationVariants
+            else -> throw GradleException("Unsupported project type")
+        }
+    }
