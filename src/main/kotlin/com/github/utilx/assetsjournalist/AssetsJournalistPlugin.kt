@@ -46,7 +46,10 @@ private class ProjectScopedConfiguration(private val project: Project) {
 
     fun apply() {
         if (GradleVersion.current() < GradleVersion.version(MIN_GRADLE_VERSION)) {
-            throw GradleException("Current gradle versions is ${GradleVersion.current()}, AssetsJournalistPlugin supports only gradle $MIN_GRADLE_VERSION+")
+            throw GradleException(
+                "Current gradle versions is ${GradleVersion.current()}, " +
+                    "AssetsJournalistPlugin supports only gradle $MIN_GRADLE_VERSION+"
+            )
         }
 
         if (project.extensions.findByType<AndroidConfig>() == null) {
