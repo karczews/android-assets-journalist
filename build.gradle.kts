@@ -147,4 +147,5 @@ detekt {
             enabled = true
         }
     }
+    failFast = true
 }
