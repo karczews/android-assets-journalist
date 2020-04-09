@@ -32,7 +32,7 @@ object Dependencies {
     }
 
     object Android {
-        const val gradleBuildTools = "com.android.tools.build:gradle:3.5.3"
+        const val gradleBuildTools = "com.android.tools.build:gradle:3.6.0"
     }
 }
 
@@ -48,7 +48,7 @@ plugins {
 }
 
 group = "com.github.utilx"
-version = "0.11.0"
+version = "0.11.1"
 
 repositories {
     mavenCentral()
@@ -147,4 +147,5 @@ detekt {
             enabled = true
         }
     }
+    failFast = true
 }

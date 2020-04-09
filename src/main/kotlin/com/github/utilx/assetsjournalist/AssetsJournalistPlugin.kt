@@ -12,7 +12,7 @@
 
 package com.github.utilx.assetsjournalist
 
-import com.android.build.gradle.AndroidConfig
+import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.BaseVariant
 import com.github.utilx.assetsjournalist.java.GenerateJavaFileTask
 import com.github.utilx.assetsjournalist.java.JavaFileConfig
@@ -52,7 +52,7 @@ private class ProjectScopedConfiguration(private val project: Project) {
             )
         }
 
-        if (project.extensions.findByType<AndroidConfig>() == null) {
+        if (project.extensions.findByType<BaseExtension>() == null) {
             throw GradleException("Failed to locate android plugin extension, make sure plugin is applied after android gradle plugin")
         }
 
@@ -92,8 +92,8 @@ private class ProjectScopedConfiguration(private val project: Project) {
             .register<GenerateXmlFileTask>("generateAssetsXmlFile${variant.name.capitalize()}") {
 
                 //Register new res directory to provided sourceSet so all generated xml files are accessible in the project
-                val generatedResDirectory = getGeneratedResOutputDirForSourceSet(variant.name)
-                val generatedXmlFile = getOutputXmFileForSourceSet(variant.name)
+                val generatedResDirectory = getGeneratedResOutputDirForVariant(variant.name)
+                val generatedXmlFile = getOutputXmFileForVariant(variant.name)
 
                 assetFiles.setFrom(variant.assetDirs())
 
@@ -115,12 +115,10 @@ private class ProjectScopedConfiguration(private val project: Project) {
         extension: JavaFileConfig,
         variant: BaseVariant
     ) {
-        val outputSrcDir = getGeneratedJavaOutputDirForSourceSet(variant.name)
+        val outputSrcDir = getGeneratedJavaOutputDirForVariant(variant.name)
 
         val task = project
             .tasks.register<GenerateJavaFileTask>("generateAssetsJavaFile${variant.name.capitalize()}") {
-                val outputSrcDir = getGeneratedJavaOutputDirForSourceSet(variant.name)
-
                 assetFiles.setFrom(variant.assetDirs())
                 this.outputSrcDir.set(outputSrcDir)
 
@@ -140,7 +138,7 @@ private class ProjectScopedConfiguration(private val project: Project) {
         extension: KotlinFileConfig,
         variant: BaseVariant
     ) {
-        val outputSrcDir = getGeneratedKotlinOutputDirForSourceSet(variant.name)
+        val outputSrcDir = getGeneratedKotlinOutputDirForVariant(variant.name)
 
         val task =
             project.tasks
@@ -166,7 +164,7 @@ private class ProjectScopedConfiguration(private val project: Project) {
      *
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/java
      */
-    private fun getGeneratedJavaOutputDirForSourceSet(variantName: String) = rootGeneratedBuildDir
+    private fun getGeneratedJavaOutputDirForVariant(variantName: String) = rootGeneratedBuildDir
         .resolve(variantName).resolve("java")
 
     /**
@@ -174,7 +172,7 @@ private class ProjectScopedConfiguration(private val project: Project) {
      *
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/res/
      */
-    private fun getGeneratedResOutputDirForSourceSet(variantName: String) = rootGeneratedBuildDir
+    private fun getGeneratedResOutputDirForVariant(variantName: String) = rootGeneratedBuildDir
         .resolve(variantName).resolve("res")
 
     /**
@@ -182,7 +180,7 @@ private class ProjectScopedConfiguration(private val project: Project) {
      *
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/res/values/assets-strings.xml
      */
-    private fun getOutputXmFileForSourceSet(variantName: String) = rootGeneratedBuildDir
+    private fun getOutputXmFileForVariant(variantName: String) = rootGeneratedBuildDir
         .resolve(variantName).resolve("res").resolve("values").resolve("assets-strings.xml")
 
     /**
@@ -190,6 +188,6 @@ private class ProjectScopedConfiguration(private val project: Project) {
      *
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/kotlin
      */
-    private fun getGeneratedKotlinOutputDirForSourceSet(variantName: String) = rootGeneratedBuildDir
+    private fun getGeneratedKotlinOutputDirForVariant(variantName: String) = rootGeneratedBuildDir
         .resolve(variantName).resolve("kotlin")
 }
