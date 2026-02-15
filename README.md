@@ -97,6 +97,13 @@ androidAssetsJournalist {
 ```
 
 ## What's new:
+1.0.0 - Major update to support modern Gradle and Android toolchain
+- Updated to Gradle 9.3.1
+- Updated Kotlin to 2.0.21
+- Updated Android Gradle Plugin to 8.8.0
+- Modernized build configuration
+- Requires Java 17
+
 0.11.0 - Added library/application variant support
 
 ## License
