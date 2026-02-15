@@ -1,6 +1,6 @@
 # Android Assets Journalist
 [![N|Solid](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/github/utilx/android-assets-journalist/com.github.utilx.android-assets-journalist.gradle.plugin/maven-metadata.xml.svg?label=gradle)](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/github/utilx/android-assets-journalist/com.github.utilx.android-assets-journalist.gradle.plugin/maven-metadata.xml.svg?label=gradle)
-[![Build Status](https://travis-ci.org/karczews/android-assets-journalist.svg?branch=master)](https://travis-ci.org/karczews/android-assets-journalist)
+[![CI](https://github.com/karczews/android-assets-journalist/actions/workflows/ci.yml/badge.svg)](https://github.com/karczews/android-assets-journalist/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/karczews/android-assets-journalist/branch/master/graph/badge.svg)](https://codecov.io/gh/karczews/android-assets-journalist)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=karczews_android-assets-journalist&metric=alert_status)](https://sonarcloud.io/dashboard?id=karczews_android-assets-journalist)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist?ref=badge_shield)
