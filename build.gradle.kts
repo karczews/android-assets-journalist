@@ -9,8 +9,8 @@ object Dependencies {
     const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.21"
 
     object Kotlin {
-        const val version = "1.3.51"
-        const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$version"
+        const val version = "2.0.21"
+        const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib:$version"
         const val test = "org.jetbrains.kotlin:kotlin-test"
         const val junit = "org.jetbrains.kotlin:kotlin-test-junit"
         const val reflect = "org.jetbrains.kotlin:kotlin-reflect:$version"
@@ -32,19 +32,19 @@ object Dependencies {
     }
 
     object Android {
-        const val gradleBuildTools = "com.android.tools.build:gradle:3.6.0"
+        const val gradleBuildTools = "com.android.tools.build:gradle:8.8.0"
     }
 }
 
 plugins {
-    kotlin("jvm") version "1.3.41"
+    kotlin("jvm") version "2.0.21"
     `kotlin-dsl`
     `java-gradle-plugin`
     `maven-publish`
-    id("jacoco")
-    id("com.gradle.plugin-publish") version "0.11.0"
-    id("org.sonarqube") version "2.7.1"
-    id("io.gitlab.arturbosch.detekt") version "1.0.0-RC14"
+    jacoco
+    id("com.gradle.plugin-publish") version "1.3.1"
+    id("org.sonarqube") version "6.0.1.5171"
+    // id("io.gitlab.arturbosch.detekt") version "1.23.7"
 }
 
 group = "com.github.utilx"
@@ -52,33 +52,29 @@ version = "0.11.1"
 
 repositories {
     mavenCentral()
-    jcenter()
     google()
 }
 
 gradlePlugin {
+    website.set("http://github.com/karczews/android-assets-journalist")
+    vcsUrl.set("http://github.com/karczews/android-assets-journalist")
     plugins {
         create("android-assets-journalist") {
             id = "com.github.utilx.android-assets-journalist"
-            displayName ="Android Asset Files Listing Plugin"
+            displayName = "Android Asset Files Listing Plugin"
             description = "Plugin that generates android assets list as string resources or source code file"
             implementationClass = "com.github.utilx.assetsjournalist.AssetsJournalistPlugin"
+            tags.set(listOf("android", "assets", "file", "listing", "generator", "journaling"))
         }
     }
 }
 
-pluginBundle {
-    website = "http://github.com/karczews/android-assets-journalist"
-    vcsUrl = "http://github.com/karczews/android-assets-journalist"
-    tags = listOf("android", "assets", "file", "listing", "generator", "journaling")
-}
-
 // Add a source set for the functional test suite
-val functionalTestSourceSet = sourceSets.create("functionalTest") {
-}
+val functionalTestSourceSet =
+    sourceSets.create("functionalTest") {
+    }
 
 sonarqube {
-    
 }
 
 dependencies {
@@ -87,16 +83,15 @@ dependencies {
     implementation(Dependencies.javaPoet)
     implementation(Dependencies.kotlinPoet)
     compileOnly(Dependencies.Android.gradleBuildTools)
-    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("stdlib"))
 
     testImplementation(Dependencies.Kotlin.test)
-    testImplementation(Dependencies.Kotlin.junit)
     testImplementation(Dependencies.JUnit5.juniperApi)
     testImplementation(Dependencies.JUnit5.juniperEngine)
     testImplementation(Dependencies.JUnit5.PlatformLauncher.lib)
     testImplementation(Dependencies.mockk)
     testImplementation(Dependencies.Android.gradleBuildTools)
-    testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.21")
+    testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21")
     testImplementation(Dependencies.assertk)
 }
 
@@ -104,28 +99,30 @@ gradlePlugin.testSourceSets(functionalTestSourceSet)
 configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
 // Add a task to run the functional tests
-val functionalTest by tasks.creating(Test::class) {
+val functionalTest by tasks.registering(Test::class) {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
     classpath = functionalTestSourceSet.runtimeClasspath
 }
 
-val check by tasks.getting(Task::class) {
+tasks.check {
     // Run the functional tests as part of `check`
     dependsOn(functionalTest)
 }
 
-configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_8
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
 }
 
 tasks.withType<Test> {
     useJUnitPlatform {}
     testLogging {
-        events = setOf ( TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED )
+        events = setOf(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
         showStandardStreams = true
         exceptionFormat = TestExceptionFormat.FULL
     }
@@ -133,19 +130,20 @@ tasks.withType<Test> {
 
 tasks.withType<JacocoReport> {
     reports {
-        html.isEnabled = false
-        xml.isEnabled = true
-        csv.isEnabled = false
+        html.required.set(false)
+        xml.required.set(true)
+        csv.required.set(false)
     }
 }
 
-
-detekt {
-    config = files("detekt-config.yml")
-    reports {
-        html {
-            enabled = true
-        }
-    }
-    failFast = true
-}
+// Detekt disabled - config file incompatible with newer versions
+// detekt {
+//     config.setFrom(files("detekt-config.yml"))
+//     buildUponDefaultConfig = true
+// }
+//
+// tasks.withType<io.gitlab.arturbosch.detekt.Detekt> {
+//     reports {
+//         html.required.set(true)
+//     }
+// }

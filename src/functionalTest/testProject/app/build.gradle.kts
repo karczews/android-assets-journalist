@@ -1,24 +1,22 @@
-import org.jetbrains.kotlin.config.KotlinCompilerVersion
-
 plugins {
     id("com.android.application")
     id("com.github.utilx.android-assets-journalist")
     kotlin("android")
-    kotlin("android.extensions")
 }
 
 android {
-    compileSdkVersion(28)
+    namespace = "com.github.utilx.testapp"
+    compileSdk = 28
     defaultConfig {
         applicationId = "com.github.utilx.testapp"
-        minSdkVersion(15)
-        targetSdkVersion(28)
+        minSdk = 15
+        targetSdk = 28
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    flavorDimensions("testDim")
+    flavorDimensions += "testDim"
     productFlavors {
         create("foo") { }
         create("bar") { }
@@ -37,10 +35,11 @@ androidAssetsJournalist {
         packageName = "com.github.utilx"
         constNamePrefix = "constprefixjava_"
         constValuePrefix = "javavalpref_"
-        replaceInAssetsPath = listOf(
-            listOf("match" to "^az", "replaceWith" to "replaceJava").toMap(),
-            listOf("match" to "d[abc]", "replaceWith" to "java").toMap()
-        )
+        replaceInAssetsPath =
+            listOf(
+                listOf("match" to "^az", "replaceWith" to "replaceJava").toMap(),
+                listOf("match" to "d[abc]", "replaceWith" to "java").toMap(),
+            )
     }
 
     kotlinFile {
@@ -49,15 +48,16 @@ androidAssetsJournalist {
         packageName = "com.github.utilx"
         constNamePrefix = "constprefixkt_"
         constValuePrefix = "kotlinvalpref_"
-        replaceInAssetsPath = listOf(
-            listOf("match" to "^az", "replaceWith" to "replacekt").toMap(),
-            listOf("match" to "d[abc]", "replaceWith" to "kt").toMap()
-        )
+        replaceInAssetsPath =
+            listOf(
+                listOf("match" to "^az", "replaceWith" to "replacekt").toMap(),
+                listOf("match" to "d[abc]", "replaceWith" to "kt").toMap(),
+            )
     }
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
+    implementation(kotlin("stdlib"))
     implementation("androidx.appcompat:appcompat:1.0.2")
     implementation("androidx.core:core-ktx:1.0.1")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")

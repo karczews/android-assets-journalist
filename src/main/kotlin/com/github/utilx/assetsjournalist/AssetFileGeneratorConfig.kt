@@ -18,10 +18,8 @@ import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
 import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import groovy.lang.Closure
 import org.gradle.api.Action
-import org.gradle.util.ConfigureUtil
 
 open class AssetFileGeneratorConfig {
-
     @Deprecated("will now use source set defined for each variant")
     var sourceSets = emptyList<AndroidSourceSet>()
 
@@ -30,7 +28,8 @@ open class AssetFileGeneratorConfig {
     val kotlinFile = KotlinFileConfig()
 
     fun xmlFile(closure: Closure<*>) {
-        ConfigureUtil.configure(closure, xmlFile)
+        closure.delegate = xmlFile
+        closure.call(xmlFile)
     }
 
     fun xmlFile(action: Action<XmlFileConfig>) {
@@ -38,7 +37,8 @@ open class AssetFileGeneratorConfig {
     }
 
     fun javaFile(closure: Closure<*>) {
-        ConfigureUtil.configure(closure, javaFile)
+        closure.delegate = javaFile
+        closure.call(javaFile)
     }
 
     fun javaFile(action: Action<JavaFileConfig>) {
@@ -46,7 +46,8 @@ open class AssetFileGeneratorConfig {
     }
 
     fun kotlinFile(closure: Closure<*>) {
-        ConfigureUtil.configure(closure, kotlinFile)
+        closure.delegate = kotlinFile
+        closure.call(kotlinFile)
     }
 
     fun kotlinFile(action: Action<KotlinFileConfig>) {
