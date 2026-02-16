@@ -98,6 +98,14 @@ dependencies {
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
+// Security fix: Force protobuf-java to patched version (GHSA-735f-pc8j-v9w8)
+// This resolves potential DoS issue in protobuf-java versions < 3.25.5
+configurations.all {
+    resolutionStrategy {
+        force("com.google.protobuf:protobuf-java:3.25.5")
+    }
+}
+
 // Add a task to run the functional tests
 val functionalTest by tasks.registering(Test::class) {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
