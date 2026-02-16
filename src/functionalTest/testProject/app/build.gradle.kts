@@ -9,7 +9,7 @@ android {
     compileSdk = 35
     defaultConfig {
         applicationId = "com.github.utilx.testapp"
-        minSdk = 15
+        minSdk = 21
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
