@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 object Dependencies {
-    const val javaPoet = "com.squareup:javapoet:1.12.1"
+    const val javaPoet = "com.squareup:javapoet:1.13.0"
     const val kotlinPoet = "com.squareup:kotlinpoet:1.5.0"
     const val mockk = "io.mockk:mockk:1.9.3"
     const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.21"
@@ -32,7 +32,7 @@ object Dependencies {
     }
 
     object Android {
-        const val gradleBuildTools = "com.android.tools.build:gradle:8.8.0"
+        const val gradleBuildTools = "com.android.tools.build:gradle:8.13.2"
     }
 }
 
@@ -43,12 +43,11 @@ plugins {
     `maven-publish`
     jacoco
     id("com.gradle.plugin-publish") version "1.3.1"
-    id("org.sonarqube") version "6.0.1.5171"
+    id("org.sonarqube") version "6.3.1.5724"
     // id("io.gitlab.arturbosch.detekt") version "1.23.7"
 }
 
 group = "com.github.utilx"
-version = "1.0.0"
 
 repositories {
     mavenCentral()
