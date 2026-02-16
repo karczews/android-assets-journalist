@@ -18,21 +18,44 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Determine next version
+        id: version
+        uses: tomtom-international/commisery-action/bump@v2
+        with:
+          token: ${{ github.token }}
+          create-release: false
+          create-tag: false
+
+      - name: Setup JDK
+        if: steps.version.outputs.next-version != ''
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        if: steps.version.outputs.next-version != ''
+        run: chmod +x gradlew
+
+      - name: Publish to Gradle Plugin Portal
+        if: steps.version.outputs.next-version != ''
+        run: ./gradlew publishPlugins -Pversion=${{ steps.version.outputs.next-version }}
+        env:
+          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
+          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+
       - name: Create release
-        id: release
+        if: steps.version.outputs.next-version != ''
         uses: tomtom-international/commisery-action/bump@v2
         with:
           token: ${{ github.token }}
           create-release: true
           create-tag: true
-        env:
-          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
-          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
 
       - name: Report release status
         run: |
-          if [ -n "${{ steps.release.outputs.next-version }}" ]; then
-            echo "✅ New version created: ${{ steps.release.outputs.next-version }}"
+          if [ -n "${{ steps.version.outputs.next-version }}" ]; then
+            echo "✅ New version created: ${{ steps.version.outputs.next-version }}"
           else
             echo "ℹ️ No new version created - no version bump needed"
           fi
