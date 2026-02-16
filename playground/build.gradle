@@ -21,6 +21,23 @@ allprojects {
         google()
         mavenCentral()
     }
+    
+    // Security fix: Force netty to patched version (multiple CVEs)
+    // This resolves multiple DoS and security issues in netty versions < 4.1.115.Final
+    configurations.all {
+        resolutionStrategy {
+            force "io.netty:netty-common:4.1.115.Final"
+            force "io.netty:netty-buffer:4.1.115.Final"
+            force "io.netty:netty-codec:4.1.115.Final"
+            force "io.netty:netty-codec-http:4.1.115.Final"
+            force "io.netty:netty-codec-http2:4.1.115.Final"
+            force "io.netty:netty-handler:4.1.115.Final"
+            force "io.netty:netty-handler-proxy:4.1.115.Final"
+            force "io.netty:netty-resolver:4.1.115.Final"
+            force "io.netty:netty-transport:4.1.115.Final"
+            force "io.netty:netty-transport-native-unix-common:4.1.115.Final"
+        }
+    }
 }
 
 task clean(type: Delete) {

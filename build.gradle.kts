@@ -98,6 +98,28 @@ dependencies {
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
+// Security fix: Force netty to patched version (multiple CVEs)
+// This resolves multiple DoS and security issues in netty versions < 4.1.115.Final
+// - GHSA-389x-839f-4rhx, GHSA-xq3w-v528-46rv (netty-common DoS)
+// - GHSA-3p8m-j85q-pgmj (netty-codec zip bomb)
+// - GHSA-4g8c-wm8x-jfhw, GHSA-6mjq-h674-j845 (netty-handler issues)
+// - GHSA-5jpm-x58v-624v, GHSA-84h7-rjj3-6jx4, GHSA-fghv-69vj-qj49 (netty-codec-http issues)
+// - GHSA-prj3-ccx8-p6x4, GHSA-xpw8-rcwv-8f8p (netty-codec-http2 issues)
+configurations.all {
+    resolutionStrategy {
+        force("io.netty:netty-common:4.1.115.Final")
+        force("io.netty:netty-buffer:4.1.115.Final")
+        force("io.netty:netty-codec:4.1.115.Final")
+        force("io.netty:netty-codec-http:4.1.115.Final")
+        force("io.netty:netty-codec-http2:4.1.115.Final")
+        force("io.netty:netty-handler:4.1.115.Final")
+        force("io.netty:netty-handler-proxy:4.1.115.Final")
+        force("io.netty:netty-resolver:4.1.115.Final")
+        force("io.netty:netty-transport:4.1.115.Final")
+        force("io.netty:netty-transport-native-unix-common:4.1.115.Final")
+    }
+}
+
 // Add a task to run the functional tests
 val functionalTest by tasks.registering(Test::class) {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
