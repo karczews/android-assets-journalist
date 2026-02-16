@@ -21,6 +21,14 @@ allprojects {
         google()
         mavenCentral()
     }
+    
+    // Security fix: Force commons-io to patched version (GHSA-78wr-2p64-hpwj)
+    // This resolves XMLStreamReader DoS vulnerability in commons-io versions < 2.14.0
+    configurations.all {
+        resolutionStrategy {
+            force "commons-io:commons-io:2.14.0"
+        }
+    }
 }
 
 task clean(type: Delete) {

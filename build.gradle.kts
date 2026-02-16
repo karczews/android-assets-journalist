@@ -98,6 +98,14 @@ dependencies {
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
+// Security fix: Force commons-io to patched version (GHSA-78wr-2p64-hpwj)
+// This resolves XMLStreamReader DoS vulnerability in commons-io versions < 2.14.0
+configurations.all {
+    resolutionStrategy {
+        force("commons-io:commons-io:2.14.0")
+    }
+}
+
 // Add a task to run the functional tests
 val functionalTest by tasks.registering(Test::class) {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
