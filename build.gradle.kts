@@ -98,6 +98,14 @@ dependencies {
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
+// Security fix: Force jose4j to patched version (CVE-2024-29371)
+// This resolves GHSA-3677-xxcr-wjqv - DoS via compressed JWE content
+configurations.all {
+    resolutionStrategy {
+        force("org.bitbucket.b_c:jose4j:0.9.6")
+    }
+}
+
 // Add a task to run the functional tests
 val functionalTest by tasks.registering(Test::class) {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
