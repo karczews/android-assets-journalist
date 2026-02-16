@@ -1,105 +1,257 @@
-# Android Assets Journalist
-[![N|Solid](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/github/utilx/android-assets-journalist/com.github.utilx.android-assets-journalist.gradle.plugin/maven-metadata.xml.svg?label=gradle)](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/github/utilx/android-assets-journalist/com.github.utilx.android-assets-journalist.gradle.plugin/maven-metadata.xml.svg?label=gradle)
-[![Build Status](https://travis-ci.org/karczews/android-assets-journalist.svg?branch=master)](https://travis-ci.org/karczews/android-assets-journalist)
+# Android Assets Journalist 🗂️
+
+[![Gradle Plugin](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/github/utilx/android-assets-journalist/com.github.utilx.android-assets-journalist.gradle.plugin/maven-metadata.xml.svg?label=gradle)](https://plugins.gradle.org/plugin/com.github.utilx.android-assets-journalist)
+[![CI](https://github.com/karczews/android-assets-journalist/actions/workflows/ci.yml/badge.svg)](https://github.com/karczews/android-assets-journalist/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/karczews/android-assets-journalist/branch/master/graph/badge.svg)](https://codecov.io/gh/karczews/android-assets-journalist)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=karczews_android-assets-journalist&metric=alert_status)](https://sonarcloud.io/dashboard?id=karczews_android-assets-journalist)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist?ref=badge_shield)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/karczews/android-assets-journalist/blob/master/LICENSE)
 
-Android Assets Journalist is gradle plugin that can be used in Android project to generate listing of android asset files in certain library.
+**Stop using error-prone string paths. Get compile-time safety and IDE autocomplete for your Android assets.**
 
-## Assets listing file can be generated in 3 ways
-####  Android strings xml file
-Given project contains following asset files:
-`src/main/assets/testName.testExtension`,
-`src/main/assets/subdir/testName.testExtension`
-Plugin can generate xml file in `build/generated/assetsjournalist/src/main/res/values/asset-strings.xml` as:
+Android Assets Journalist is a Gradle plugin that automatically generates type-safe constants for all your Android `assets/` files. No more typos, no more guessing paths, no more runtime crashes.
+
+## The Problem 😫
+
+```kotlin
+// ❌ Error-prone string paths
+val modelPath = "models/tesorflow_lite_model.tflite"  // Oops, typo!
+val jsonPath = "configs/app_config.json"  // Where is this used? IDE can't find it
+
+// ❌ Runtime crashes when files are renamed or moved
+assets.open("old_path/file.json")  // Crash!
+
+// ❌ No autocomplete - you have to remember every path
+assets.open("???")  // Good luck remembering
+```
+
+## The Solution ✨
+
+```kotlin
+// ✅ Type-safe, generated constants
+val modelPath = AssetFiles.MODELS_TENSORFLOW_LITE_MODEL_TFLITE
+val jsonPath = AssetFiles.CONFIGS_APP_CONFIG_JSON
+
+// ✅ Refactor-safe rename support
+assets.open(AssetFiles.MODELS_TENSORFLOW_LITE_MODEL_TFLITE)  // IDE knows this!
+
+// ✅ Full IDE autocomplete support
+AssetFiles.  // Press Ctrl+Space and see all assets
+```
+
+## Perfect For 🎯
+
+- **🎮 Games** - Managing sprite sheets, audio files, level data, game assets
+- **🧠 Machine Learning** - TensorFlow Lite models, ONNX files, ML configs
+- **🌐 WebView Apps** - Local HTML, CSS, JavaScript files
+- **📄 Document Viewers** - PDF templates, custom fonts, document resources
+- **📦 Asset-Heavy Apps** - Any app with 10+ files in `assets/`
+- **🔧 Configuration-Heavy Apps** - JSON configs, XML schemas, property files
+
+## Why Choose Android Assets Journalist? 🏆
+
+| Feature | Benefit |
+|---------|---------|
+| **🔒 Compile-time safety** | Catch typos at build time, not runtime crashes |
+| **🤖 IDE autocomplete** | Press Ctrl+Space and see all your assets instantly |
+| **🔄 Refactoring support** | Rename assets safely - IDE updates all references |
+| **⚡ Zero runtime overhead** | Generated constants, no reflection or runtime cost |
+| **📱 AGP 8.x compatible** | Works with Android Gradle Plugin 8.8.0+ |
+| **🎨 Multiple output formats** | XML strings, Java constants, or Kotlin constants |
+| **⚙️ Highly configurable** | Prefixes, path transformations, filtering |
+
+## Quick Start 🚀
+
+### 1. Apply the plugin
+
+```kotlin
+// build.gradle.kts (plugins block)
+plugins {
+    id("com.github.utilx.android-assets-journalist") version "1.0.0"
+}
+```
+
+### 2. Configure (optional)
+
+```kotlin
+androidAssetsJournalist {
+    // Generate Kotlin constants (default: enabled)
+    kotlinFile {
+        enabled = true
+        className = "AssetFiles"
+        packageName = "com.yourcompany.yourapp"
+    }
+    
+    // Or Java constants
+    javaFile {
+        enabled = false
+    }
+    
+    // Or Android string resources
+    xmlFile {
+        enabled = false
+    }
+}
+```
+
+### 3. Build and use
+
+```bash
+./gradlew assembleDebug
+```
+
+```kotlin
+import com.yourcompany.yourapp.AssetFiles
+
+// Access any asset with type-safe constants
+val model = AssetFiles.MODELS_ML_MODEL_TFLITE
+val config = AssetFiles.CONFIGS_SETTINGS_JSON
+```
+
+## Generated Output Examples 📄
+
+Given these assets:
+```
+src/main/assets/
+├── models/
+│   └── ml_model.tflite
+└── configs/
+    └── settings.json
+```
+
+### Kotlin Output
+```kotlin
+// AssetFiles.kt
+package com.github.utilx
+
+object AssetFiles {
+    const val MODELS_ML_MODEL_TFLITE: String = "models/ml_model.tflite"
+    const val CONFIGS_SETTINGS_JSON: String = "configs/settings.json"
+}
+```
+
+### Java Output
+```java
+// AssetFiles.java
+package com.github.utilx;
+
+public final class AssetFiles {
+    public static final String MODELS_ML_MODEL_TFLITE = "models/ml_model.tflite";
+    public static final String CONFIGS_SETTINGS_JSON = "configs/settings.json";
+}
+```
+
+### XML Output
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
+<!-- res/values/assets-strings.xml -->
 <resources>
-  <string name="testName_testExtension">testName.testExtension</string>
-  <string name="subdir_testName_testExtension">subDir/testName.testExtension</string>
+    <string name="models_ml_model_tflite">models/ml_model.tflite</string>
+    <string name="configs_settings_json">configs/settings.json</string>
 </resources>
 ```
-####  Java source class
-Given project contains following asset files:
-`src/main/assets/testName.testExtension`,
-`src/main/assets/subdir/testName.testExtension`
-Plugin can generate java file in `/build/generated/assetsjournalist/src/main/java/com/github/utilx/AssetFiles.java`
-```java
-public final class AssetFiles {
-  public static final String ASSET_TESTNAME_TESTEXTENSION = "testName.testExtension";
-  public static final String ASSET_SUBDIR_TESTNAME_TESTEXTENSION = "subDir/testName.testExtension";
-}
-```
-#### Kotlin source class
-Given project contains following asset files:
-`src/main/assets/testName.testExtension`,
-`src/main/assets/subdir/testName.testExtension`
-Plugin generate kotlin file in `/build/generated/assetsjournalist/src/main/kotlin/com/github/utilx/AssetFiles.kt`
-```kotlin
-object AssetFiles {
-    const val ASSET_TESTNAME_TESTEXTENSION = "testName.testExtension"
-    const val ASSET_SUBDIR_TESTNAME_TESTEXTENSION = "subDir/testName.testExtension"
-}
-```
-# How to apply plugin
-[gradle-plugin-repository]
-# How to configure plugin
-Once plugin is applied, in order to configure plugin use `androidAssetsJournalist` extension. 
-Following configuration presents all configuration options with default values or example values. Default values will be applied if not specified by integrator.
-```groovy
-androidAssetsJournalist {
 
+## Advanced Configuration ⚙️
+
+### Custom Prefixes
+
+```kotlin
+androidAssetsJournalist {
+    kotlinFile {
+        className = "Assets"
+        packageName = "com.myapp.util"
+        constNamePrefix = "ASSET_"
+        constValuePrefix = "file:///android_asset/"
+    }
+}
+```
+
+**Output:**
+```kotlin
+const val ASSET_MODELS_ML_MODEL_TFLITE: String = "file:///android_asset/models/ml_model.tflite"
+```
+
+### Path Transformations
+
+```kotlin
+androidAssetsJournalist {
+    kotlinFile {
+        // Replace "dev_" prefix with "prod_" in generated paths
+        replaceInAssetsPath = [
+            [match: '^dev_', replaceWith: 'prod_']
+        ]
+    }
+}
+```
+
+## Configuration Reference 📖
+
+```kotlin
+androidAssetsJournalist {
+    // XML String Resources
     xmlFile {
-        // enables xml string resource file generation
-        enabled = false
-        // prefix for each string name
+        enabled = false  // Enable to generate res/values/*.xml
         stringNamePrefix = "prefix_"
     }
 
+    // Java Constants Class
     javaFile {
-        // enable java source file generation
-        enabled = true
-        // class name to generate
+        enabled = true  // Default: enabled if no others
         className = "AssetFiles"
-        // package name for generated class
         packageName = "com.github.utilx"
-        // prefix for each constant
         constNamePrefix = "asset_"
-        // prefix to applt for each path, empty by default
-        constValuePrefix = ""
-        // regexp for replacing matching part of asset path, none by default
-        replaceInAssetsPath = [ ]
+        constValuePrefix = ""  // Prefix for actual path values
+        replaceInAssetsPath = []  // Path transformations
     }
 
+    // Kotlin Constants Object
     kotlinFile {
-        // enable kotlin source file generation
         enabled = false
-        // class name to generate
         className = "AssetFilesKt"
-        // package name for generated class
         packageName = "com.github.utilx"
-        // prefix for each constant
         constNamePrefix = "asset_"
-        // prefix to apply to each asset path, example:
-        constValuePrefix = "assetFile://"
-        // regexp for replacing matching part of asset path with provided replacement string
+        constValuePrefix = ""
         replaceInAssetsPath = [
-                // example1: replace each "ab" at the start of each path with "zx"
-                [match: '^ab', replaceWith: 'zx'],
-                // example2: replace each "da" or "db" with "cd"
-                [match: 'd[ab]', replaceWith: 'cd']
-            ]
-        
+            [match: '^dev_', replaceWith: 'prod_'],
+            [match: 'test_', replaceWith: '']
+        ]
     }
 }
 ```
 
-## What's new:
-0.11.0 - Added library/application variant support
+## Requirements ✅
+
+- **Java**: 17 or higher
+- **Android Gradle Plugin**: 8.0.0 or higher
+- **Gradle**: 8.0 or higher
+- **Kotlin**: 1.9.0 or higher (for Kotlin DSL)
+
+## Migration from 0.11.x to 1.0.0 🔄
+
+### Breaking Changes
+- **Java 17 is now required** (was Java 8)
+- **AGP 8.x namespace required** - Ensure your `build.gradle` has:
+  ```kotlin
+  android {
+      namespace = "com.yourcompany.yourapp"
+      compileSdk = 35
+  }
+  ```
+
+### What's New in 1.0.0 🎉
+
+This release brings full compatibility with Android Gradle Plugin 8.x and modern toolchain:
+
+**Highlights:**
+- ✅ **AGP 8.8.0 support** - Full compatibility with latest Android build tools
+- ✅ **Gradle 9.3.1** - Updated to latest Gradle version
+- ✅ **Kotlin 2.0.21** - Modern Kotlin support
+- ✅ **Java 17** - Requires Java 17 (aligned with AGP 8.x requirements)
+- ✅ **Namespace support** - Properly handles AGP 8.x namespace requirements
+- ✅ **GitHub Actions CI** - Migrated from Travis CI
+
+### 0.11.0 - Added library/application variant support
 
 ## License
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist?ref=badge_large)
 
-   [gradle-plugin-repository]: <https://plugins.gradle.org/plugin/com.github.utilx.android-assets-journalist>
+[Gradle Plugin Portal]: <https://plugins.gradle.org/plugin/com.github.utilx.android-assets-journalist>

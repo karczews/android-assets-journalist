@@ -5,12 +5,11 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.github.utilx.AssetFilesJava
 import com.github.utilx.AssetFilesKotlin
-import com.github.utilx.functionaltestapp.R
+import com.github.utilx.testapp.R
 
 private const val TAG = "LOG"
 
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("TEST", getString(R.string.prefix_az_123_txt_1028221614))

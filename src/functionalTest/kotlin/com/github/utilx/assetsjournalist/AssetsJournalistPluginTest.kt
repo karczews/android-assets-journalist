@@ -13,16 +13,14 @@
 package com.github.utilx.assetsjournalist
 
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
 import org.junit.jupiter.api.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Paths
 
 class AssetsJournalistPluginTest {
-
-    @get:Rule
-    val temporalFolderRule = TemporaryFolder()
+    @TempDir
+    lateinit var tempDir: File
 
     private val classpath = System.getProperty("java.class.path")
     private val testClasspath = classpath.split(File.pathSeparator.toRegex()).map { File(it) }
@@ -31,12 +29,10 @@ class AssetsJournalistPluginTest {
     fun `Should register tasks`() {
         val resourceDirectory = Paths.get("src", "functionalTest", "testProject")
 
-        //temporalFolderRule.newFolder()
-        // Setup the test buildc
-        val projectDir = Paths.get("build", "functionalTest").toFile()
+        // Setup the test build
+        val projectDir = tempDir
 
         resourceDirectory.toFile().copyRecursively(projectDir, true)
-
 
         // Run the build
         val runner = GradleRunner.create()
@@ -45,6 +41,14 @@ class AssetsJournalistPluginTest {
         runner.withPluginClasspath(runner.pluginClasspath + testClasspath)
         runner.withArguments("assembleFooDebug")
         runner.withProjectDir(projectDir)
+        // Clear conflicting Android SDK environment variables to avoid conflicts
+        val androidHome = System.getenv("ANDROID_HOME")
+        val envMap = System.getenv().toMutableMap()
+        envMap["ANDROID_SDK_ROOT"] = ""
+        if (androidHome != null) {
+            envMap["ANDROID_HOME"] = androidHome
+        }
+        runner.withEnvironment(envMap)
         val result = runner.build()
 
         // Verify the result

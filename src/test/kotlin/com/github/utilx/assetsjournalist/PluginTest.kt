@@ -39,7 +39,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class PluginTest {
-
     private val project: Project = ProjectBuilder.builder().build()
     private val androidAssetsJournalist: AssetFileGeneratorConfig
         get() = project.extensions.getByName<AssetFileGeneratorConfig>("androidAssetsJournalist")
@@ -59,7 +58,6 @@ class PluginTest {
             val exception = assertFails { project.pluginManager.apply(AssetsJournalistPlugin::class.java) }
             assertTrue { exception.cause is GradleException }
         }
-
     }
 
     @Nested
@@ -105,10 +103,11 @@ class PluginTest {
             val expectedPackageName = "test.package.name"
             val expectedConstNamePrefix = "testPrefix_"
             val expectedConstValuePrefix = "testValuePrefix_"
-            val expectedReplaceInAssetsPath = listOf(
-                mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY, "testMatch")),
-                mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY, "testReplace"))
-            )
+            val expectedReplaceInAssetsPath =
+                listOf(
+                    mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY, "testMatch")),
+                    mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY, "testReplace")),
+                )
 
             kotlinFileExtension.apply {
                 enabled = true
@@ -195,10 +194,11 @@ class PluginTest {
             val expectedPackageName = "test.package.name"
             val expectedConstNamePrefix = "testPrefix_"
             val expectedConstValuePrefix = "testValuePrefix_"
-            val expectedReplaceInAssetsPath = listOf(
-                mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY, "testMatch")),
-                mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY, "testReplace"))
-            )
+            val expectedReplaceInAssetsPath =
+                listOf(
+                    mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY, "testMatch")),
+                    mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY, "testReplace")),
+                )
 
             javaFileExtension.apply {
                 enabled = true
@@ -282,13 +282,16 @@ class PluginTest {
         }
     }
 
-    //DefaultAndroidSourceSet
+    // DefaultAndroidSourceSet
 
     private fun applyPlugin() {
         project.pluginManager.apply(AppPlugin::class.java)
         project.pluginManager.apply(AssetsJournalistPlugin::class.java)
 
-        androidExtension().compileSdkVersion(21)
+        androidExtension().apply {
+            namespace = "com.github.utilx.testapp"
+            compileSdkVersion(21)
+        }
     }
 
     private fun <T : Task> assertTaskNotRegistered(taskClass: Class<T>) {
@@ -297,44 +300,47 @@ class PluginTest {
     }
 
     private inline fun <reified T : Task> assertPreBuildDependsOn(taskClass: Class<T>) {
-        val result = project.tasks.findByPath("preBuild")?.dependsOn
-            ?.find { it is T || (it is Provider<*> && it.get() is T) }
+        val result =
+            project.tasks
+                .findByPath("preBuild")
+                ?.dependsOn
+                ?.find { it is T || (it is Provider<*> && it.get() is T) }
 
         assertNotNull(result, "preBuild does not depend on $taskClass")
     }
 
     private fun assertSourceSetSrcDirRegistered(
         srcDir: String,
-        setName: String = SourceSet.MAIN_SOURCE_SET_NAME
+        setName: String = SourceSet.MAIN_SOURCE_SET_NAME,
     ) {
         val srcDirs = getSourceSet(setName).java.srcDirs
         assertTrue(
             srcDirs.contains(File(srcDir)),
-            "srcDir $srcDir is not registered in $setName sourceSet. Currently registered sets are $srcDirs"
+            "srcDir $srcDir is not registered in $setName sourceSet. Currently registered sets are $srcDirs",
         )
     }
 
     private fun assertResDirRegistered(
         resDir: String,
-        setName: String = SourceSet.MAIN_SOURCE_SET_NAME
+        setName: String = SourceSet.MAIN_SOURCE_SET_NAME,
     ) {
         val resDirs = getSourceSet(setName).res.srcDirs
         assertTrue(
             resDirs.contains(File(resDir)),
-            "resDir $resDir is not registered in $setName sourceSet. Currently registered sets are $resDirs"
+            "resDir $resDir is not registered in $setName sourceSet. Currently registered sets are $resDirs",
         )
     }
 
     private fun evaluateProject() {
-        //evaluation is triggered internally
+        // evaluation is triggered internally
         project.getTasksByName("build", false)
     }
 
-    private fun androidExtension(): BaseExtension =
-        project.extensions.getByType(BaseExtension::class)
-
+    private fun androidExtension(): BaseExtension = project.extensions.getByType(BaseExtension::class)
 
     private fun getSourceSet(name: String = SourceSet.MAIN_SOURCE_SET_NAME): AndroidSourceSet =
-        project.extensions.getByType<AndroidConfig>().sourceSets.getByName(name)
+        project.extensions
+            .getByType<AndroidConfig>()
+            .sourceSets
+            .getByName(name)
 }
-
