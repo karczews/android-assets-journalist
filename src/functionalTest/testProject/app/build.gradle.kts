@@ -6,11 +6,11 @@ plugins {
 
 android {
     namespace = "com.github.utilx.testapp"
-    compileSdk = 28
+    compileSdk = 35
     defaultConfig {
         applicationId = "com.github.utilx.testapp"
         minSdk = 15
-        targetSdk = 28
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -20,6 +20,13 @@ android {
     productFlavors {
         create("foo") { }
         create("bar") { }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 

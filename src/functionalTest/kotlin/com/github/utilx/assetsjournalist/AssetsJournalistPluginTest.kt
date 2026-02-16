@@ -41,6 +41,12 @@ class AssetsJournalistPluginTest {
         runner.withPluginClasspath(runner.pluginClasspath + testClasspath)
         runner.withArguments("assembleFooDebug")
         runner.withProjectDir(projectDir)
+        // Clear conflicting Android SDK environment variables to avoid conflicts
+        val androidHome = System.getenv("ANDROID_HOME")
+        runner.withEnvironment(mapOf("ANDROID_SDK_ROOT" to ""))
+        if (androidHome != null) {
+            runner.withEnvironment(mapOf("ANDROID_HOME" to androidHome))
+        }
         val result = runner.build()
 
         // Verify the result
