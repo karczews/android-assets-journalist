@@ -66,7 +66,7 @@ androidAssetsJournalist {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("androidx.appcompat:appcompat:1.0.2")
-    implementation("androidx.core:core-ktx:1.0.1")
+    implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
     testImplementation("junit:junit:4.12")
     androidTestImplementation("androidx.test:runner:1.1.1")
