@@ -6,7 +6,7 @@ object Dependencies {
     const val javaPoet = "com.squareup:javapoet:1.13.0"
     const val kotlinPoet = "com.squareup:kotlinpoet:1.5.0"
     const val mockk = "io.mockk:mockk:1.9.3"
-    const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.21"
+    const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.28.1"
 
     object Kotlin {
         const val version = "2.0.21"
