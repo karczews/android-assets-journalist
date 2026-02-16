@@ -49,7 +49,7 @@ open class GenerateKotlinFileTask
         val constValuePrefix = objects.property<String>().value("")
 
         @get:Input
-        var constValueReplacementExpressions = objects.listProperty<Map<String, String>>()
+        var constValueReplacementExpressions = objects.listProperty<Map<String, String>>().value(emptyList())
 
         @get:InputFiles
         val assetFiles = objects.fileCollection()

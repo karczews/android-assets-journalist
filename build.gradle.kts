@@ -18,7 +18,7 @@ object Dependencies {
     }
 
     object JUnit5 {
-        const val version = "5.3.2"
+        const val version = "5.10.2"
 
         const val juniperApi = "org.junit.jupiter:junit-jupiter-api:$version"
         const val juniperParams = "org.junit.jupiter:junit-jupiter-params:$version"
@@ -26,7 +26,7 @@ object Dependencies {
         const val vintageEngine = "org.junit.vintage:junit-vintage-engine:$version"
 
         object PlatformLauncher {
-            const val version = "1.1.0"
+            const val version = "1.10.2"
             const val lib = "org.junit.platform:junit-platform-launcher:$version"
         }
     }
@@ -56,8 +56,8 @@ repositories {
 }
 
 gradlePlugin {
-    website.set("http://github.com/karczews/android-assets-journalist")
-    vcsUrl.set("http://github.com/karczews/android-assets-journalist")
+    website.set("https://github.com/karczews/android-assets-journalist")
+    vcsUrl.set("https://github.com/karczews/android-assets-journalist")
     plugins {
         create("android-assets-journalist") {
             id = "com.github.utilx.android-assets-journalist"
