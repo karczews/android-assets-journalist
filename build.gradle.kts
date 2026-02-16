@@ -43,7 +43,7 @@ plugins {
     `maven-publish`
     jacoco
     id("com.gradle.plugin-publish") version "1.3.1"
-    id("org.sonarqube") version "6.3.1.5724"
+    id("org.sonarqube") version "7.2.2.6593"
     // id("io.gitlab.arturbosch.detekt") version "1.23.7"
 }
 
