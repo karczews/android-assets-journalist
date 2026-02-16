@@ -18,7 +18,7 @@ object Dependencies {
     }
 
     object JUnit5 {
-        const val version = "5.14.3"
+        const val version = "6.0.3"
 
         const val juniperApi = "org.junit.jupiter:junit-jupiter-api:$version"
         const val juniperParams = "org.junit.jupiter:junit-jupiter-params:$version"
@@ -26,7 +26,7 @@ object Dependencies {
         const val vintageEngine = "org.junit.vintage:junit-vintage-engine:$version"
 
         object PlatformLauncher {
-            const val version = "1.14.3"
+            const val version = "6.0.3"
             const val lib = "org.junit.platform:junit-platform-launcher:$version"
         }
     }
