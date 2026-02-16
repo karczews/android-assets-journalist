@@ -21,6 +21,16 @@ allprojects {
         google()
         mavenCentral()
     }
+    
+    // Security fix: Force bouncycastle to patched version (multiple CVEs)
+    // This resolves multiple security issues in bouncycastle versions < 1.80
+    configurations.all {
+        resolutionStrategy {
+            force "org.bouncycastle:bcprov-jdk18on:1.80"
+            force "org.bouncycastle:bcpkix-jdk18on:1.80"
+            force "org.bouncycastle:bcutil-jdk18on:1.80"
+        }
+    }
 }
 
 task clean(type: Delete) {

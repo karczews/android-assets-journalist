@@ -98,6 +98,19 @@ dependencies {
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
+// Security fix: Force bouncycastle to patched version (multiple CVEs)
+// This resolves multiple security issues in bouncycastle versions < 1.80
+// - GHSA-4cx2-fc23-5wg6 (bcpkix-jdk18on excessive allocation)
+// - GHSA-4h8f-2wvx-gg5w, GHSA-67mf-3cr5-8w23, GHSA-8xfc-gm6g-vgpv,
+//   GHSA-m44j-cfrm-g8qc, GHSA-v435-xc8x-wvr9 (bcprov-jdk18on issues)
+configurations.all {
+    resolutionStrategy {
+        force("org.bouncycastle:bcprov-jdk18on:1.80")
+        force("org.bouncycastle:bcpkix-jdk18on:1.80")
+        force("org.bouncycastle:bcutil-jdk18on:1.80")
+    }
+}
+
 // Add a task to run the functional tests
 val functionalTest by tasks.registering(Test::class) {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
