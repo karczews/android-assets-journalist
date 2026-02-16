@@ -98,6 +98,14 @@ dependencies {
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
+// Security fix: Force commons-lang3 to patched version (GHSA-j288-q9x7-2f5v)
+// This resolves Uncontrolled Recursion vulnerability in commons-lang3 versions < 3.14.0
+configurations.all {
+    resolutionStrategy {
+        force("org.apache.commons:commons-lang3:3.14.0")
+    }
+}
+
 // Add a task to run the functional tests
 val functionalTest by tasks.registering(Test::class) {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
