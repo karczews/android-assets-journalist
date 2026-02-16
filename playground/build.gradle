@@ -21,6 +21,14 @@ allprojects {
         google()
         mavenCentral()
     }
+    
+    // Security fix: Force commons-compress to patched version (multiple CVEs)
+    // This resolves DoS issues in commons-compress versions < 1.26.0
+    configurations.all {
+        resolutionStrategy {
+            force "org.apache.commons:commons-compress:1.26.0"
+        }
+    }
 }
 
 task clean(type: Delete) {

@@ -98,6 +98,16 @@ dependencies {
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
+// Security fix: Force commons-compress to patched version (multiple CVEs)
+// This resolves DoS issues in commons-compress versions < 1.26.0
+// - GHSA-4265-ccf5-phj5: OutOfMemoryError unpacking broken Pack200 file
+// - GHSA-4g9r-vxhx-9pgx: Infinite loop for corrupted DUMP file
+configurations.all {
+    resolutionStrategy {
+        force("org.apache.commons:commons-compress:1.26.0")
+    }
+}
+
 // Add a task to run the functional tests
 val functionalTest by tasks.registering(Test::class) {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
