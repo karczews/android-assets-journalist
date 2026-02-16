@@ -26,12 +26,12 @@ jobs:
       run: chmod +x gradlew
     
     - name: Build with Gradle
-      run: ./gradlew clean build test check jacocoTestReport publishToMavenLocal
+      run: ./gradlew clean build test check jacocoTestReport publishToMavenLocal -Pversion=1.0.0-SNAPSHOT
     
     - name: Build Playground
       run: |
         chmod +x .scripts/build_playground.sh
-        ./.scripts/build_playground.sh
+        ./.scripts/build_playground.sh 1.0.0-SNAPSHOT
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
