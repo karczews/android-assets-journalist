@@ -43,10 +43,12 @@ class AssetsJournalistPluginTest {
         runner.withProjectDir(projectDir)
         // Clear conflicting Android SDK environment variables to avoid conflicts
         val androidHome = System.getenv("ANDROID_HOME")
-        runner.withEnvironment(mapOf("ANDROID_SDK_ROOT" to ""))
+        val envMap = System.getenv().toMutableMap()
+        envMap["ANDROID_SDK_ROOT"] = ""
         if (androidHome != null) {
-            runner.withEnvironment(mapOf("ANDROID_HOME" to androidHome))
+            envMap["ANDROID_HOME"] = androidHome
         }
+        runner.withEnvironment(envMap)
         val result = runner.build()
 
         // Verify the result
