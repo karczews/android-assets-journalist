@@ -98,6 +98,118 @@ dependencies {
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
+// =============================================================================
+// SECURITY FIXES - Transitive Dependency Updates
+// =============================================================================
+// The following resolution strategy forces updates to transitive dependencies
+// that have known security vulnerabilities. These dependencies are pulled in
+// by Android Gradle Plugin 8.8.0 and would otherwise remain vulnerable.
+//
+// Last updated: 2026-02-16
+// Total vulnerabilities addressed: 23 (7 High, 15 Medium, 1 Low)
+//
+// To check current dependency versions:
+//   ./gradlew dependencies --configuration testRuntimeClasspath
+//
+// To verify security fixes are applied:
+//   ./gradlew dependencies --configuration testRuntimeClasspath | grep <package>
+// =============================================================================
+
+configurations.all {
+    resolutionStrategy {
+        // -------------------------------------------------------------------------
+        // HIGH SEVERITY FIXES
+        // -------------------------------------------------------------------------
+
+        // CVE-2024-29371 / GHSA-3677-xxcr-wjqv
+        // Package: org.bitbucket.b_c:jose4j
+        // Issue: DoS via compressed JWE content (zip bomb attack)
+        // CVSS Score: 7.5
+        // Affected: < 0.9.6
+        force("org.bitbucket.b_c:jose4j:0.9.6")
+
+        // GHSA-735f-pc8j-v9w8
+        // Package: com.google.protobuf:protobuf-java
+        // Issue: Potential Denial of Service
+        // Affected: < 3.25.5
+        force("com.google.protobuf:protobuf-java:3.25.5")
+
+        // GHSA-78wr-2p64-hpwj
+        // Package: commons-io:commons-io
+        // Issue: XmlStreamReader DoS on untrusted input
+        // Affected: < 2.14.0
+        force("commons-io:commons-io:2.14.0")
+
+        // GHSA-2363-cqg2-863c
+        // Package: org.jdom:jdom2
+        // Issue: XML External Entity (XXE) Injection
+        // Affected: < 2.0.6.1
+        force("org.jdom:jdom2:2.0.6.1")
+
+        // -------------------------------------------------------------------------
+        // NETTY - Multiple CVEs (9 vulnerabilities)
+        // ------------------------------------------------------------------------
+        // High Severity:
+        //   - GHSA-4g8c-wm8x-jfhw: SslHandler validation issue
+        //   - GHSA-prj3-ccx8-p6x4: HTTP/2 DDoS vulnerability (MadeYouReset)
+        //   - GHSA-xpw8-rcwv-8f8p: HTTP/2 Rapid Reset Attack
+        // Medium Severity:
+        //   - GHSA-389x-839f-4rhx, GHSA-xq3w-v528-46rv: DoS on Windows
+        //   - GHSA-3p8m-j85q-pgmj: Zip bomb style attack
+        //   - GHSA-6mjq-h674-j845: SniHandler 16MB allocation issue
+        //   - GHSA-5jpm-x58v-624v: HttpPostRequestDecoder OOM
+        //   - GHSA-84h7-rjj3-6jx4: CRLF Injection vulnerability
+        // Low Severity:
+        //   - GHSA-fghv-69vj-qj49: Request smuggling via chunk extensions
+        // Affected: < 4.1.115.Final
+        force("io.netty:netty-common:4.1.115.Final")
+        force("io.netty:netty-buffer:4.1.115.Final")
+        force("io.netty:netty-codec:4.1.115.Final")
+        force("io.netty:netty-codec-http:4.1.115.Final")
+        force("io.netty:netty-codec-http2:4.1.115.Final")
+        force("io.netty:netty-handler:4.1.115.Final")
+        force("io.netty:netty-handler-proxy:4.1.115.Final")
+        force("io.netty:netty-resolver:4.1.115.Final")
+        force("io.netty:netty-transport:4.1.115.Final")
+        force("io.netty:netty-transport-native-unix-common:4.1.115.Final")
+
+        // -------------------------------------------------------------------------
+        // BOUNCYCASTLE - Multiple CVEs (6 vulnerabilities)
+        // -------------------------------------------------------------------------
+        // Medium Severity:
+        //   - GHSA-4cx2-fc23-5wg6: Excessive allocation in bcpkix-jdk18on
+        //   - GHSA-4h8f-2wvx-gg5w: DNS poisoning vulnerability
+        //   - GHSA-67mf-3cr5-8w23: Excessive allocation in bcprov-jdk18on
+        //   - GHSA-8xfc-gm6g-vgpv: Certificate parsing high CPU usage
+        //   - GHSA-m44j-cfrm-g8qc: Infinite loop with crafted signature
+        //   - GHSA-v435-xc8x-wvr9: RSA timing side-channel (Marvin Attack)
+        // Affected: < 1.80
+        force("org.bouncycastle:bcprov-jdk18on:1.80")
+        force("org.bouncycastle:bcpkix-jdk18on:1.80")
+        force("org.bouncycastle:bcutil-jdk18on:1.80")
+
+        // -------------------------------------------------------------------------
+        // MEDIUM SEVERITY FIXES
+        // -------------------------------------------------------------------------
+
+        // Apache Commons Compress - 2 CVEs
+        //   - GHSA-4265-ccf5-phj5: OutOfMemoryError unpacking broken Pack200 file
+        //   - GHSA-4g9r-vxhx-9pgx: Infinite loop for corrupted DUMP file
+        // Affected: < 1.26.0
+        force("org.apache.commons:commons-compress:1.26.0")
+
+        // GHSA-j288-q9x7-2f5v
+        // Package: org.apache.commons:commons-lang3
+        // Issue: Uncontrolled Recursion when processing long inputs
+        // Affected: < 3.14.0
+        force("org.apache.commons:commons-lang3:3.14.0")
+    }
+}
+
+// =============================================================================
+// END SECURITY FIXES
+// =============================================================================
+
 // Add a task to run the functional tests
 val functionalTest by tasks.registering(Test::class) {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
