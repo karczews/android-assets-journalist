@@ -96,14 +96,24 @@ androidAssetsJournalist {
 ```
 
 ## What's new:
-1.0.0 - Major update to support modern Gradle and Android toolchain
-- Updated to Gradle 9.3.1
-- Updated Kotlin to 2.0.21
-- Updated Android Gradle Plugin to 8.8.0
-- Modernized build configuration
-- Requires Java 17
 
-0.11.0 - Added library/application variant support
+### 1.0.0 - Android Gradle Plugin 8.x Compatibility 🎉
+
+This release brings full compatibility with Android Gradle Plugin 8.x and modern toolchain:
+
+**Highlights:**
+- ✅ **AGP 8.8.0 support** - Full compatibility with latest Android build tools
+- ✅ **Gradle 9.3.1** - Updated to latest Gradle version
+- ✅ **Kotlin 2.0.21** - Modern Kotlin support
+- ✅ **Java 17** - Requires Java 17 (aligned with AGP 8.x requirements)
+- ✅ **Namespace support** - Properly handles AGP 8.x namespace requirements
+- ✅ **GitHub Actions CI** - Migrated from Travis CI
+
+**Breaking Changes:**
+- Minimum Java version is now 17
+- AGP 8.x requires `namespace` in your app's `build.gradle`
+
+### 0.11.0 - Added library/application variant support
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist?ref=badge_large)
