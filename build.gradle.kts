@@ -98,6 +98,14 @@ dependencies {
 gradlePlugin.testSourceSets(functionalTestSourceSet)
 configurations.getByName("functionalTestImplementation").extendsFrom(configurations.getByName("testImplementation"))
 
+// Security fix: Force jdom2 to patched version (GHSA-2363-cqg2-863c)
+// This resolves XML External Entity (XXE) Injection vulnerability in jdom2 versions < 2.0.6.1
+configurations.all {
+    resolutionStrategy {
+        force("org.jdom:jdom2:2.0.6.1")
+    }
+}
+
 // Add a task to run the functional tests
 val functionalTest by tasks.registering(Test::class) {
     testClassesDirs = functionalTestSourceSet.output.classesDirs
