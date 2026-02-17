@@ -71,6 +71,21 @@ class AssetsJournalistPluginTest {
         }
     }
 
+    private fun setupProjectWithAsset(
+        assetFileName: String,
+        content: String = "test content",
+    ): File {
+        val resourceDirectory = Paths.get("src", "functionalTest", "testProject")
+        val projectDir = tempDir
+        resourceDirectory.toFile().copyRecursively(projectDir, true)
+
+        val appAssetsDir = File(projectDir, "app/src/main/assets")
+        appAssetsDir.mkdirs()
+        File(appAssetsDir, assetFileName).writeText(content)
+
+        return projectDir
+    }
+
     @Test
     @DisplayName("Should register and execute asset generation tasks")
     fun `Should register tasks`() {
@@ -96,16 +111,7 @@ class AssetsJournalistPluginTest {
     @Test
     @DisplayName("Should generate Kotlin asset files")
     fun `Should generate Kotlin asset files`() {
-        val resourceDirectory = Paths.get("src", "functionalTest", "testProject")
-
-        // Setup the test build
-        val projectDir = tempDir
-        resourceDirectory.toFile().copyRecursively(projectDir, true)
-
-        // Create a test asset file
-        val appAssetsDir = File(projectDir, "app/src/main/assets")
-        appAssetsDir.mkdirs()
-        File(appAssetsDir, "test_asset.txt").writeText("test content")
+        val projectDir = setupProjectWithAsset("test_asset.txt")
 
         // Run the build
         val result = createGradleRunner(projectDir, ":app:generateAssetsKotlinFileFooDebug", "--stacktrace").build()
@@ -131,16 +137,7 @@ class AssetsJournalistPluginTest {
     @Test
     @DisplayName("Should generate Java asset files")
     fun `Should generate Java asset files`() {
-        val resourceDirectory = Paths.get("src", "functionalTest", "testProject")
-
-        // Setup the test build
-        val projectDir = tempDir
-        resourceDirectory.toFile().copyRecursively(projectDir, true)
-
-        // Create a test asset file
-        val appAssetsDir = File(projectDir, "app/src/main/assets")
-        appAssetsDir.mkdirs()
-        File(appAssetsDir, "test_java_asset.txt").writeText("test content")
+        val projectDir = setupProjectWithAsset("test_java_asset.txt")
 
         // Run the build
         val result = createGradleRunner(projectDir, ":app:generateAssetsJavaFileFooDebug", "--stacktrace").build()
@@ -166,16 +163,7 @@ class AssetsJournalistPluginTest {
     @Test
     @DisplayName("Should generate XML asset files")
     fun `Should generate XML asset files`() {
-        val resourceDirectory = Paths.get("src", "functionalTest", "testProject")
-
-        // Setup the test build
-        val projectDir = tempDir
-        resourceDirectory.toFile().copyRecursively(projectDir, true)
-
-        // Create a test asset file
-        val appAssetsDir = File(projectDir, "app/src/main/assets")
-        appAssetsDir.mkdirs()
-        File(appAssetsDir, "test_xml_asset.txt").writeText("test content")
+        val projectDir = setupProjectWithAsset("test_xml_asset.txt")
 
         // Run the build
         val result = createGradleRunner(projectDir, ":app:generateAssetsXmlFileFooDebug", "--stacktrace").build()
