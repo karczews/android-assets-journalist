@@ -36,9 +36,12 @@ class AssetsJournalistPluginTest {
     ): GradleRunner {
         val androidHome = System.getenv("ANDROID_HOME")
         val envMap = System.getenv().toMutableMap()
-        envMap["ANDROID_SDK_ROOT"] = ""
         if (androidHome != null) {
             envMap["ANDROID_HOME"] = androidHome
+            // Only set ANDROID_SDK_ROOT if it's not already set, to preserve existing SDK discovery
+            if (envMap["ANDROID_SDK_ROOT"].isNullOrEmpty()) {
+                envMap["ANDROID_SDK_ROOT"] = androidHome
+            }
         }
 
         return GradleRunner.create().apply {
