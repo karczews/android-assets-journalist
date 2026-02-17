@@ -15,6 +15,7 @@ package com.github.utilx.assetsjournalist.common
 import assertk.assertThat
 import assertk.assertions.endsWith
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
 import assertk.assertions.startsWith
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -180,8 +181,7 @@ class FileConstantsFactoryTest {
         val result2 = factory.toConstNameValuePair("dir2/file.txt")
 
         // then - names should be different due to different hashcodes
-        assertThat(result1.name).isEqualTo(result1.name)
-        assertThat(result2.name).isEqualTo(result2.name)
+        assertThat(result1.name).isNotEqualTo(result2.name)
         // The hashcode suffix should be different
         val hash1 = "dir1/file.txt".hashCode().absoluteValue
         val hash2 = "dir2/file.txt".hashCode().absoluteValue
