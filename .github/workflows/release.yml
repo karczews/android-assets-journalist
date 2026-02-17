@@ -32,7 +32,7 @@ jobs:
 
       - name: Setup JDK
         if: steps.version.outputs.next-version != ''
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
