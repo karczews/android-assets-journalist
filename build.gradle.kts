@@ -1,11 +1,23 @@
+/*
+ *  Copyright (c) 2019-present, Android Assets Journalist Contributors.
+ *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in
+ *  compliance with the License. You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software distributed under the License is
+ *  distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See
+ *  the License for the specific language governing permissions and limitations under the License.
+ */
+
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 object Dependencies {
     const val javaPoet = "com.squareup:javapoet:1.13.0"
-    const val kotlinPoet = "com.squareup:kotlinpoet:1.18.1"
-    const val mockk = "io.mockk:mockk:1.9.3"
+    const val kotlinPoet = "com.squareup:kotlinpoet:2.2.0"
+    const val mockk = "io.mockk:mockk:1.14.9"
     const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.28.1"
 
     object Kotlin {
@@ -18,7 +30,7 @@ object Dependencies {
     }
 
     object JUnit5 {
-        const val version = "5.14.3"
+        const val version = "6.0.3"
 
         const val juniperApi = "org.junit.jupiter:junit-jupiter-api:$version"
         const val juniperParams = "org.junit.jupiter:junit-jupiter-params:$version"
@@ -26,7 +38,7 @@ object Dependencies {
         const val vintageEngine = "org.junit.vintage:junit-vintage-engine:$version"
 
         object PlatformLauncher {
-            const val version = "1.14.3"
+            const val version = "6.0.3"
             const val lib = "org.junit.platform:junit-platform-launcher:$version"
         }
     }
