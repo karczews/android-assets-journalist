@@ -13,10 +13,15 @@
 package com.github.utilx.assetsjournalist
 
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.nio.file.Paths
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class AssetsJournalistPluginTest {
     @TempDir
@@ -25,7 +30,64 @@ class AssetsJournalistPluginTest {
     private val classpath = System.getProperty("java.class.path")
     private val testClasspath = classpath.split(File.pathSeparator.toRegex()).map { File(it) }
 
+    private fun createGradleRunner(
+        projectDir: File,
+        vararg arguments: String,
+    ): GradleRunner {
+        val androidHome = System.getenv("ANDROID_HOME")
+        val androidSdkRoot = System.getenv("ANDROID_SDK_ROOT")
+        val envMap = System.getenv().toMutableMap()
+
+        // Ensure both ANDROID_HOME and ANDROID_SDK_ROOT point to the same SDK to avoid conflicts
+        // If ANDROID_HOME is set, use it as the source of truth
+        // If only ANDROID_SDK_ROOT is set, set ANDROID_HOME to match it
+        // If neither is set, we'll leave them as-is (build will fail appropriately)
+        when {
+            androidHome != null && androidSdkRoot != null && androidHome != androidSdkRoot -> {
+                // Both are set but different - use ANDROID_HOME as source of truth
+                envMap["ANDROID_SDK_ROOT"] = androidHome
+            }
+
+            androidHome != null && androidSdkRoot == null -> {
+                // Only ANDROID_HOME is set - set ANDROID_SDK_ROOT to match
+                envMap["ANDROID_SDK_ROOT"] = androidHome
+            }
+
+            androidHome == null && androidSdkRoot != null -> {
+                // Only ANDROID_SDK_ROOT is set - set ANDROID_HOME to match
+                envMap["ANDROID_HOME"] = androidSdkRoot
+            }
+        }
+
+        return GradleRunner.create().apply {
+            forwardOutput()
+            withPluginClasspath()
+            // Null-safe merge of plugin classpath with test classpath
+            val pluginCp = pluginClasspath
+            withPluginClasspath((pluginCp ?: emptyList()) + testClasspath)
+            withArguments(*arguments)
+            withProjectDir(projectDir)
+            withEnvironment(envMap)
+        }
+    }
+
+    private fun setupProjectWithAsset(
+        assetFileName: String,
+        content: String = "test content",
+    ): File {
+        val resourceDirectory = Paths.get("src", "functionalTest", "testProject")
+        val projectDir = tempDir
+        resourceDirectory.toFile().copyRecursively(projectDir, true)
+
+        val appAssetsDir = File(projectDir, "app/src/main/assets")
+        appAssetsDir.mkdirs()
+        File(appAssetsDir, assetFileName).writeText(content)
+
+        return projectDir
+    }
+
     @Test
+    @DisplayName("Should register and execute asset generation tasks")
     fun `Should register tasks`() {
         val resourceDirectory = Paths.get("src", "functionalTest", "testProject")
 
@@ -35,22 +97,168 @@ class AssetsJournalistPluginTest {
         resourceDirectory.toFile().copyRecursively(projectDir, true)
 
         // Run the build
-        val runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withPluginClasspath(runner.pluginClasspath + testClasspath)
-        runner.withArguments("assembleFooDebug")
-        runner.withProjectDir(projectDir)
-        // Clear conflicting Android SDK environment variables to avoid conflicts
-        val androidHome = System.getenv("ANDROID_HOME")
-        val envMap = System.getenv().toMutableMap()
-        envMap["ANDROID_SDK_ROOT"] = ""
-        if (androidHome != null) {
-            envMap["ANDROID_HOME"] = androidHome
-        }
-        runner.withEnvironment(envMap)
-        val result = runner.build()
+        val result = createGradleRunner(projectDir, "assembleFooDebug").build()
 
         // Verify the result
+        assertNotNull(result, "Build result should not be null")
+        assertEquals(
+            TaskOutcome.SUCCESS,
+            result.task(":app:assembleFooDebug")?.outcome,
+            "assembleFooDebug task should succeed",
+        )
+    }
+
+    @Test
+    @DisplayName("Should generate Kotlin asset files")
+    fun `Should generate Kotlin asset files`() {
+        val projectDir = setupProjectWithAsset("test_asset.txt")
+
+        // Run the build
+        val result = createGradleRunner(projectDir, ":app:generateAssetsKotlinFileFooDebug", "--stacktrace").build()
+
+        // Verify the result
+        assertEquals(
+            TaskOutcome.SUCCESS,
+            result.task(":app:generateAssetsKotlinFileFooDebug")?.outcome,
+            "Kotlin asset generation task should succeed",
+        )
+
+        // Verify generated file exists
+        val generatedDir = File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/kotlin")
+        val generatedFile = File(generatedDir, "com/github/utilx/AssetFilesKotlin.kt")
+        assertTrue(generatedFile.exists(), "Generated Kotlin file should exist at ${generatedFile.absolutePath}")
+
+        // Verify generated file content
+        val content = generatedFile.readText()
+        assertTrue(content.contains("object AssetFilesKotlin"), "Generated file should contain object declaration")
+        assertTrue(content.contains("const val"), "Generated file should contain const declarations")
+    }
+
+    @Test
+    @DisplayName("Should generate Java asset files")
+    fun `Should generate Java asset files`() {
+        val projectDir = setupProjectWithAsset("test_java_asset.txt")
+
+        // Run the build
+        val result = createGradleRunner(projectDir, ":app:generateAssetsJavaFileFooDebug", "--stacktrace").build()
+
+        // Verify the result
+        assertEquals(
+            TaskOutcome.SUCCESS,
+            result.task(":app:generateAssetsJavaFileFooDebug")?.outcome,
+            "Java asset generation task should succeed",
+        )
+
+        // Verify generated file exists
+        val generatedDir = File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/java")
+        val generatedFile = File(generatedDir, "com/github/utilx/AssetFilesJava.java")
+        assertTrue(generatedFile.exists(), "Generated Java file should exist at ${generatedFile.absolutePath}")
+
+        // Verify generated file content
+        val content = generatedFile.readText()
+        assertTrue(content.contains("class AssetFilesJava"), "Generated file should contain class declaration")
+        assertTrue(content.contains("public static final String"), "Generated file should contain constant declarations")
+    }
+
+    @Test
+    @DisplayName("Should generate XML asset files")
+    fun `Should generate XML asset files`() {
+        val projectDir = setupProjectWithAsset("test_xml_asset.txt")
+
+        // Run the build
+        val result = createGradleRunner(projectDir, ":app:generateAssetsXmlFileFooDebug", "--stacktrace").build()
+
+        // Verify the result
+        assertEquals(
+            TaskOutcome.SUCCESS,
+            result.task(":app:generateAssetsXmlFileFooDebug")?.outcome,
+            "XML asset generation task should succeed",
+        )
+
+        // Verify generated file exists
+        val generatedDir = File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/res/values")
+        val generatedFile = File(generatedDir, "assets-strings.xml")
+        assertTrue(generatedFile.exists(), "Generated XML file should exist at ${generatedFile.absolutePath}")
+
+        // Verify generated file content
+        val content = generatedFile.readText()
+        assertTrue(content.contains("<resources>"), "Generated file should contain resources tag")
+        assertTrue(content.contains("<string name="), "Generated file should contain string declarations")
+    }
+
+    @Test
+    @DisplayName("Should handle multiple product flavors")
+    fun `Should handle multiple product flavors`() {
+        val resourceDirectory = Paths.get("src", "functionalTest", "testProject")
+
+        // Setup the test build
+        val projectDir = tempDir
+        resourceDirectory.toFile().copyRecursively(projectDir, true)
+
+        // Create test assets for different flavors
+        val fooAssetsDir = File(projectDir, "app/src/foo/assets")
+        fooAssetsDir.mkdirs()
+        File(fooAssetsDir, "foo_asset.txt").writeText("foo content")
+
+        val barAssetsDir = File(projectDir, "app/src/bar/assets")
+        barAssetsDir.mkdirs()
+        File(barAssetsDir, "bar_asset.txt").writeText("bar content")
+
+        // Run build for both flavors
+        val resultFoo = createGradleRunner(projectDir, ":app:generateAssetsKotlinFileFooDebug", "--stacktrace").build()
+        val resultBar = createGradleRunner(projectDir, ":app:generateAssetsKotlinFileBarDebug", "--stacktrace").build()
+
+        // Verify both builds succeeded
+        assertEquals(
+            TaskOutcome.SUCCESS,
+            resultFoo.task(":app:generateAssetsKotlinFileFooDebug")?.outcome,
+            "Foo flavor asset generation should succeed",
+        )
+        assertEquals(
+            TaskOutcome.SUCCESS,
+            resultBar.task(":app:generateAssetsKotlinFileBarDebug")?.outcome,
+            "Bar flavor asset generation should succeed",
+        )
+
+        // Verify both generated files exist
+        val fooGeneratedFile =
+            File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/kotlin/com/github/utilx/AssetFilesKotlin.kt")
+        val barGeneratedFile =
+            File(projectDir, "app/build/generated/assetsjournalist/src/barDebug/kotlin/com/github/utilx/AssetFilesKotlin.kt")
+
+        assertTrue(fooGeneratedFile.exists(), "Foo flavor generated file should exist")
+        assertTrue(barGeneratedFile.exists(), "Bar flavor generated file should exist")
+    }
+
+    @Test
+    @DisplayName("Should apply regex replacements to asset paths")
+    fun `Should apply regex replacements to asset paths`() {
+        val resourceDirectory = Paths.get("src", "functionalTest", "testProject")
+
+        // Setup the test build
+        val projectDir = tempDir
+        resourceDirectory.toFile().copyRecursively(projectDir, true)
+
+        // Create a test asset file with pattern to be replaced
+        val appAssetsDir = File(projectDir, "app/src/main/assets")
+        appAssetsDir.mkdirs()
+        File(appAssetsDir, "aztest.txt").writeText("test content")
+
+        // Run the build
+        val result = createGradleRunner(projectDir, ":app:generateAssetsKotlinFileFooDebug", "--stacktrace").build()
+
+        // Verify the result
+        assertEquals(TaskOutcome.SUCCESS, result.task(":app:generateAssetsKotlinFileFooDebug")?.outcome)
+
+        // Verify generated file contains replaced path
+        val generatedFile =
+            File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/kotlin/com/github/utilx/AssetFilesKotlin.kt")
+        val content = generatedFile.readText()
+
+        // According to config: [match: '^az', replaceWith: 'replacekt']
+        assertTrue(
+            content.contains("replacekttest.txt"),
+            "Generated file should contain replaced path (^az -> replacekt)",
+        )
     }
 }
