@@ -30,6 +30,27 @@ class AssetsJournalistPluginTest {
     private val classpath = System.getProperty("java.class.path")
     private val testClasspath = classpath.split(File.pathSeparator.toRegex()).map { File(it) }
 
+    private fun createGradleRunner(
+        projectDir: File,
+        vararg arguments: String,
+    ): GradleRunner {
+        val androidHome = System.getenv("ANDROID_HOME")
+        val envMap = System.getenv().toMutableMap()
+        envMap["ANDROID_SDK_ROOT"] = ""
+        if (androidHome != null) {
+            envMap["ANDROID_HOME"] = androidHome
+        }
+
+        return GradleRunner.create().apply {
+            forwardOutput()
+            withPluginClasspath()
+            withPluginClasspath(pluginClasspath + testClasspath)
+            withArguments(*arguments)
+            withProjectDir(projectDir)
+            withEnvironment(envMap)
+        }
+    }
+
     @Test
     @DisplayName("Should register and execute asset generation tasks")
     fun `Should register tasks`() {
@@ -41,21 +62,7 @@ class AssetsJournalistPluginTest {
         resourceDirectory.toFile().copyRecursively(projectDir, true)
 
         // Run the build
-        val runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withPluginClasspath(runner.pluginClasspath + testClasspath)
-        runner.withArguments("assembleFooDebug")
-        runner.withProjectDir(projectDir)
-        // Clear conflicting Android SDK environment variables to avoid conflicts
-        val androidHome = System.getenv("ANDROID_HOME")
-        val envMap = System.getenv().toMutableMap()
-        envMap["ANDROID_SDK_ROOT"] = ""
-        if (androidHome != null) {
-            envMap["ANDROID_HOME"] = androidHome
-        }
-        runner.withEnvironment(envMap)
-        val result = runner.build()
+        val result = createGradleRunner(projectDir, "assembleFooDebug").build()
 
         // Verify the result
         assertNotNull(result, "Build result should not be null")
@@ -81,21 +88,7 @@ class AssetsJournalistPluginTest {
         File(appAssetsDir, "test_asset.txt").writeText("test content")
 
         // Run the build
-        val runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withPluginClasspath(runner.pluginClasspath + testClasspath)
-        runner.withArguments("generateFooDebugKotlinAssetFiles", "--stacktrace")
-        runner.withProjectDir(projectDir)
-        // Clear conflicting Android SDK environment variables to avoid conflicts
-        val androidHome = System.getenv("ANDROID_HOME")
-        val envMap = System.getenv().toMutableMap()
-        envMap["ANDROID_SDK_ROOT"] = ""
-        if (androidHome != null) {
-            envMap["ANDROID_HOME"] = androidHome
-        }
-        runner.withEnvironment(envMap)
-        val result = runner.build()
+        val result = createGradleRunner(projectDir, "generateFooDebugKotlinAssetFiles", "--stacktrace").build()
 
         // Verify the result
         assertEquals(
@@ -130,21 +123,7 @@ class AssetsJournalistPluginTest {
         File(appAssetsDir, "test_java_asset.txt").writeText("test content")
 
         // Run the build
-        val runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withPluginClasspath(runner.pluginClasspath + testClasspath)
-        runner.withArguments("generateFooDebugJavaAssetFiles", "--stacktrace")
-        runner.withProjectDir(projectDir)
-        // Clear conflicting Android SDK environment variables to avoid conflicts
-        val androidHome = System.getenv("ANDROID_HOME")
-        val envMap = System.getenv().toMutableMap()
-        envMap["ANDROID_SDK_ROOT"] = ""
-        if (androidHome != null) {
-            envMap["ANDROID_HOME"] = androidHome
-        }
-        runner.withEnvironment(envMap)
-        val result = runner.build()
+        val result = createGradleRunner(projectDir, "generateFooDebugJavaAssetFiles", "--stacktrace").build()
 
         // Verify the result
         assertEquals(
@@ -179,21 +158,7 @@ class AssetsJournalistPluginTest {
         File(appAssetsDir, "test_xml_asset.txt").writeText("test content")
 
         // Run the build
-        val runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withPluginClasspath(runner.pluginClasspath + testClasspath)
-        runner.withArguments("generateFooDebugXmlAssetFiles", "--stacktrace")
-        runner.withProjectDir(projectDir)
-        // Clear conflicting Android SDK environment variables to avoid conflicts
-        val androidHome = System.getenv("ANDROID_HOME")
-        val envMap = System.getenv().toMutableMap()
-        envMap["ANDROID_SDK_ROOT"] = ""
-        if (androidHome != null) {
-            envMap["ANDROID_HOME"] = androidHome
-        }
-        runner.withEnvironment(envMap)
-        val result = runner.build()
+        val result = createGradleRunner(projectDir, "generateFooDebugXmlAssetFiles", "--stacktrace").build()
 
         // Verify the result
         assertEquals(
@@ -232,30 +197,8 @@ class AssetsJournalistPluginTest {
         File(barAssetsDir, "bar_asset.txt").writeText("bar content")
 
         // Run build for both flavors
-        val runnerFoo = GradleRunner.create()
-        runnerFoo.forwardOutput()
-        runnerFoo.withPluginClasspath()
-        runnerFoo.withPluginClasspath(runnerFoo.pluginClasspath + testClasspath)
-        runnerFoo.withArguments("generateFooDebugKotlinAssetFiles", "--stacktrace")
-        runnerFoo.withProjectDir(projectDir)
-        // Clear conflicting Android SDK environment variables to avoid conflicts
-        val androidHome = System.getenv("ANDROID_HOME")
-        val envMap = System.getenv().toMutableMap()
-        envMap["ANDROID_SDK_ROOT"] = ""
-        if (androidHome != null) {
-            envMap["ANDROID_HOME"] = androidHome
-        }
-        runnerFoo.withEnvironment(envMap)
-        val resultFoo = runnerFoo.build()
-
-        val runnerBar = GradleRunner.create()
-        runnerBar.forwardOutput()
-        runnerBar.withPluginClasspath()
-        runnerBar.withPluginClasspath(runnerBar.pluginClasspath + testClasspath)
-        runnerBar.withArguments("generateBarDebugKotlinAssetFiles", "--stacktrace")
-        runnerBar.withProjectDir(projectDir)
-        runnerBar.withEnvironment(envMap)
-        val resultBar = runnerBar.build()
+        val resultFoo = createGradleRunner(projectDir, "generateFooDebugKotlinAssetFiles", "--stacktrace").build()
+        val resultBar = createGradleRunner(projectDir, "generateBarDebugKotlinAssetFiles", "--stacktrace").build()
 
         // Verify both builds succeeded
         assertEquals(
@@ -292,21 +235,7 @@ class AssetsJournalistPluginTest {
         File(appAssetsDir, "aztest.txt").writeText("test content")
 
         // Run the build
-        val runner = GradleRunner.create()
-        runner.forwardOutput()
-        runner.withPluginClasspath()
-        runner.withPluginClasspath(runner.pluginClasspath + testClasspath)
-        runner.withArguments("generateFooDebugKotlinAssetFiles", "--stacktrace")
-        runner.withProjectDir(projectDir)
-        // Clear conflicting Android SDK environment variables to avoid conflicts
-        val androidHome = System.getenv("ANDROID_HOME")
-        val envMap = System.getenv().toMutableMap()
-        envMap["ANDROID_SDK_ROOT"] = ""
-        if (androidHome != null) {
-            envMap["ANDROID_HOME"] = androidHome
-        }
-        runner.withEnvironment(envMap)
-        val result = runner.build()
+        val result = createGradleRunner(projectDir, "generateFooDebugKotlinAssetFiles", "--stacktrace").build()
 
         // Verify the result
         assertEquals(TaskOutcome.SUCCESS, result.task(":app:generateFooDebugKotlinAssetFiles")?.outcome)

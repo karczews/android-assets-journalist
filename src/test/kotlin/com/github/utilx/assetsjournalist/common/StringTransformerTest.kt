@@ -14,6 +14,7 @@ package com.github.utilx.assetsjournalist.common
 
 import com.github.utilx.assetsjournalist.SourceFileConfig.Companion.CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY
 import com.github.utilx.assetsjournalist.SourceFileConfig.Companion.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -172,11 +173,8 @@ class StringTransformerTest {
             )
 
         // when/then
-        try {
+        assertThrows(IllegalStateException::class.java) {
             buildStringTransformerUsing(invalidConfig)
-            throw AssertionError("Should have thrown IllegalStateException")
-        } catch (e: IllegalStateException) {
-            // Expected
         }
     }
 
@@ -190,11 +188,8 @@ class StringTransformerTest {
             )
 
         // when/then
-        try {
+        assertThrows(IllegalStateException::class.java) {
             buildStringTransformerUsing(invalidConfig)
-            throw AssertionError("Should have thrown IllegalStateException")
-        } catch (e: IllegalStateException) {
-            // Expected
         }
     }
 
