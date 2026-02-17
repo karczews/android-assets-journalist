@@ -47,7 +47,9 @@ class AssetsJournalistPluginTest {
         return GradleRunner.create().apply {
             forwardOutput()
             withPluginClasspath()
-            withPluginClasspath(pluginClasspath + testClasspath)
+            // Null-safe merge of plugin classpath with test classpath
+            val pluginCp = pluginClasspath
+            withPluginClasspath((pluginCp ?: emptyList()) + testClasspath)
             withArguments(*arguments)
             withProjectDir(projectDir)
             withEnvironment(envMap)
