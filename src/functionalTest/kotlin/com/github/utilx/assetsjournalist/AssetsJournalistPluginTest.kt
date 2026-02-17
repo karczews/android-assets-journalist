@@ -35,12 +35,27 @@ class AssetsJournalistPluginTest {
         vararg arguments: String,
     ): GradleRunner {
         val androidHome = System.getenv("ANDROID_HOME")
+        val androidSdkRoot = System.getenv("ANDROID_SDK_ROOT")
         val envMap = System.getenv().toMutableMap()
-        if (androidHome != null) {
-            envMap["ANDROID_HOME"] = androidHome
-            // Only set ANDROID_SDK_ROOT if it's not already set, to preserve existing SDK discovery
-            if (envMap["ANDROID_SDK_ROOT"].isNullOrEmpty()) {
+
+        // Ensure both ANDROID_HOME and ANDROID_SDK_ROOT point to the same SDK to avoid conflicts
+        // If ANDROID_HOME is set, use it as the source of truth
+        // If only ANDROID_SDK_ROOT is set, set ANDROID_HOME to match it
+        // If neither is set, we'll leave them as-is (build will fail appropriately)
+        when {
+            androidHome != null && androidSdkRoot != null && androidHome != androidSdkRoot -> {
+                // Both are set but different - use ANDROID_HOME as source of truth
                 envMap["ANDROID_SDK_ROOT"] = androidHome
+            }
+
+            androidHome != null && androidSdkRoot == null -> {
+                // Only ANDROID_HOME is set - set ANDROID_SDK_ROOT to match
+                envMap["ANDROID_SDK_ROOT"] = androidHome
+            }
+
+            androidHome == null && androidSdkRoot != null -> {
+                // Only ANDROID_SDK_ROOT is set - set ANDROID_HOME to match
+                envMap["ANDROID_HOME"] = androidSdkRoot
             }
         }
 
@@ -93,17 +108,17 @@ class AssetsJournalistPluginTest {
         File(appAssetsDir, "test_asset.txt").writeText("test content")
 
         // Run the build
-        val result = createGradleRunner(projectDir, "generateFooDebugKotlinAssetFiles", "--stacktrace").build()
+        val result = createGradleRunner(projectDir, ":app:generateAssetsKotlinFileFooDebug", "--stacktrace").build()
 
         // Verify the result
         assertEquals(
             TaskOutcome.SUCCESS,
-            result.task(":app:generateFooDebugKotlinAssetFiles")?.outcome,
+            result.task(":app:generateAssetsKotlinFileFooDebug")?.outcome,
             "Kotlin asset generation task should succeed",
         )
 
         // Verify generated file exists
-        val generatedDir = File(projectDir, "app/build/generated/assetsjournalist/fooDebug/kotlin")
+        val generatedDir = File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/kotlin")
         val generatedFile = File(generatedDir, "com/github/utilx/AssetFilesKotlin.kt")
         assertTrue(generatedFile.exists(), "Generated Kotlin file should exist at ${generatedFile.absolutePath}")
 
@@ -128,17 +143,17 @@ class AssetsJournalistPluginTest {
         File(appAssetsDir, "test_java_asset.txt").writeText("test content")
 
         // Run the build
-        val result = createGradleRunner(projectDir, "generateFooDebugJavaAssetFiles", "--stacktrace").build()
+        val result = createGradleRunner(projectDir, ":app:generateAssetsJavaFileFooDebug", "--stacktrace").build()
 
         // Verify the result
         assertEquals(
             TaskOutcome.SUCCESS,
-            result.task(":app:generateFooDebugJavaAssetFiles")?.outcome,
+            result.task(":app:generateAssetsJavaFileFooDebug")?.outcome,
             "Java asset generation task should succeed",
         )
 
         // Verify generated file exists
-        val generatedDir = File(projectDir, "app/build/generated/assetsjournalist/fooDebug/java")
+        val generatedDir = File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/java")
         val generatedFile = File(generatedDir, "com/github/utilx/AssetFilesJava.java")
         assertTrue(generatedFile.exists(), "Generated Java file should exist at ${generatedFile.absolutePath}")
 
@@ -163,18 +178,18 @@ class AssetsJournalistPluginTest {
         File(appAssetsDir, "test_xml_asset.txt").writeText("test content")
 
         // Run the build
-        val result = createGradleRunner(projectDir, "generateFooDebugXmlAssetFiles", "--stacktrace").build()
+        val result = createGradleRunner(projectDir, ":app:generateAssetsXmlFileFooDebug", "--stacktrace").build()
 
         // Verify the result
         assertEquals(
             TaskOutcome.SUCCESS,
-            result.task(":app:generateFooDebugXmlAssetFiles")?.outcome,
+            result.task(":app:generateAssetsXmlFileFooDebug")?.outcome,
             "XML asset generation task should succeed",
         )
 
         // Verify generated file exists
-        val generatedDir = File(projectDir, "app/build/generated/assetsjournalist/fooDebug/res/values")
-        val generatedFile = File(generatedDir, "asset-strings.xml")
+        val generatedDir = File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/res/values")
+        val generatedFile = File(generatedDir, "assets-strings.xml")
         assertTrue(generatedFile.exists(), "Generated XML file should exist at ${generatedFile.absolutePath}")
 
         // Verify generated file content
@@ -202,24 +217,26 @@ class AssetsJournalistPluginTest {
         File(barAssetsDir, "bar_asset.txt").writeText("bar content")
 
         // Run build for both flavors
-        val resultFoo = createGradleRunner(projectDir, "generateFooDebugKotlinAssetFiles", "--stacktrace").build()
-        val resultBar = createGradleRunner(projectDir, "generateBarDebugKotlinAssetFiles", "--stacktrace").build()
+        val resultFoo = createGradleRunner(projectDir, ":app:generateAssetsKotlinFileFooDebug", "--stacktrace").build()
+        val resultBar = createGradleRunner(projectDir, ":app:generateAssetsKotlinFileBarDebug", "--stacktrace").build()
 
         // Verify both builds succeeded
         assertEquals(
             TaskOutcome.SUCCESS,
-            resultFoo.task(":app:generateFooDebugKotlinAssetFiles")?.outcome,
+            resultFoo.task(":app:generateAssetsKotlinFileFooDebug")?.outcome,
             "Foo flavor asset generation should succeed",
         )
         assertEquals(
             TaskOutcome.SUCCESS,
-            resultBar.task(":app:generateBarDebugKotlinAssetFiles")?.outcome,
+            resultBar.task(":app:generateAssetsKotlinFileBarDebug")?.outcome,
             "Bar flavor asset generation should succeed",
         )
 
         // Verify both generated files exist
-        val fooGeneratedFile = File(projectDir, "app/build/generated/assetsjournalist/fooDebug/kotlin/com/github/utilx/AssetFilesKotlin.kt")
-        val barGeneratedFile = File(projectDir, "app/build/generated/assetsjournalist/barDebug/kotlin/com/github/utilx/AssetFilesKotlin.kt")
+        val fooGeneratedFile =
+            File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/kotlin/com/github/utilx/AssetFilesKotlin.kt")
+        val barGeneratedFile =
+            File(projectDir, "app/build/generated/assetsjournalist/src/barDebug/kotlin/com/github/utilx/AssetFilesKotlin.kt")
 
         assertTrue(fooGeneratedFile.exists(), "Foo flavor generated file should exist")
         assertTrue(barGeneratedFile.exists(), "Bar flavor generated file should exist")
@@ -240,13 +257,14 @@ class AssetsJournalistPluginTest {
         File(appAssetsDir, "aztest.txt").writeText("test content")
 
         // Run the build
-        val result = createGradleRunner(projectDir, "generateFooDebugKotlinAssetFiles", "--stacktrace").build()
+        val result = createGradleRunner(projectDir, ":app:generateAssetsKotlinFileFooDebug", "--stacktrace").build()
 
         // Verify the result
-        assertEquals(TaskOutcome.SUCCESS, result.task(":app:generateFooDebugKotlinAssetFiles")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":app:generateAssetsKotlinFileFooDebug")?.outcome)
 
         // Verify generated file contains replaced path
-        val generatedFile = File(projectDir, "app/build/generated/assetsjournalist/fooDebug/kotlin/com/github/utilx/AssetFilesKotlin.kt")
+        val generatedFile =
+            File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/kotlin/com/github/utilx/AssetFilesKotlin.kt")
         val content = generatedFile.readText()
 
         // According to config: [match: '^az', replaceWith: 'replacekt']
