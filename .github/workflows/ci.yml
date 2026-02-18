@@ -7,6 +7,15 @@ on:
     branches: [ master, main ]
 
 jobs:
+  conventional-commits:
+    name: Check Conventional Commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for Conventional Commit compliance
+        uses: tomtom-international/commisery-action@v4
+        with:
+          token: ${{ github.token }}
+
   license-header:
     name: Check License Headers
     runs-on: ubuntu-latest

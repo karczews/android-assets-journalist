@@ -277,21 +277,75 @@ Always ensure:
 
 ### Commit Messages
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
+We follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification. All commit messages MUST be structured as follows:
 
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `docs:` - Documentation changes
-- `test:` - Test changes
-- `build:` - Build system changes
-- `ci:` - CI/CD changes
-- `refactor:` - Code refactoring
-
-Example:
 ```
-feat: Add support for custom file extensions
+<type>[optional scope]: <description>
 
-Add configuration option to filter assets by extension pattern.
+[optional body]
+
+[optional footer(s)]
+```
+
+#### Commit Types
+
+| Type | Purpose |
+|------|---------|
+| `feat` | New feature (correlates to MINOR in SemVer) |
+| `fix` | Bug fix (correlates to PATCH in SemVer) |
+| `docs` | Documentation only changes |
+| `test` | Adding or correcting tests |
+| `build` | Changes to build system or dependencies |
+| `ci` | Changes to CI configuration |
+| `refactor` | Code refactoring without behavior change |
+| `perf` | Performance improvements |
+| `style` | Code style changes (formatting, missing semicolons, etc.) |
+| `chore` | Routine maintenance tasks |
+
+#### Breaking Changes
+
+Breaking changes MUST be indicated by either:
+1. Appending `!` after the type/scope: `feat!: remove deprecated API`
+2. Including `BREAKING CHANGE:` footer:
+   ```
+   feat: update configuration format
+
+   BREAKING CHANGE: configuration file format changed from JSON to YAML
+   ```
+
+#### Description Rules
+
+- Use lowercase after the colon
+- Use imperative, present tense: "add feature" not "added feature"
+- No period at the end
+- Keep it concise (under 72 characters recommended)
+
+#### Examples
+
+Simple fix:
+```
+fix: handle null pointer in asset generator
+
+Add null check before accessing asset path to prevent crashes
+when assets directory is empty.
+```
+
+Feature with scope:
+```
+feat(kotlin): generate const val for asset paths
+
+Add support for generating Kotlin const val declarations
+instead of regular val properties for better performance.
+```
+
+Breaking change:
+```
+feat(config)!: rename extension property from assetsDir to assetDirectory
+
+Rename the configuration property to be more descriptive and
+follow Android Gradle Plugin naming conventions.
+
+BREAKING CHANGE: assetsDir property renamed to assetDirectory
 ```
 
 ### Pull Request Process
