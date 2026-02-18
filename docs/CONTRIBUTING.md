@@ -299,7 +299,7 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 | `ci` | Changes to CI configuration |
 | `refactor` | Code refactoring without behavior change |
 | `perf` | Performance improvements |
-| `style` | Code style changes (formatting, missing semi colons, etc) |
+| `style` | Code style changes (formatting, missing semi colons, etc.) |
 | `chore` | Routine maintenance tasks |
 
 #### Breaking Changes
