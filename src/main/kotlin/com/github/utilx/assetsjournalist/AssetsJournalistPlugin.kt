@@ -121,7 +121,12 @@ private class ProjectScopedConfiguration(
                     )
                 }
 
-        variant.sources.res?.addGeneratedSourceDirectory(taskProvider, GenerateXmlFileTask::outputSrcDir)
+        val resSources = variant.sources.res
+        if (resSources != null) {
+            resSources.addGeneratedSourceDirectory(taskProvider, GenerateXmlFileTask::outputSrcDir)
+        } else {
+            project.logger.error("Variant ${variant.name} does not support resources, skipping XML generation task registration")
+        }
     }
 
     private fun configureJavaTask(
@@ -143,7 +148,12 @@ private class ProjectScopedConfiguration(
                     )
                 }
 
-        variant.sources.java?.addGeneratedSourceDirectory(taskProvider, GenerateJavaFileTask::outputSrcDir)
+        val javaSources = variant.sources.java
+        if (javaSources != null) {
+            javaSources.addGeneratedSourceDirectory(taskProvider, GenerateJavaFileTask::outputSrcDir)
+        } else {
+            project.logger.error("Variant ${variant.name} does not support Java sources, skipping Java generation task registration")
+        }
     }
 
     private fun configureKotlinTask(
@@ -164,7 +174,12 @@ private class ProjectScopedConfiguration(
                     )
                 }
 
-        variant.sources.java?.addGeneratedSourceDirectory(taskProvider, GenerateKotlinFileTask::outputSrcDir)
+        val javaSources = variant.sources.java
+        if (javaSources != null) {
+            javaSources.addGeneratedSourceDirectory(taskProvider, GenerateKotlinFileTask::outputSrcDir)
+        } else {
+            project.logger.error("Variant ${variant.name} does not support Java sources, skipping Kotlin generation task registration")
+        }
     }
 
     /**
