@@ -12,7 +12,7 @@
 
 package com.github.utilx.assetsjournalist
 
-import com.android.build.gradle.api.AndroidSourceSet
+import com.android.build.api.dsl.AndroidSourceSet
 import com.github.utilx.assetsjournalist.java.JavaFileConfig
 import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
 import com.github.utilx.assetsjournalist.xml.XmlFileConfig
