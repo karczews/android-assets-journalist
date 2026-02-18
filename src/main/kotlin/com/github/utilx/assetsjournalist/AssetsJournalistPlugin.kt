@@ -23,6 +23,9 @@ import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
@@ -43,13 +46,9 @@ private class ProjectScopedConfiguration(
     /**
      * <builddir>/generated/assetsjournalist/src
      */
-    private fun rootGeneratedBuildDir(): File =
+    private val rootGeneratedBuildDir: Provider<Directory> =
         project.layout.buildDirectory
-            .get()
-            .asFile
-            .resolve("generated")
-            .resolve("assetsjournalist")
-            .resolve("src")
+            .dir("generated/assetsjournalist/src")
 
     fun apply() {
         if (GradleVersion.current() < GradleVersion.version(MIN_GRADLE_VERSION)) {
@@ -112,8 +111,8 @@ private class ProjectScopedConfiguration(
 
                     project.logger.debug(
                         "Configured xml generation task for [${variant.name}] variant\n" +
-                            "Registered new res directory - $generatedResDirectory\n" +
-                            "Asset xml file will be generated at $generatedXmlFile",
+                            "Registered new res directory - ${generatedResDirectory.get()}\n" +
+                            "Asset xml file will be generated at ${generatedXmlFile.get()}",
                     )
                 }
 
@@ -168,40 +167,40 @@ private class ProjectScopedConfiguration(
      *
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/java
      */
-    private fun getGeneratedJavaOutputDirForVariant(variantName: String) =
-        rootGeneratedBuildDir()
-            .resolve(variantName)
-            .resolve("java")
+    private fun getGeneratedJavaOutputDirForVariant(variantName: String): Provider<Directory> =
+        rootGeneratedBuildDir
+            .map { it.dir(variantName).dir("java") }
 
     /**
      * Returns res directory where files will be generated.
      *
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/res/
      */
-    private fun getGeneratedResOutputDirForVariant(variantName: String) =
-        rootGeneratedBuildDir()
-            .resolve(variantName)
-            .resolve("res")
+    private fun getGeneratedResOutputDirForVariant(variantName: String): Provider<Directory> =
+        rootGeneratedBuildDir
+            .map { it.dir(variantName).dir("res") }
 
     /**
      * Returns path to xml file to be generated.
      *
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/res/values/assets-strings.xml
      */
-    private fun getOutputXmFileForVariant(variantName: String) =
-        rootGeneratedBuildDir()
-            .resolve(variantName)
-            .resolve("res")
-            .resolve("values")
-            .resolve("assets-strings.xml")
+    private fun getOutputXmFileForVariant(variantName: String): Provider<RegularFile> =
+        rootGeneratedBuildDir
+            .map {
+                it
+                    .dir(variantName)
+                    .dir("res")
+                    .dir("values")
+                    .file("assets-strings.xml")
+            }
 
     /**
      * Returns kotlin source root directory where files will be generated for given variant.
      *
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/kotlin
      */
-    private fun getGeneratedKotlinOutputDirForVariant(variantName: String) =
-        rootGeneratedBuildDir()
-            .resolve(variantName)
-            .resolve("kotlin")
+    private fun getGeneratedKotlinOutputDirForVariant(variantName: String): Provider<Directory> =
+        rootGeneratedBuildDir
+            .map { it.dir(variantName).dir("kotlin") }
 }
