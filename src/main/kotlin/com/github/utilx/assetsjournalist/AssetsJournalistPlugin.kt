@@ -65,20 +65,25 @@ private class ProjectScopedConfiguration(
 
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class)
 
-        androidComponents.onVariants { variant ->
-            // Check if any file type is enabled
-            val variantAssets = variant.getAssetDirectories()
-
+        val isJavaEnabled by lazy(LazyThreadSafetyMode.NONE) {
             if (!xmlExtension.enabled && !javaExtension.enabled && !kotlinExtension.enabled) {
                 project.logger.warn("No file type enabled, enabling java file generation")
                 javaExtension.enabled = true
             }
+            javaExtension.enabled
+        }
+
+        androidComponents.onVariants { variant ->
+            project.logger.debug("Processing variant ${variant.name}")
+
+            // Check if any file type is enabled
+            val variantAssets = variant.getAssetDirectories()
 
             if (xmlExtension.enabled) {
                 configureXmlTask(xmlExtension, variant, variantAssets)
             }
 
-            if (javaExtension.enabled) {
+            if (isJavaEnabled) {
                 configureJavaTask(javaExtension, variant, variantAssets)
             }
 
