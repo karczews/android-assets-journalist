@@ -43,7 +43,7 @@ private class ProjectScopedConfiguration(
     /**
      * <builddir>/generated/assetsjournalist/src
      */
-    private val rootGeneratedBuildDir =
+    private fun rootGeneratedBuildDir(): File =
         project.layout.buildDirectory
             .get()
             .asFile
@@ -169,7 +169,7 @@ private class ProjectScopedConfiguration(
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/java
      */
     private fun getGeneratedJavaOutputDirForVariant(variantName: String) =
-        rootGeneratedBuildDir
+        rootGeneratedBuildDir()
             .resolve(variantName)
             .resolve("java")
 
@@ -179,7 +179,7 @@ private class ProjectScopedConfiguration(
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/res/
      */
     private fun getGeneratedResOutputDirForVariant(variantName: String) =
-        rootGeneratedBuildDir
+        rootGeneratedBuildDir()
             .resolve(variantName)
             .resolve("res")
 
@@ -189,7 +189,7 @@ private class ProjectScopedConfiguration(
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/res/values/assets-strings.xml
      */
     private fun getOutputXmFileForVariant(variantName: String) =
-        rootGeneratedBuildDir
+        rootGeneratedBuildDir()
             .resolve(variantName)
             .resolve("res")
             .resolve("values")
@@ -201,7 +201,7 @@ private class ProjectScopedConfiguration(
      * ex. <Project>/build/generated/assetsjournalist/src/<main>/kotlin
      */
     private fun getGeneratedKotlinOutputDirForVariant(variantName: String) =
-        rootGeneratedBuildDir
+        rootGeneratedBuildDir()
             .resolve(variantName)
             .resolve("kotlin")
 }
