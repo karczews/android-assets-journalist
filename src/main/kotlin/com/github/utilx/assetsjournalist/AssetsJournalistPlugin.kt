@@ -12,8 +12,8 @@
 
 package com.github.utilx.assetsjournalist
 
-import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.api.BaseVariant
+import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.Variant
 import com.github.utilx.assetsjournalist.java.GenerateJavaFileTask
 import com.github.utilx.assetsjournalist.java.JavaFileConfig
 import com.github.utilx.assetsjournalist.kotlin.GenerateKotlinFileTask
@@ -24,7 +24,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.register
 import org.gradle.util.GradleVersion
 import java.io.File
@@ -47,9 +47,8 @@ private class ProjectScopedConfiguration(
         project.layout.buildDirectory
             .get()
             .asFile
-            .resolve(
-                "generated",
-            ).resolve("assetsjournalist")
+            .resolve("generated")
+            .resolve("assetsjournalist")
             .resolve("src")
 
     fun apply() {
@@ -60,51 +59,55 @@ private class ProjectScopedConfiguration(
             )
         }
 
-        if (project.extensions.findByType<BaseExtension>() == null) {
-            throw GradleException("Failed to locate android plugin extension, make sure plugin is applied after android gradle plugin")
-        }
-
         val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class)
         val xmlExtension = extension.xmlFile
         val javaExtension = extension.javaFile
         val kotlinExtension = extension.kotlinFile
 
-        project.afterEvaluate {
-            buildVariants.configureEach {
-                if (!xmlExtension.enabled && !javaExtension.enabled && !kotlinExtension.enabled) {
-                    project.logger.warn("No file type enabled, enabling java file generation")
-                    javaExtension.enabled = true
-                }
+        val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class)
 
-                if (xmlExtension.enabled) {
-                    configureXmlTask(xmlExtension, this)
-                }
+        androidComponents.onVariants { variant ->
+            // Check if any file type is enabled
+            val variantAssets = variant.getAssetDirectories()
 
-                if (javaExtension.enabled) {
-                    configureJavaTask(javaExtension, this)
-                }
+            if (!xmlExtension.enabled && !javaExtension.enabled && !kotlinExtension.enabled) {
+                project.logger.warn("No file type enabled, enabling java file generation")
+                javaExtension.enabled = true
+            }
 
-                if (kotlinExtension.enabled) {
-                    configureKotlinTask(kotlinExtension, this)
-                }
+            if (xmlExtension.enabled) {
+                configureXmlTask(xmlExtension, variant, variantAssets)
+            }
+
+            if (javaExtension.enabled) {
+                configureJavaTask(javaExtension, variant, variantAssets)
+            }
+
+            if (kotlinExtension.enabled) {
+                configureKotlinTask(kotlinExtension, variant, variantAssets)
             }
         }
     }
 
+    private fun Variant.getAssetDirectories(): List<File> =
+        sources.assets?.all?.orNull?.flatMap { dirs ->
+            dirs.map { it.asFile }
+        } ?: emptyList()
+
     private fun configureXmlTask(
         xmlConfig: XmlFileConfig,
-        variant: BaseVariant,
+        variant: Variant,
+        assetDirs: Collection<File>,
     ) {
-        val task =
+        val generatedResDirectory = getGeneratedResOutputDirForVariant(variant.name)
+        val generatedXmlFile = getOutputXmFileForVariant(variant.name)
+
+        val taskProvider =
             project.tasks
                 .register<GenerateXmlFileTask>("generateAssetsXmlFile${variant.name.replaceFirstChar { it.uppercase() }}") {
-                    // Register new res directory to provided sourceSet so all generated xml files are accessible in the project
-                    val generatedResDirectory = getGeneratedResOutputDirForVariant(variant.name)
-                    val generatedXmlFile = getOutputXmFileForVariant(variant.name)
-
-                    assetFiles.setFrom(variant.assetDirs())
-
+                    assetFiles.setFrom(assetDirs)
                     outputFile.set(generatedXmlFile)
+                    outputSrcDir.set(generatedResDirectory)
                     configureUsing(xmlConfig)
 
                     project.logger.debug(
@@ -114,59 +117,51 @@ private class ProjectScopedConfiguration(
                     )
                 }
 
-        // Have to configure task here until agp supports task provider https://issuetracker.google.com/issues/150799913
-        variant.registerGeneratedResFolders(task.get().outputs.files)
+        variant.sources.res?.addGeneratedSourceDirectory(taskProvider, GenerateXmlFileTask::outputSrcDir)
     }
 
     private fun configureJavaTask(
         extension: JavaFileConfig,
-        variant: BaseVariant,
+        variant: Variant,
+        assetDirs: Collection<File>,
     ) {
-        val outputSrcDir = getGeneratedJavaOutputDirForVariant(variant.name)
-
-        val task =
+        val taskProvider =
             project
                 .tasks
                 .register<GenerateJavaFileTask>("generateAssetsJavaFile${variant.name.replaceFirstChar { it.uppercase() }}") {
-                    assetFiles.setFrom(variant.assetDirs())
-                    this.outputSrcDir.set(outputSrcDir)
-
+                    assetFiles.setFrom(assetDirs)
+                    outputSrcDir.set(getGeneratedJavaOutputDirForVariant(variant.name))
                     configureUsing(extension)
 
                     project.logger.debug(
                         "Configured java generation task for [${variant.name}] variant set\n" +
-                            "Registered new java source directory - $outputSrcDir",
+                            "Registered new java source directory - ${outputSrcDir.get()}",
                     )
                 }
 
-        // Have to configure task here until agp supports task provider https://issuetracker.google.com/issues/150799913
-        variant.registerJavaGeneratingTask(task.get(), outputSrcDir)
+        variant.sources.java?.addGeneratedSourceDirectory(taskProvider, GenerateJavaFileTask::outputSrcDir)
     }
 
     private fun configureKotlinTask(
         extension: KotlinFileConfig,
-        variant: BaseVariant,
+        variant: Variant,
+        assetDirs: Collection<File>,
     ) {
-        val outputSrcDir = getGeneratedKotlinOutputDirForVariant(variant.name)
-
-        val task =
+        val taskProvider =
             project.tasks
                 .register<GenerateKotlinFileTask>("generateAssetsKotlinFile${variant.name.replaceFirstChar { it.uppercase() }}") {
-                    assetFiles.setFrom(variant.assetDirs())
-                    this.outputSrcDir.set(outputSrcDir)
+                    assetFiles.setFrom(assetDirs)
+                    outputSrcDir.set(getGeneratedKotlinOutputDirForVariant(variant.name))
                     configureUsing(extension)
 
                     project.logger.debug(
                         "Configured kotlin generation task for [${variant.name}] variant set\n" +
-                            "Registered new kotlin source directory - $outputSrcDir",
+                            "Registered new kotlin source directory - ${outputSrcDir.get()}",
                     )
                 }
 
-        // Have to configure task here until agp supports task provider https://issuetracker.google.com/issues/150799913
-        variant.registerJavaGeneratingTask(task.get(), outputSrcDir)
+        variant.sources.java?.addGeneratedSourceDirectory(taskProvider, GenerateKotlinFileTask::outputSrcDir)
     }
-
-    private fun BaseVariant.assetDirs(): Collection<File> = sourceSets.flatMap { it.assetsDirectories }
 
     /**
      * Returns java source root directory where files will be generated for given variant.

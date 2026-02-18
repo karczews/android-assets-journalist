@@ -14,13 +14,16 @@ package com.github.utilx.assetsjournalist.xml
 
 import com.github.utilx.assetsjournalist.common.listAssets
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
+import java.io.File
 import java.io.FileWriter
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
@@ -33,62 +36,74 @@ private const val NAME_XML_ATTRIBUTE = "name"
 private const val NOT_ALLOWED_STRING_NAME_CHAR_PATTERN = "[^A-Za-z0-9]"
 private const val DEFAULT_NAME_REPLACEMENT_CHAR = "_"
 
-open class GenerateXmlFileTask @javax.inject.Inject constructor(objects: ObjectFactory) : DefaultTask() {
+open class GenerateXmlFileTask
+    @javax.inject.Inject
+    constructor(
+        objects: ObjectFactory,
+    ) : DefaultTask() {
+        private val notAllowedStringNameCharsRegex by lazy { NOT_ALLOWED_STRING_NAME_CHAR_PATTERN.toRegex() }
 
-    private val notAllowedStringNameCharsRegex by lazy { NOT_ALLOWED_STRING_NAME_CHAR_PATTERN.toRegex() }
+        @get:Input
+        val stringNameCharMapping = objects.listProperty<Map<String, String>>()
 
-    @get:Input
-    val stringNameCharMapping = objects.listProperty<Map<String, String>>()
+        @get:Input
+        val stringNamePrefix = objects.property<String>()
 
-    @get:Input
-    val stringNamePrefix = objects.property<String>()
+        @get:InputFiles
+        val assetFiles = objects.fileCollection()
 
-    @get:InputFiles
-    val assetFiles = objects.fileCollection()
+        @get:OutputFile
+        val outputFile = objects.fileProperty()
 
-    @get:OutputFile
-    val outputFile = objects.fileProperty()
+        @get:OutputDirectory
+        val outputSrcDir: DirectoryProperty = objects.directoryProperty()
 
-    @TaskAction
-    fun generateXml() {
-        FileWriter(outputFile.asFile.get()).use { fileWriter ->
-            val writer = XMLOutputFactory.newInstance().createXMLStreamWriter(fileWriter)
+        @TaskAction
+        fun generateXml() {
+            // Ensure output directory exists
+            outputFile.asFile
+                .get()
+                .parentFile
+                ?.mkdirs()
 
-            val list = assetFiles.listAssets(project)
+            FileWriter(outputFile.asFile.get()).use { fileWriter ->
+                val writer = XMLOutputFactory.newInstance().createXMLStreamWriter(fileWriter)
 
-            writer.document {
-                writeComment(
-                    "This is XML file generated with asset file generator. " +
-                        "All changes done here will be overwritten."
-                )
-                element(RESOURCE_XML_TAG) {
-                    list.forEach {
-                        element(STRING_XML_TAG) {
-                            attribute(NAME_XML_ATTRIBUTE, createStringName(it))
-                            writeCharacters(it)
+                val list = assetFiles.listAssets(project)
+
+                writer.document {
+                    writeComment(
+                        "This is XML file generated with asset file generator. " +
+                            "All changes done here will be overwritten.",
+                    )
+                    element(RESOURCE_XML_TAG) {
+                        list.forEach {
+                            element(STRING_XML_TAG) {
+                                attribute(NAME_XML_ATTRIBUTE, createStringName(it))
+                                writeCharacters(it)
+                            }
                         }
                     }
                 }
-            }
 
-            logger.lifecycle("Created xml asset file at ${outputFile.asFile.get().path}")
+                logger.lifecycle("Created xml asset file at ${outputFile.asFile.get().path}")
+            }
+        }
+
+        private fun createStringName(filePath: String): String =
+            filePath
+                .replace(notAllowedStringNameCharsRegex, DEFAULT_NAME_REPLACEMENT_CHAR)
+                .let { it + DEFAULT_NAME_REPLACEMENT_CHAR + filePath.hashCode().absoluteValue }
+                .let { stringNamePrefix.get() + it }
+
+        /**
+         * Configure task using provided config
+         */
+        fun configureUsing(config: XmlFileConfig) {
+            this.stringNamePrefix.set(config.stringNamePrefix)
+            this.stringNameCharMapping.addAll(config.stringNameCharMapping)
         }
     }
-
-    private fun createStringName(filePath: String): String =
-        filePath.replace(notAllowedStringNameCharsRegex, DEFAULT_NAME_REPLACEMENT_CHAR)
-            .let { it + DEFAULT_NAME_REPLACEMENT_CHAR + filePath.hashCode().absoluteValue }
-            .let { stringNamePrefix.get() + it }
-
-    /**
-     * Configure task using provided config
-     */
-    fun configureUsing(config: XmlFileConfig) {
-        this.stringNamePrefix.set(config.stringNamePrefix)
-        this.stringNameCharMapping.addAll(config.stringNameCharMapping)
-    }
-}
-
 
 private fun XMLStreamWriter.document(init: XMLStreamWriter.() -> Unit): XMLStreamWriter {
     this.writeStartDocument()
@@ -97,17 +112,26 @@ private fun XMLStreamWriter.document(init: XMLStreamWriter.() -> Unit): XMLStrea
     return this
 }
 
-private fun XMLStreamWriter.element(name: String, init: XMLStreamWriter.() -> Unit): XMLStreamWriter {
+private fun XMLStreamWriter.element(
+    name: String,
+    init: XMLStreamWriter.() -> Unit,
+): XMLStreamWriter {
     this.writeStartElement(name)
     this.init()
     this.writeEndElement()
     return this
 }
 
-private fun XMLStreamWriter.element(name: String, content: String) {
+private fun XMLStreamWriter.element(
+    name: String,
+    content: String,
+) {
     element(name) {
         writeCharacters(content)
     }
 }
 
-private fun XMLStreamWriter.attribute(name: String, value: String) = writeAttribute(name, value)
+private fun XMLStreamWriter.attribute(
+    name: String,
+    value: String,
+) = writeAttribute(name, value)
