@@ -32,7 +32,7 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.util.GradleVersion
 import java.io.File
 
-internal const val MIN_GRADLE_VERSION = "5.3"
+internal const val MIN_GRADLE_VERSION = "8.0"
 
 internal const val ROOT_EXTENSION_NAME = "androidAssetsJournalist"
 
