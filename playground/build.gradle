@@ -19,7 +19,7 @@ buildscript {
 }
 
 println "Using AGP version: ${findProperty('agpVersion') ?: '8.13.2'}"
-println "Using plugin version: ${findProperty('pluginVersion') ?: '1.0.0 (default)'}
+println "Using plugin version: ${findProperty('pluginVersion') ?: '1.0.0 (default)'}"
 
 allprojects {
     repositories {

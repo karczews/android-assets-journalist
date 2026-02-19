@@ -84,20 +84,21 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Create result directory
+        run: mkdir -p ${{ github.workspace }}/results
+
       - name: Build Playground
+        id: build
         run: |
           chmod +x .scripts/build_playground.sh
           ./.scripts/build_playground.sh ${{ inputs.version }} ${{ matrix.agp-version }}
 
-      - name: Create result directory
-        run: mkdir -p ${{ github.workspace }}/results
-
       - name: Record Success
-        if: success()
+        if: steps.build.outcome == 'success'
         run: echo "SUCCESS" > ${{ github.workspace }}/results/agp-${{ matrix.agp-version }}-result.txt
 
       - name: Record Failure
-        if: failure()
+        if: steps.build.outcome == 'failure'
         run: echo "FAILED" > ${{ github.workspace }}/results/agp-${{ matrix.agp-version }}-result.txt
 
       - name: Upload Result
@@ -167,25 +168,28 @@ jobs:
             exit 1
           fi
           
-          echo "Found versions: $versions"
+          echo "Found versions:"
+          echo "$versions"
           
-          for version in $versions; do
+          while IFS= read -r version; do
+            [ -z "$version" ] && continue
+            
             result_file="${{ github.workspace }}/results/agp-${version}-result.txt"
             
             if [ -f "$result_file" ]; then
               result=$(cat "$result_file")
               if [ "$result" == "SUCCESS" ]; then
                 echo "| $version | ✅ Success |" >> $GITHUB_STEP_SUMMARY
-                ((success_count++))
+                success_count=$((success_count + 1))
               else
                 echo "| $version | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
-                ((fail_count++))
+                fail_count=$((fail_count + 1))
               fi
             else
               echo "| $version | ⚠️ No result |" >> $GITHUB_STEP_SUMMARY
-              ((fail_count++))
+              fail_count=$((fail_count + 1))
             fi
-          done
+          done <<< "$versions"
           
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Summary:** $success_count passed, $fail_count failed" >> $GITHUB_STEP_SUMMARY
