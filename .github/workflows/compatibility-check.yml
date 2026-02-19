@@ -93,11 +93,11 @@ jobs:
         run: ./gradlew clean build -PpluginVersion=${{ inputs.version }} -PagpVersion=${{ matrix.agp-version }}
 
       - name: Record Success
-        if: steps.build.outcome == 'success'
+        if: always() && steps.build.outcome == 'success'
         run: echo "SUCCESS" > ${{ github.workspace }}/results/agp-${{ matrix.agp-version }}-result.txt
 
       - name: Record Failure
-        if: steps.build.outcome == 'failure'
+        if: always() && steps.build.outcome == 'failure'
         run: echo "FAILED" > ${{ github.workspace }}/results/agp-${{ matrix.agp-version }}-result.txt
 
       - name: Upload Result
