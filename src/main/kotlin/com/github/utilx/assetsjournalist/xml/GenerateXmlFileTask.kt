@@ -69,7 +69,7 @@ open class GenerateXmlFileTask
             FileWriter(outputFile.asFile.get()).use { fileWriter ->
                 val writer = XMLOutputFactory.newInstance().createXMLStreamWriter(fileWriter)
 
-                val list = assetFiles.listAssets(project)
+                val list = assetFiles.listAssets()
 
                 writer.document {
                     writeComment(
