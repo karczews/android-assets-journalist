@@ -15,10 +15,14 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    flavorDimensions += "testDim"
+    flavorDimensions += listOf("testDim")
     productFlavors {
-        create("foo") { }
-        create("bar") { }
+        create("foo") {
+            dimension = "testDim"
+        }
+        create("bar") {
+            dimension = "testDim"
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

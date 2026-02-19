@@ -68,7 +68,7 @@ open class GenerateKotlinFileTask
 
             val properties =
                 assetFiles
-                    .listAssets(project)
+                    .listAssets()
                     .asSequence()
                     .map(fileConstantsFactory::toConstNameValuePair)
                     // remove duplicate entries

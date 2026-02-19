@@ -12,15 +12,19 @@
 
 package com.github.utilx.assetsjournalist.common
 
-import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
+import java.io.File
 
 /**
  * Returns list of assets path relative to assets root directory.
  *
  * ex. somedir/asserts/dir1/dir2/asset returns dir1/dir2/asset
  */
-fun FileCollection.listAssets(project: Project): List<String> = files.flatMap { rootAssetDir ->
-    project.files(rootAssetDir).asFileTree.files
-        .map { it.toRelativeString(rootAssetDir) }
-}
+fun FileCollection.listAssets(): List<String> =
+    files.flatMap { rootAssetDir ->
+        rootAssetDir
+            .walkTopDown()
+            .filter { it.isFile }
+            .map { it.toRelativeString(rootAssetDir) }
+            .toList()
+    }
