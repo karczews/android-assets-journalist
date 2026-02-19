@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     id("com.github.utilx.android-assets-journalist")
-    kotlin("android")
 }
 
 android {
@@ -25,28 +24,12 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 }
 
 androidAssetsJournalist {
     xmlFile {
         enabled = true
         stringNamePrefix = "prefix_"
-    }
-
-    javaFile {
-        enabled = true
-        className = "AssetFilesJava"
-        packageName = "com.github.utilx"
-        constNamePrefix = "constprefixjava_"
-        constValuePrefix = "javavalpref_"
-        replaceInAssetsPath =
-            listOf(
-                listOf("match" to "^az", "replaceWith" to "replaceJava").toMap(),
-                listOf("match" to "d[abc]", "replaceWith" to "java").toMap(),
-            )
     }
 
     kotlinFile {

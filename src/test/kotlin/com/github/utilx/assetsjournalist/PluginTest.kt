@@ -12,11 +12,10 @@
 
 package com.github.utilx.assetsjournalist
 
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.gradle.AndroidConfig
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.AndroidSourceSet
-import com.github.utilx.assetsjournalist.java.GenerateJavaFileTask
 import com.github.utilx.assetsjournalist.kotlin.GenerateKotlinFileTask
 import com.github.utilx.assetsjournalist.xml.GenerateXmlFileTask
 import org.gradle.api.GradleException
@@ -44,8 +43,6 @@ class PluginTest {
         get() = project.extensions.getByName<AssetFileGeneratorConfig>("androidAssetsJournalist")
     private val kotlinFileExtension
         get() = androidAssetsJournalist.kotlinFile
-    private val javaFileExtension
-        get() = androidAssetsJournalist.javaFile
     private val xmlFileExtension
         get() = androidAssetsJournalist.xmlFile
 
@@ -71,9 +68,9 @@ class PluginTest {
         @Test
         @DisplayName("Should not make prebuild dependant on kotlin file generation task if extension disabled")
         fun shouldNotRegisteringPrebuildDependency() {
-            // given plugin is applied and kotlin extension disabled, but java enabled to avoid defaulting to kotlin
+            // given plugin is applied and kotlin extension disabled, but xml enabled to avoid defaulting to kotlin
             kotlinFileExtension.enabled = false
-            javaFileExtension.enabled = true
+            xmlFileExtension.enabled = true
 
             // when
             evaluateProject()
@@ -135,8 +132,8 @@ class PluginTest {
     }
 
     @Nested
-    @DisplayName("Test Java setup")
-    inner class JavaSetup {
+    @DisplayName("Test default behavior")
+    inner class DefaultBehavior {
         @BeforeEach
         fun setUp() {
             applyPlugin()
@@ -146,7 +143,6 @@ class PluginTest {
         @DisplayName("Should enable kotlin file generation by default if no file generation enabled")
         fun shouldEnableKotlinFileGenerationByDefault() {
             // given plugin is applied and all extensions disabled
-            javaFileExtension.enabled = false
             kotlinFileExtension.enabled = false
             xmlFileExtension.enabled = false
 
@@ -155,73 +151,7 @@ class PluginTest {
 
             // then
             assertTrue { project.tasks.withType<GenerateKotlinFileTask>().isNotEmpty() }
-            assertTrue { project.tasks.withType<GenerateJavaFileTask>().isEmpty() }
             assertTrue { project.tasks.withType<GenerateXmlFileTask>().isEmpty() }
-        }
-
-        @Test
-        @DisplayName("Should not make prebuild dependant on java file generation task if extension disabled")
-        fun shouldNotRegisteringPrebuildDependency() {
-            // given plugin is applied and extension disabled but other is enabled to avoid defaulting to java enabled
-            kotlinFileExtension.enabled = true
-            javaFileExtension.enabled = false
-
-            // when
-            evaluateProject()
-
-            // then
-            assertTaskNotRegistered(GenerateJavaFileTask::class.java)
-        }
-
-        // FIXME: verify that task output was configured for variant
-        /*@Test
-        @DisplayName("Should register java source dir to project")
-        fun shouldRegisterJavaSrcDirectory() {
-            // given plugin is applied and kotlin extension enabled
-            javaFileExtension.enabled = true
-
-            // when
-            evaluateProject()
-
-            // then
-            assertSourceSetSrcDirRegistered(project.buildDir.path + "/generated/assetsjournalist/src/main/java")
-        }*/
-
-        @Test
-        @DisplayName("Test if task is configured correctly")
-        fun shouldConfigureJavaTaskCorrectly() {
-            // given plugin is applied and extension enabled
-            val expectedClassName = "testClassName"
-            val expectedPackageName = "test.package.name"
-            val expectedConstNamePrefix = "testPrefix_"
-            val expectedConstValuePrefix = "testValuePrefix_"
-            val expectedReplaceInAssetsPath =
-                listOf(
-                    mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_MATCH_KEY, "testMatch")),
-                    mapOf(Pair(SourceFileConfig.CONST_VALUE_REPLACEMENT_EXPRESSION_REPLACE_WITH_KEY, "testReplace")),
-                )
-
-            javaFileExtension.apply {
-                enabled = true
-                className = expectedClassName
-                packageName = expectedPackageName
-                constNamePrefix = expectedConstNamePrefix
-                constValuePrefix = expectedConstValuePrefix
-                replaceInAssetsPath = expectedReplaceInAssetsPath
-            }
-
-            // when
-            evaluateProject()
-
-            // then
-            val task = project.tasks.find { it is GenerateJavaFileTask } as GenerateJavaFileTask
-            assertTrue {
-                task.className.get() == expectedClassName &&
-                    task.packageName.get() == expectedPackageName &&
-                    task.constNamePrefix.get() == expectedConstNamePrefix &&
-                    task.constValuePrefix.get() == expectedConstValuePrefix &&
-                    task.constValueReplacementExpressions.get() == expectedReplaceInAssetsPath
-            }
         }
     }
 
@@ -291,7 +221,7 @@ class PluginTest {
 
         androidExtension().apply {
             namespace = "com.github.utilx.testapp"
-            compileSdkVersion(21)
+            compileSdk = 35
         }
     }
 
@@ -337,7 +267,7 @@ class PluginTest {
         project.getTasksByName("build", false)
     }
 
-    private fun androidExtension(): BaseExtension = project.extensions.getByType(BaseExtension::class)
+    private fun androidExtension(): ApplicationExtension = project.extensions.getByType(ApplicationExtension::class)
 
     private fun getSourceSet(name: String = SourceSet.MAIN_SOURCE_SET_NAME): AndroidSourceSet =
         project.extensions

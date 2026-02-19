@@ -12,7 +12,6 @@
 
 package com.github.utilx.assetsjournalist
 
-import com.github.utilx.assetsjournalist.java.JavaFileConfig
 import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
 import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import org.gradle.api.Action
@@ -25,68 +24,6 @@ import kotlin.test.assertTrue
 
 class AssetFileGeneratorConfigTest {
     private val tested = AssetFileGeneratorConfig()
-
-    @Nested
-    inner class Java {
-        @Test
-        fun shouldBeDisabledByDefault() {
-            assertFalse { tested.javaFile.enabled }
-        }
-
-        @Test
-        fun shouldConfigureViaClosure() {
-            // given
-            val closure = closureOf<JavaFileConfig> { enabled = true }
-
-            // when
-            tested.javaFile(closure)
-
-            // then
-            assertTrue { tested.javaFile.enabled }
-        }
-
-        @Test
-        fun shouldConfigureViaAction() {
-            // given
-            val action =
-                Action<JavaFileConfig> {
-                    enabled = true
-                    className = "TestJavaAssets"
-                    packageName = "com.test.java"
-                    constNamePrefix = "JAVA_PREFIX_"
-                    constValuePrefix = "java://"
-                }
-
-            // when
-            tested.javaFile(action)
-
-            // then
-            assertTrue { tested.javaFile.enabled }
-            assertEquals("TestJavaAssets", tested.javaFile.className)
-            assertEquals("com.test.java", tested.javaFile.packageName)
-            assertEquals("JAVA_PREFIX_", tested.javaFile.constNamePrefix)
-            assertEquals("java://", tested.javaFile.constValuePrefix)
-        }
-
-        @Test
-        fun shouldConfigureReplacementsViaAction() {
-            // given
-            val replacements =
-                listOf(
-                    mapOf("match" to "^test", "replaceWith" to "prod"),
-                )
-            val action =
-                Action<JavaFileConfig> {
-                    replaceInAssetsPath = replacements
-                }
-
-            // when
-            tested.javaFile(action)
-
-            // then
-            assertEquals(replacements, tested.javaFile.replaceInAssetsPath)
-        }
-    }
 
     @Nested
     inner class Kotlin {
@@ -237,15 +174,15 @@ class AssetFileGeneratorConfigTest {
         fun shouldHandleEmptyReplacementsListViaAction() {
             // given
             val action =
-                Action<JavaFileConfig> {
+                Action<KotlinFileConfig> {
                     replaceInAssetsPath = emptyList()
                 }
 
             // when
-            tested.javaFile(action)
+            tested.kotlinFile(action)
 
             // then
-            assertTrue(tested.javaFile.replaceInAssetsPath.isEmpty())
+            assertTrue(tested.kotlinFile.replaceInAssetsPath.isEmpty())
         }
     }
 }
