@@ -13,13 +13,13 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
-        def pluginVersion = findProperty('pluginVersion') ?: '1.0.0'
+        def pluginVersion = findProperty('pluginVersion') ?: '3.0.0'
         classpath "com.github.utilx:android-assets-journalist:$pluginVersion"
     }
 }
 
 println "Using AGP version: ${findProperty('agpVersion') ?: '8.13.2'}"
-println "Using plugin version: ${findProperty('pluginVersion') ?: '1.0.0 (default)'}"
+println "Using plugin version: ${findProperty('pluginVersion') ?: '3.0.0 (default)'}"
 
 allprojects {
     repositories {
