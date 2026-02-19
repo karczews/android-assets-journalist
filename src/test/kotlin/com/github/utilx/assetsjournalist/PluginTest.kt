@@ -12,9 +12,9 @@
 
 package com.github.utilx.assetsjournalist
 
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.gradle.AndroidConfig
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.api.AndroidSourceSet
 import com.github.utilx.assetsjournalist.java.GenerateJavaFileTask
 import com.github.utilx.assetsjournalist.kotlin.GenerateKotlinFileTask
@@ -291,7 +291,7 @@ class PluginTest {
 
         androidExtension().apply {
             namespace = "com.github.utilx.testapp"
-            compileSdkVersion(21)
+            compileSdk = 35
         }
     }
 
@@ -337,7 +337,7 @@ class PluginTest {
         project.getTasksByName("build", false)
     }
 
-    private fun androidExtension(): BaseExtension = project.extensions.getByType(BaseExtension::class)
+    private fun androidExtension(): ApplicationExtension = project.extensions.getByType(ApplicationExtension::class)
 
     private fun getSourceSet(name: String = SourceSet.MAIN_SOURCE_SET_NAME): AndroidSourceSet =
         project.extensions
