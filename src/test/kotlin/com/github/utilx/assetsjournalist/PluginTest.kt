@@ -71,8 +71,9 @@ class PluginTest {
         @Test
         @DisplayName("Should not make prebuild dependant on kotlin file generation task if extension disabled")
         fun shouldNotRegisteringPrebuildDependency() {
-            // given plugin is applied and kotlin extension disabled
+            // given plugin is applied and kotlin extension disabled, but java enabled to avoid defaulting to kotlin
             kotlinFileExtension.enabled = false
+            javaFileExtension.enabled = true
 
             // when
             evaluateProject()
@@ -142,9 +143,9 @@ class PluginTest {
         }
 
         @Test
-        @DisplayName("Should enable java file generation by default if no file generation enabled")
-        fun shouldEnableJavaFileGenerationByDefault() {
-            // given plugin is applied and extension enabled
+        @DisplayName("Should enable kotlin file generation by default if no file generation enabled")
+        fun shouldEnableKotlinFileGenerationByDefault() {
+            // given plugin is applied and all extensions disabled
             javaFileExtension.enabled = false
             kotlinFileExtension.enabled = false
             xmlFileExtension.enabled = false
@@ -153,8 +154,8 @@ class PluginTest {
             evaluateProject()
 
             // then
-            assertTrue { project.tasks.withType<GenerateJavaFileTask>().isNotEmpty() }
-            assertTrue { project.tasks.withType<GenerateKotlinFileTask>().isEmpty() }
+            assertTrue { project.tasks.withType<GenerateKotlinFileTask>().isNotEmpty() }
+            assertTrue { project.tasks.withType<GenerateJavaFileTask>().isEmpty() }
             assertTrue { project.tasks.withType<GenerateXmlFileTask>().isEmpty() }
         }
 
