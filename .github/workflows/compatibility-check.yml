@@ -13,6 +13,17 @@ on:
         required: false
         default: '8.0.0'
         type: string
+  workflow_call:
+    inputs:
+      version:
+        description: 'Plugin version to test'
+        required: true
+        type: string
+      min_agp_version:
+        description: 'Minimum AGP version to test (e.g., 8.0.0)'
+        required: false
+        default: '8.0.0'
+        type: string
 
 jobs:
   setup:
@@ -142,10 +153,12 @@ jobs:
 
       - name: Generate Report
         run: |
-          echo "# AGP Compatibility Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| AGP Version | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------------|--------|" >> $GITHUB_STEP_SUMMARY
+          REPORT_FILE="${{ github.workspace }}/compatibility-report.md"
+          
+          echo "# AGP Compatibility Report" > "$REPORT_FILE"
+          echo "" >> "$REPORT_FILE"
+          echo "| AGP Version | Status |" >> "$REPORT_FILE"
+          echo "|-------------|--------|" >> "$REPORT_FILE"
           
           success_count=0
           fail_count=0
@@ -161,9 +174,10 @@ jobs:
           fi
           
           if [ -z "$versions" ]; then
-            echo "No versions found to report" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Error:** No test results found" >> $GITHUB_STEP_SUMMARY
+            echo "No versions found to report" >> "$REPORT_FILE"
+            echo "" >> "$REPORT_FILE"
+            echo "**Error:** No test results found" >> "$REPORT_FILE"
+            cat "$REPORT_FILE" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
           
@@ -178,20 +192,28 @@ jobs:
             if [ -f "$result_file" ]; then
               result=$(cat "$result_file")
               if [ "$result" == "SUCCESS" ]; then
-                echo "| $version | ✅ Success |" >> $GITHUB_STEP_SUMMARY
+                echo "| $version | ✅ Success |" >> "$REPORT_FILE"
                 success_count=$((success_count + 1))
               else
-                echo "| $version | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+                echo "| $version | ❌ Failed |" >> "$REPORT_FILE"
                 fail_count=$((fail_count + 1))
               fi
             else
-              echo "| $version | ⚠️ No result |" >> $GITHUB_STEP_SUMMARY
+              echo "| $version | ⚠️ No result |" >> "$REPORT_FILE"
               fail_count=$((fail_count + 1))
             fi
           done <<< "$versions"
           
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Summary:** $success_count passed, $fail_count failed" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Tested plugin version:** ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Minimum AGP version:** ${{ inputs.min_agp_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> "$REPORT_FILE"
+          echo "**Summary:** $success_count passed, $fail_count failed" >> "$REPORT_FILE"
+          echo "" >> "$REPORT_FILE"
+          echo "**Tested plugin version:** ${{ inputs.version }}" >> "$REPORT_FILE"
+          
+          # Also output to step summary
+          cat "$REPORT_FILE" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Upload Report
+        uses: actions/upload-artifact@v6
+        with:
+          name: compatibility-report
+          path: ${{ github.workspace }}/compatibility-report.md

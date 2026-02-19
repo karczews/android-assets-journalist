@@ -1,0 +1,79 @@
+name: Release Compatibility Check
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  trigger-compatibility-check:
+    name: Trigger Compatibility Check
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Get release version
+        id: get_version
+        run: |
+          # Extract version from release tag (remove 'v' prefix if present)
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Testing compatibility for version: $VERSION"
+
+  compatibility-check:
+    name: Run Compatibility Tests
+    needs: trigger-compatibility-check
+    uses: ./.github/workflows/compatibility-check.yml
+    with:
+      version: ${{ needs.trigger-compatibility-check.outputs.version }}
+      min_agp_version: '8.0.0'
+
+  update-release-notes:
+    name: Update Release Notes
+    runs-on: ubuntu-latest
+    needs: [trigger-compatibility-check, compatibility-check]
+    if: always()
+    permissions:
+      contents: write
+    steps:
+      - name: Download Compatibility Report
+        uses: actions/download-artifact@v7
+        with:
+          name: compatibility-report
+          path: ${{ github.workspace }}
+
+      - name: Append Report to Release Notes
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const reportPath = '${{ github.workspace }}/compatibility-report.md';
+            
+            let reportContent;
+            try {
+              reportContent = fs.readFileSync(reportPath, 'utf8');
+            } catch (error) {
+              console.log('No compatibility report found, skipping update');
+              reportContent = '## AGP Compatibility Report\n\n⚠️ Compatibility tests did not complete or report was not generated.';
+            }
+            
+            // Get current release
+            const { data: release } = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: context.payload.release.tag_name
+            });
+            
+            // Append report to existing body
+            const newBody = release.body + '\n\n' + reportContent;
+            
+            // Update release
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: release.id,
+              body: newBody
+            });
+            
+            console.log('Successfully appended compatibility report to release notes');
