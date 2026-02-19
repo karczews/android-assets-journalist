@@ -44,7 +44,7 @@ object Dependencies {
     }
 
     object Android {
-        const val gradleBuildTools = "com.android.tools.build:gradle:8.13.2"
+        const val gradleBuildTools = "com.android.tools.build:gradle:9.0.1"
     }
 }
 
