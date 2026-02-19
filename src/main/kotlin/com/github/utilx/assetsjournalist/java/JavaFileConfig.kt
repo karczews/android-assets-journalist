@@ -14,4 +14,5 @@ package com.github.utilx.assetsjournalist.java
 
 import com.github.utilx.assetsjournalist.SourceFileConfig
 
+@Deprecated("Java file generation is deprecated, use KotlinFileConfig instead")
 open class JavaFileConfig : SourceFileConfig()

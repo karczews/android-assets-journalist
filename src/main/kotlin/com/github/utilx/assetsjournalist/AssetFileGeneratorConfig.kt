@@ -24,7 +24,10 @@ open class AssetFileGeneratorConfig {
     var sourceSets = emptyList<AndroidSourceSet>()
 
     val xmlFile = XmlFileConfig()
+
+    @Deprecated("Java file generation is deprecated, use kotlinFile instead")
     val javaFile = JavaFileConfig()
+
     val kotlinFile = KotlinFileConfig()
 
     fun xmlFile(closure: Closure<*>) {
@@ -36,11 +39,13 @@ open class AssetFileGeneratorConfig {
         action.execute(xmlFile)
     }
 
+    @Deprecated("Java file generation is deprecated, use kotlinFile instead")
     fun javaFile(closure: Closure<*>) {
         closure.delegate = javaFile
         closure.call(javaFile)
     }
 
+    @Deprecated("Java file generation is deprecated, use kotlinFile instead")
     fun javaFile(action: Action<JavaFileConfig>) {
         action.execute(javaFile)
     }
