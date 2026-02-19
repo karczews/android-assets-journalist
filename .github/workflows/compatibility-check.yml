@@ -6,7 +6,7 @@ on:
       version:
         description: 'Plugin version to test'
         required: true
-        default: '1.0.0-SNAPSHOT'
+        default: '3.0.0'
         type: string
       min_agp_version:
         description: 'Minimum AGP version to test (e.g., 8.0.0)'
@@ -46,6 +46,17 @@ jobs:
           echo "Found AGP versions: $json_array"
           echo "versions=$json_array" >> $GITHUB_OUTPUT
 
+      - name: Save AGP versions artifact
+        run: |
+          mkdir -p ${{ github.workspace }}/agp-versions
+          echo '${{ steps.fetch_versions.outputs.versions }}' > ${{ github.workspace }}/agp-versions/versions.json
+      
+      - name: Upload AGP versions
+        uses: actions/upload-artifact@v4
+        with:
+          name: agp-versions-list
+          path: ${{ github.workspace }}/agp-versions/versions.json
+
   compatibility-test:
     runs-on: ubuntu-latest
     needs: setup
@@ -73,28 +84,28 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build and publish plugin
-        run: ./gradlew clean build publishToMavenLocal -Pversion=${{ inputs.version }}
-
       - name: Build Playground
         run: |
           chmod +x .scripts/build_playground.sh
           ./.scripts/build_playground.sh ${{ inputs.version }} ${{ matrix.agp-version }}
 
+      - name: Create result directory
+        run: mkdir -p ${{ github.workspace }}/results
+
       - name: Record Success
         if: success()
-        run: echo "SUCCESS" > /tmp/agp-${{ matrix.agp-version }}-result.txt
+        run: echo "SUCCESS" > ${{ github.workspace }}/results/agp-${{ matrix.agp-version }}-result.txt
 
       - name: Record Failure
         if: failure()
-        run: echo "FAILED" > /tmp/agp-${{ matrix.agp-version }}-result.txt
+        run: echo "FAILED" > ${{ github.workspace }}/results/agp-${{ matrix.agp-version }}-result.txt
 
       - name: Upload Result
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: agp-result-${{ matrix.agp-version }}
-          path: /tmp/agp-${{ matrix.agp-version }}-result.txt
+          path: ${{ github.workspace }}/results/agp-${{ matrix.agp-version }}-result.txt
 
   report:
     name: Compatibility Report
@@ -102,12 +113,32 @@ jobs:
     needs: [setup, compatibility-test]
     if: always()
     steps:
-      - name: Download Results
-        uses: actions/download-artifact@v7
+      - name: Create results directory
+        run: mkdir -p ${{ github.workspace }}/results
+
+      - name: Download AGP versions list
+        uses: actions/download-artifact@v4
         with:
-          path: /tmp/results
+          name: agp-versions-list
+          path: ${{ github.workspace }}/agp-versions
+
+      - name: Download Results
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ github.workspace }}/results
           pattern: agp-result-*
           merge-multiple: true
+
+      - name: Debug - List files
+        run: |
+          echo "=== AGP versions file ==="
+          cat ${{ github.workspace }}/agp-versions/versions.json || echo "Not found"
+          echo ""
+          echo "=== Results directory ==="
+          ls -la ${{ github.workspace }}/results/ || echo "Directory not found"
+          echo ""
+          echo "=== Results files ==="
+          find ${{ github.workspace }}/results -name "*.txt" 2>/dev/null | head -20 || echo "No txt files found"
 
       - name: Generate Report
         run: |
@@ -119,10 +150,27 @@ jobs:
           success_count=0
           fail_count=0
           
-          versions=$(echo '${{ needs.setup.outputs.agp_versions }}' | jq -r '.[]')
+          # Load versions from artifact
+          versions_file="${{ github.workspace }}/agp-versions/versions.json"
+          if [ -f "$versions_file" ]; then
+            echo "Using versions from artifact file"
+            versions=$(cat "$versions_file" | jq -r '.[]')
+          else
+            echo "Versions file not found, extracting from artifact names"
+            versions=$(ls ${{ github.workspace }}/results/ | grep -oE 'agp-[0-9]+\.[0-9]+\.[0-9]+-result\.txt' | sed 's/agp-//;s/-result\.txt//' | sort -V | uniq)
+          fi
+          
+          if [ -z "$versions" ]; then
+            echo "No versions found to report" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Error:** No test results found" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          echo "Found versions: $versions"
           
           for version in $versions; do
-            result_file="/tmp/results/agp-${version}-result.txt"
+            result_file="${{ github.workspace }}/results/agp-${version}-result.txt"
             
             if [ -f "$result_file" ]; then
               result=$(cat "$result_file")
