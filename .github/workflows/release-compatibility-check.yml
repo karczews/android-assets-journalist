@@ -2,7 +2,7 @@ name: Release Compatibility Check
 
 on:
   release:
-    types: [published, created]
+    types: [published]
 
 jobs:
   trigger-compatibility-check:
