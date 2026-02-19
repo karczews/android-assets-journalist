@@ -56,7 +56,7 @@ AssetFiles.  // Press Ctrl+Space and see all assets
 | **🔄 Refactoring support** | Rename assets safely - IDE updates all references |
 | **⚡ Zero runtime overhead** | Generated constants, no reflection or runtime cost |
 | **📱 AGP 8.x compatible** | Works with Android Gradle Plugin 8.8.0+ |
-| **🎨 Multiple output formats** | XML strings, Java constants, or Kotlin constants |
+| **🎨 Multiple output formats** | XML strings or Kotlin constants |
 | **⚙️ Highly configurable** | Prefixes, path transformations, filtering |
 
 ## Quick Start 🚀
@@ -79,11 +79,6 @@ androidAssetsJournalist {
         enabled = true
         className = "AssetFiles"
         packageName = "com.yourcompany.yourapp"
-    }
-    
-    // Or Java constants
-    javaFile {
-        enabled = false
     }
     
     // Or Android string resources
@@ -126,17 +121,6 @@ package com.github.utilx
 object AssetFiles {
     const val MODELS_ML_MODEL_TFLITE: String = "models/ml_model.tflite"
     const val CONFIGS_SETTINGS_JSON: String = "configs/settings.json"
-}
-```
-
-### Java Output
-```java
-// AssetFiles.java
-package com.github.utilx;
-
-public final class AssetFiles {
-    public static final String MODELS_ML_MODEL_TFLITE = "models/ml_model.tflite";
-    public static final String CONFIGS_SETTINGS_JSON = "configs/settings.json";
 }
 ```
 
@@ -190,16 +174,6 @@ androidAssetsJournalist {
     xmlFile {
         enabled = false  // Enable to generate res/values/*.xml
         stringNamePrefix = "prefix_"
-    }
-
-    // Java Constants Class
-    javaFile {
-        enabled = true  // Default: enabled if no others
-        className = "AssetFiles"
-        packageName = "com.github.utilx"
-        constNamePrefix = "asset_"
-        constValuePrefix = ""  // Prefix for actual path values
-        replaceInAssetsPath = []  // Path transformations
     }
 
     // Kotlin Constants Object
