@@ -100,7 +100,7 @@ open class GenerateJavaFileTask
                 .build()
                 .writeTo(outputSrcDir.asFile.get())
 
-            logger.lifecycle("generating asset java class ${packageName.get()}.${className.get()} in ${outputSrcDir.get()}")
+            logger.info("generating asset java class ${packageName.get()}.${className.get()} in ${outputSrcDir.get()}")
         }
 
         fun configureUsing(config: JavaFileConfig) {

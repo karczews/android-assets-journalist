@@ -86,7 +86,7 @@ open class GenerateXmlFileTask
                     }
                 }
 
-                logger.lifecycle("Created xml asset file at ${outputFile.asFile.get().path}")
+                logger.info("Created xml asset file at ${outputFile.asFile.get().path}")
             }
         }
 
