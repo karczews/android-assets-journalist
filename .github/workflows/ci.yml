@@ -11,24 +11,16 @@ jobs:
   conventional-commits:
     name: Check Conventional Commits
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Check conventional commits
-        uses: tomtom-international/commisery-action/check@v4
+      - name: Check for Conventional Commit compliance
+        uses: tomtom-international/commisery-action@v4
         with:
           token: ${{ github.token }}
-          pull-request: ${{ github.event.number }}
 
   license-header:
     name: Check License Headers
     runs-on: ubuntu-latest
+    if: github.event.action != 'edited'
     steps:
       - uses: actions/checkout@v6
 
@@ -40,7 +32,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    
+    if: github.event.action != 'edited'
+
     steps:
     - uses: actions/checkout@v6
     
