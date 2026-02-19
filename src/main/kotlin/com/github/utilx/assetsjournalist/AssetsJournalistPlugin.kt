@@ -14,8 +14,6 @@ package com.github.utilx.assetsjournalist
 
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.Variant
-import com.github.utilx.assetsjournalist.java.GenerateJavaFileTask
-import com.github.utilx.assetsjournalist.java.JavaFileConfig
 import com.github.utilx.assetsjournalist.kotlin.GenerateKotlinFileTask
 import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
 import com.github.utilx.assetsjournalist.xml.GenerateXmlFileTask
@@ -60,13 +58,12 @@ private class ProjectScopedConfiguration(
 
         val extension = project.extensions.create(ROOT_EXTENSION_NAME, AssetFileGeneratorConfig::class)
         val xmlExtension = extension.xmlFile
-        val javaExtension = extension.javaFile
         val kotlinExtension = extension.kotlinFile
 
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class)
 
         val isKotlinEnabled by lazy(LazyThreadSafetyMode.NONE) {
-            if (!xmlExtension.enabled && !javaExtension.enabled && !kotlinExtension.enabled) {
+            if (!xmlExtension.enabled && !kotlinExtension.enabled) {
                 project.logger.warn("No file type enabled, enabling kotlin file generation")
                 kotlinExtension.enabled = true
             }
@@ -81,10 +78,6 @@ private class ProjectScopedConfiguration(
 
             if (xmlExtension.enabled) {
                 configureXmlTask(xmlExtension, variant, variantAssets)
-            }
-
-            if (javaExtension.enabled) {
-                configureJavaTask(javaExtension, variant, variantAssets)
             }
 
             if (isKotlinEnabled) {
@@ -129,33 +122,6 @@ private class ProjectScopedConfiguration(
         }
     }
 
-    private fun configureJavaTask(
-        extension: JavaFileConfig,
-        variant: Variant,
-        assetDirs: Collection<File>,
-    ) {
-        val taskProvider =
-            project
-                .tasks
-                .register<GenerateJavaFileTask>("generateAssetsJavaFile${variant.name.replaceFirstChar { it.uppercase() }}") {
-                    assetFiles.setFrom(assetDirs)
-                    outputSrcDir.set(getGeneratedJavaOutputDirForVariant(variant.name))
-                    configureUsing(extension)
-
-                    project.logger.debug(
-                        "Configured java generation task for [${variant.name}] variant set\n" +
-                            "Registered new java source directory - ${outputSrcDir.get()}",
-                    )
-                }
-
-        val javaSources = variant.sources.java
-        if (javaSources != null) {
-            javaSources.addGeneratedSourceDirectory(taskProvider, GenerateJavaFileTask::outputSrcDir)
-        } else {
-            project.logger.error("Variant ${variant.name} does not support Java sources, skipping Java generation task registration")
-        }
-    }
-
     private fun configureKotlinTask(
         extension: KotlinFileConfig,
         variant: Variant,
@@ -181,15 +147,6 @@ private class ProjectScopedConfiguration(
             project.logger.error("Variant ${variant.name} does not support Java sources, skipping Kotlin generation task registration")
         }
     }
-
-    /**
-     * Returns java source root directory where files will be generated for given variant.
-     *
-     * ex. <Project>/build/generated/assetsjournalist/src/<main>/java
-     */
-    private fun getGeneratedJavaOutputDirForVariant(variantName: String): Provider<Directory> =
-        rootGeneratedBuildDir
-            .map { it.dir(variantName).dir("java") }
 
     /**
      * Returns res directory where files will be generated.

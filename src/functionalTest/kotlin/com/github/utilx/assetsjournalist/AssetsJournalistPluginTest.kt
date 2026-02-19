@@ -135,32 +135,6 @@ class AssetsJournalistPluginTest {
     }
 
     @Test
-    @DisplayName("Should generate Java asset files")
-    fun `Should generate Java asset files`() {
-        val projectDir = setupProjectWithAsset("test_java_asset.txt")
-
-        // Run the build
-        val result = createGradleRunner(projectDir, ":app:generateAssetsJavaFileFooDebug", "--stacktrace").build()
-
-        // Verify the result
-        assertEquals(
-            TaskOutcome.SUCCESS,
-            result.task(":app:generateAssetsJavaFileFooDebug")?.outcome,
-            "Java asset generation task should succeed",
-        )
-
-        // Verify generated file exists
-        val generatedDir = File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/java")
-        val generatedFile = File(generatedDir, "com/github/utilx/AssetFilesJava.java")
-        assertTrue(generatedFile.exists(), "Generated Java file should exist at ${generatedFile.absolutePath}")
-
-        // Verify generated file content
-        val content = generatedFile.readText()
-        assertTrue(content.contains("class AssetFilesJava"), "Generated file should contain class declaration")
-        assertTrue(content.contains("public static final String"), "Generated file should contain constant declarations")
-    }
-
-    @Test
     @DisplayName("Should generate XML asset files")
     fun `Should generate XML asset files`() {
         val projectDir = setupProjectWithAsset("test_xml_asset.txt")

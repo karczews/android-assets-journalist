@@ -32,19 +32,6 @@ androidAssetsJournalist {
         stringNamePrefix = "prefix_"
     }
 
-    javaFile {
-        enabled = true
-        className = "AssetFilesJava"
-        packageName = "com.github.utilx"
-        constNamePrefix = "constprefixjava_"
-        constValuePrefix = "javavalpref_"
-        replaceInAssetsPath =
-            listOf(
-                listOf("match" to "^az", "replaceWith" to "replaceJava").toMap(),
-                listOf("match" to "d[abc]", "replaceWith" to "java").toMap(),
-            )
-    }
-
     kotlinFile {
         enabled = true
         className = "AssetFilesKotlin"

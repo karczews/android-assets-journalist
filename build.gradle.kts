@@ -15,7 +15,6 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 object Dependencies {
-    const val javaPoet = "com.squareup:javapoet:1.13.0"
     const val kotlinPoet = "com.squareup:kotlinpoet:2.2.0"
     const val mockk = "io.mockk:mockk:1.14.9"
     const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.28.1"
@@ -91,7 +90,6 @@ sonarqube {
 dependencies {
 
     implementation(gradleApi())
-    implementation(Dependencies.javaPoet)
     implementation(Dependencies.kotlinPoet)
     compileOnly(Dependencies.Android.gradleBuildTools)
     implementation(kotlin("stdlib"))

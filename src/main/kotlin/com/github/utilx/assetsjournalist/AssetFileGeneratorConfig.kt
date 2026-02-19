@@ -13,7 +13,6 @@
 package com.github.utilx.assetsjournalist
 
 import com.android.build.api.dsl.AndroidSourceSet
-import com.github.utilx.assetsjournalist.java.JavaFileConfig
 import com.github.utilx.assetsjournalist.kotlin.KotlinFileConfig
 import com.github.utilx.assetsjournalist.xml.XmlFileConfig
 import groovy.lang.Closure
@@ -25,9 +24,6 @@ open class AssetFileGeneratorConfig {
 
     val xmlFile = XmlFileConfig()
 
-    @Deprecated("Java file generation is deprecated, use kotlinFile instead")
-    val javaFile = JavaFileConfig()
-
     val kotlinFile = KotlinFileConfig()
 
     fun xmlFile(closure: Closure<*>) {
@@ -37,17 +33,6 @@ open class AssetFileGeneratorConfig {
 
     fun xmlFile(action: Action<XmlFileConfig>) {
         action.execute(xmlFile)
-    }
-
-    @Deprecated("Java file generation is deprecated, use kotlinFile instead")
-    fun javaFile(closure: Closure<*>) {
-        closure.delegate = javaFile
-        closure.call(javaFile)
-    }
-
-    @Deprecated("Java file generation is deprecated, use kotlinFile instead")
-    fun javaFile(action: Action<JavaFileConfig>) {
-        action.execute(javaFile)
     }
 
     fun kotlinFile(closure: Closure<*>) {
