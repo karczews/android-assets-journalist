@@ -14,47 +14,14 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-object Dependencies {
-    const val kotlinPoet = "com.squareup:kotlinpoet:2.2.0"
-    const val mockk = "io.mockk:mockk:1.14.9"
-    const val assertk = "com.willowtreeapps.assertk:assertk-jvm:0.28.1"
-
-    object Kotlin {
-        const val version = "2.0.21"
-        const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib:$version"
-        const val test = "org.jetbrains.kotlin:kotlin-test"
-        const val junit = "org.jetbrains.kotlin:kotlin-test-junit"
-        const val reflect = "org.jetbrains.kotlin:kotlin-reflect:$version"
-        const val plugin = "kotlin"
-    }
-
-    object JUnit5 {
-        const val version = "6.0.3"
-
-        const val juniperApi = "org.junit.jupiter:junit-jupiter-api:$version"
-        const val juniperParams = "org.junit.jupiter:junit-jupiter-params:$version"
-        const val juniperEngine = "org.junit.jupiter:junit-jupiter-engine:$version"
-        const val vintageEngine = "org.junit.vintage:junit-vintage-engine:$version"
-
-        object PlatformLauncher {
-            const val version = "6.0.3"
-            const val lib = "org.junit.platform:junit-platform-launcher:$version"
-        }
-    }
-
-    object Android {
-        const val gradleBuildTools = "com.android.tools.build:gradle:9.0.1"
-    }
-}
-
 plugins {
-    kotlin("jvm") version "2.0.21"
+    alias(libs.plugins.kotlin.jvm)
     `kotlin-dsl`
     `java-gradle-plugin`
     `maven-publish`
     jacoco
-    id("com.gradle.plugin-publish") version "2.0.0"
-    id("org.sonarqube") version "7.2.2.6593"
+    alias(libs.plugins.gradle.plugin.publish)
+    alias(libs.plugins.sonarqube)
     // id("io.gitlab.arturbosch.detekt") version "1.23.7"
 }
 
@@ -88,20 +55,19 @@ sonarqube {
 }
 
 dependencies {
-
     implementation(gradleApi())
-    implementation(Dependencies.kotlinPoet)
-    compileOnly(Dependencies.Android.gradleBuildTools)
-    implementation(kotlin("stdlib"))
+    implementation(libs.kotlinpoet)
+    compileOnly(libs.android.gradle.plugin)
+    implementation(libs.kotlin.stdlib)
 
-    testImplementation(Dependencies.Kotlin.test)
-    testImplementation(Dependencies.JUnit5.juniperApi)
-    testImplementation(Dependencies.JUnit5.juniperEngine)
-    testImplementation(Dependencies.JUnit5.PlatformLauncher.lib)
-    testImplementation(Dependencies.mockk)
-    testImplementation(Dependencies.Android.gradleBuildTools)
-    testImplementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21")
-    testImplementation(Dependencies.assertk)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.junit5.api)
+    testImplementation(libs.junit5.engine)
+    testImplementation(libs.junit.platform.launcher)
+    testImplementation(libs.mockk)
+    testImplementation(libs.android.gradle.plugin)
+    testImplementation(libs.kotlin.gradle.plugin)
+    testImplementation(libs.assertk)
 }
 
 gradlePlugin.testSourceSets(functionalTestSourceSet)
