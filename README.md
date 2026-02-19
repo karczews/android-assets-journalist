@@ -194,35 +194,10 @@ androidAssetsJournalist {
 ## Requirements ✅
 
 - **Java**: 17 or higher
-- **Android Gradle Plugin**: 8.0.0 or higher
-- **Gradle**: 8.0 or higher
+- **Android Gradle Plugin**: 8.+ - Check given release notes for compatibility report.
+- **Gradle**: 8.+
 - **Kotlin**: 1.9.0 or higher (for Kotlin DSL)
 
-## Migration from 0.11.x to 1.0.0 🔄
-
-### Breaking Changes
-- **Java 17 is now required** (was Java 8)
-- **AGP 8.x namespace required** - Ensure your `build.gradle` has:
-  ```kotlin
-  android {
-      namespace = "com.yourcompany.yourapp"
-      compileSdk = 35
-  }
-  ```
-
-### What's New in 1.0.0 🎉
-
-This release brings full compatibility with Android Gradle Plugin 8.x and modern toolchain:
-
-**Highlights:**
-- ✅ **AGP 8.8.0 support** - Full compatibility with latest Android build tools
-- ✅ **Gradle 9.3.1** - Updated to latest Gradle version
-- ✅ **Kotlin 2.0.21** - Modern Kotlin support
-- ✅ **Java 17** - Requires Java 17 (aligned with AGP 8.x requirements)
-- ✅ **Namespace support** - Properly handles AGP 8.x namespace requirements
-- ✅ **GitHub Actions CI** - Migrated from Travis CI
-
-### 0.11.0 - Added library/application variant support
 
 ## License
 
