@@ -52,7 +52,7 @@ jobs:
           echo '${{ steps.fetch_versions.outputs.versions }}' > ${{ github.workspace }}/agp-versions/versions.json
       
       - name: Upload AGP versions
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: agp-versions-list
           path: ${{ github.workspace }}/agp-versions/versions.json
@@ -102,7 +102,7 @@ jobs:
 
       - name: Upload Result
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: agp-result-${{ matrix.agp-version }}
           path: ${{ github.workspace }}/results/agp-${{ matrix.agp-version }}-result.txt
@@ -117,13 +117,13 @@ jobs:
         run: mkdir -p ${{ github.workspace }}/results
 
       - name: Download AGP versions list
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: agp-versions-list
           path: ${{ github.workspace }}/agp-versions
 
       - name: Download Results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: ${{ github.workspace }}/results
           pattern: agp-result-*
