@@ -3,7 +3,6 @@ package com.github.utilx.playground
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.github.utilx.AssetFilesJava
 import com.github.utilx.AssetFilesKotlin
 
 private const val TAG = "LOG"
