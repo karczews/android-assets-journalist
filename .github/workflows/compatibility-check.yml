@@ -27,8 +27,8 @@ jobs:
           # Fetch maven-metadata.xml from Google's Maven repository
           curl -s https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/maven-metadata.xml > /tmp/maven-metadata.xml
           
-          # Extract all versions (8.x.x and 9.x.x)
-          versions=$(cat /tmp/maven-metadata.xml | grep -oE '<version>(8|9)\.[0-9]+\.[0-9]+</version>' | sed 's/<version>//;s/<\/version>//' | sort -V | uniq)
+          # Extract all versions
+          versions=$(cat /tmp/maven-metadata.xml | grep -oE '<version>[0-9]+\.[0-9]+\.[0-9]+</version>' | sed 's/<version>//;s/<\/version>//' | sort -V | uniq)
           
           # Filter versions >= min_agp_version
           min_version="${{ inputs.min_agp_version }}"
