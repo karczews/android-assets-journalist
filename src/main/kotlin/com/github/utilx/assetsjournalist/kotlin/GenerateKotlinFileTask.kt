@@ -98,7 +98,7 @@ open class GenerateKotlinFileTask
                 .build()
                 .writeTo(outputSrcDir.asFile.get())
 
-            logger.lifecycle("generating asset kotlin file ${packageName.get()}.${className.get()} in ${outputSrcDir.asFile.get()}")
+            logger.info("generating asset kotlin file ${packageName.get()}.${className.get()} in ${outputSrcDir.asFile.get()}")
         }
 
         fun configureUsing(config: KotlinFileConfig) {
