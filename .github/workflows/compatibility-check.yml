@@ -63,7 +63,7 @@ jobs:
           echo '${{ steps.fetch_versions.outputs.versions }}' > ${{ github.workspace }}/agp-versions/versions.json
       
       - name: Upload AGP versions
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: agp-versions-list
           path: ${{ github.workspace }}/agp-versions/versions.json
@@ -113,7 +113,7 @@ jobs:
 
       - name: Upload Result
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: agp-result-${{ matrix.agp-version }}
           path: ${{ github.workspace }}/results/agp-${{ matrix.agp-version }}-result.txt
@@ -128,13 +128,13 @@ jobs:
         run: mkdir -p ${{ github.workspace }}/results
 
       - name: Download AGP versions list
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: agp-versions-list
           path: ${{ github.workspace }}/agp-versions
 
       - name: Download Results
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: ${{ github.workspace }}/results
           pattern: agp-result-*
@@ -213,7 +213,7 @@ jobs:
           cat "$REPORT_FILE" >> $GITHUB_STEP_SUMMARY
       
       - name: Upload Report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: compatibility-report
           path: ${{ github.workspace }}/compatibility-report.md
