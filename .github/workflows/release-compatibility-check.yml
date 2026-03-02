@@ -37,7 +37,7 @@ jobs:
       contents: write
     steps:
       - name: Download Compatibility Report
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: compatibility-report
           path: ${{ github.workspace }}
