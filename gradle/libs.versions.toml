@@ -2,7 +2,7 @@
 # Plugins
 kotlin = "2.3.10"
 plugin-publish = "2.1.0"
-sonarqube = "7.2.2.6593"
+sonarqube = "7.2.3.7755"
 
 # Android
 android-gradle-plugin = "9.1.0"
