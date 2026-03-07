@@ -1,0 +1,35 @@
+max-subject-length: 80
+tags:
+  feat:
+    description: A new feature
+  fix:
+    description: A bug fix
+    bump: true
+  build:
+    description: Changes that affect the build system or external dependencies
+  chore:
+    description: Other changes that don't modify src or test files
+  ci:
+    description: Changes to CI configuration files and scripts
+  docs:
+    description: Documentation only changes
+  perf:
+    description: A code change that improves performance
+  refactor:
+    description: A code change that neither fixes a bug nor adds a feature
+  revert:
+    description: Reverts a previous commit
+    bump: true
+  style:
+    description: Changes that do not affect the meaning of the code
+  test:
+    description: Adding missing tests or correcting existing tests
+  improvement:
+    description: An improvement to an existing feature
+    bump: true
+disable: []
+enable: []
+allowed-branches: ".*"
+initial-development: false
+version-prefix: "*"
+version-scheme: semver
