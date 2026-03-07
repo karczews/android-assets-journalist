@@ -21,13 +21,17 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import org.gradle.api.DefaultTask
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 
+@CacheableTask
 open class GenerateKotlinFileTask
     @javax.inject.Inject
     constructor(
@@ -52,6 +56,7 @@ open class GenerateKotlinFileTask
         var constValueReplacementExpressions = objects.listProperty<Map<String, String>>().value(emptyList())
 
         @get:InputFiles
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         val assetFiles = objects.fileCollection()
 
         @TaskAction

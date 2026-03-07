@@ -16,10 +16,13 @@ import com.github.utilx.assetsjournalist.common.listAssets
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
@@ -36,6 +39,7 @@ private const val NAME_XML_ATTRIBUTE = "name"
 private const val NOT_ALLOWED_STRING_NAME_CHAR_PATTERN = "[^A-Za-z0-9]"
 private const val DEFAULT_NAME_REPLACEMENT_CHAR = "_"
 
+@CacheableTask
 open class GenerateXmlFileTask
     @javax.inject.Inject
     constructor(
@@ -50,6 +54,7 @@ open class GenerateXmlFileTask
         val stringNamePrefix = objects.property<String>()
 
         @get:InputFiles
+        @get:PathSensitive(PathSensitivity.RELATIVE)
         val assetFiles = objects.fileCollection()
 
         @get:OutputFile
