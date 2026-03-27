@@ -13,7 +13,7 @@ mockk = "1.14.9"
 assertk = "0.28.1"
 
 # Libraries
-kotlinpoet = "2.2.0"
+kotlinpoet = "2.3.0"
 
 [libraries]
 # Gradle plugin dependencies
