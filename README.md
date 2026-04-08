@@ -63,10 +63,12 @@ AssetFiles.  // Press Ctrl+Space and see all assets
 
 ### 1. Apply the plugin
 
+The latest version is always shown by the Gradle Plugin badge above and on the [Gradle Plugin Portal][Gradle Plugin Portal].
+
 ```kotlin
 // build.gradle.kts (plugins block)
 plugins {
-    id("com.github.utilx.android-assets-journalist") version "1.0.0"
+    id("com.github.utilx.android-assets-journalist") version "<latest-version>"
 }
 ```
 
