@@ -5,7 +5,7 @@ plugin-publish = "2.1.1"
 sonarqube = "7.2.3.7755"
 
 # Android
-android-gradle-plugin = "9.1.0"
+android-gradle-plugin = "9.1.1"
 
 # Testing
 junit5 = "6.0.3"
