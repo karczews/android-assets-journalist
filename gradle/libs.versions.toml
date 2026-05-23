@@ -8,7 +8,7 @@ sonarqube = "7.3.0.8198"
 android-gradle-plugin = "9.2.1"
 
 # Testing
-junit5 = "6.0.3"
+junit5 = "6.1.0"
 mockk = "1.14.9"
 assertk = "0.28.1"
 
