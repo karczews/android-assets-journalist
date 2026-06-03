@@ -1,6 +1,6 @@
 [versions]
 # Plugins
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 plugin-publish = "2.1.1"
 sonarqube = "7.3.0.8198"
 
