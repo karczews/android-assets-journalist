@@ -79,7 +79,7 @@ jobs:
     name: AGP ${{ matrix.agp-version }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
