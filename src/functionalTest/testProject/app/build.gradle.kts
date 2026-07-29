@@ -53,5 +53,5 @@ androidAssetsJournalist {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("androidx.appcompat:appcompat:1.7.1")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.2")
 }
