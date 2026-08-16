@@ -192,6 +192,56 @@ class GenerateXmlFileTaskTest {
         }
 
         @Test
+        @DisplayName("Should not let a mapping produce a name starting with a digit")
+        fun shouldGuardAgainstLeadingDigitFromMapping() {
+            // given - a resource name is a field on R, so it cannot start with a digit
+            val assetDir = assetDirContaining("config.json")
+            val task =
+                createTask(
+                    assetDir,
+                    stringNameCharMapping = listOf(mapOf("match" to "^config", "replaceWith" to "1config")),
+                )
+
+            // when
+            task.generateXml()
+
+            // then
+            val content = task.outputFile.asFile.get().readText()
+            assertTrue(content.contains("name=\"_1config_json"), "was: $content")
+        }
+
+        @Test
+        @DisplayName("Should not let a numeric asset name produce a name starting with a digit")
+        fun shouldGuardAgainstLeadingDigitFromAssetName() {
+            // given
+            val assetDir = assetDirContaining("1file.txt")
+            val task = createTask(assetDir)
+
+            // when
+            task.generateXml()
+
+            // then
+            val content = task.outputFile.asFile.get().readText()
+            assertTrue(content.contains("name=\"_1file_txt"), "was: $content")
+        }
+
+        @Test
+        @DisplayName("Should not add a guard when the prefix already starts with a letter")
+        fun shouldNotGuardWhenPrefixMakesNameValid() {
+            // given
+            val assetDir = assetDirContaining("1file.txt")
+            val task = createTask(assetDir, stringNamePrefix = "asset_")
+
+            // when
+            task.generateXml()
+
+            // then
+            val content = task.outputFile.asFile.get().readText()
+            assertTrue(content.contains("name=\"asset_1file_txt"), "was: $content")
+            assertFalse(content.contains("name=\"_asset_"), "Guard should not fire, was: $content")
+        }
+
+        @Test
         @DisplayName("Should apply prefix after the mapping")
         fun shouldApplyPrefixAfterMapping() {
             // given

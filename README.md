@@ -191,7 +191,8 @@ const val ASSET_MODELS_ML_MODEL_TFLITE_527533696 =
 - `stringNamePrefix`: prefix added to each generated string resource name
 - `stringNameCharMapping`: regex replacements applied to the asset path before it becomes a string
   resource name. Same entry shape as `replaceInAssetsPath`. Affects only the generated name, never
-  the string value
+  the string value. A resource name cannot start with a digit, so the plugin prefixes `_` if your
+  mapping or the asset name would produce one
 
 Deprecated
 

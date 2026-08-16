@@ -106,6 +106,11 @@ open class GenerateXmlFileTask
          * character that is still not valid in a resource name is replaced with
          * [DEFAULT_NAME_REPLACEMENT_CHAR]. The hashcode suffix is derived from the original,
          * untransformed path so that the mapping never makes two distinct assets collide.
+         *
+         * A resource name becomes a field on the generated R class, so it cannot start with a
+         * digit. That can happen for an asset named like "1file.txt", or once a mapping rewrites
+         * the start of a path, so the result is prefixed with [DEFAULT_NAME_REPLACEMENT_CHAR]
+         * when needed.
          */
         private fun createStringName(
             filePath: String,
@@ -116,6 +121,7 @@ open class GenerateXmlFileTask
                 .replace(notAllowedStringNameCharsRegex, DEFAULT_NAME_REPLACEMENT_CHAR)
                 .let { it + DEFAULT_NAME_REPLACEMENT_CHAR + filePath.hashCode().absoluteValue }
                 .let { stringNamePrefix.get() + it }
+                .let { if (it.first().isDigit()) DEFAULT_NAME_REPLACEMENT_CHAR + it else it }
 
         /**
          * Configure task using provided config
