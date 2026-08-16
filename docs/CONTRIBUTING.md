@@ -202,8 +202,9 @@ Or use the provided script, which defaults to `1.0.0-SNAPSHOT`:
 ./.scripts/build_playground.sh
 ```
 
-The script also takes an optional second argument to override the AGP version, which is how
-the compatibility matrix exercises the playground:
+The script also takes an optional second argument to override the AGP version, which is useful for
+reproducing a compatibility matrix result locally. The matrix workflow itself invokes Gradle
+directly rather than going through this script:
 
 ```bash
 ./.scripts/build_playground.sh 1.0.0-SNAPSHOT 8.13.2
@@ -241,7 +242,7 @@ Without `-PpluginVersion` the playground falls back to the hardcoded default in
 **Solution**: 
 ```bash
 unset ANDROID_SDK_ROOT
-./gradlew clean build
+./gradlew clean build -PpluginVersion=1.0.0-SNAPSHOT
 ```
 
 **Issue**: JVM target compatibility errors
@@ -269,9 +270,9 @@ java -version  # Should show 17
 
 4. **Test in playground** (if needed):
    ```bash
-   ./gradlew publishToMavenLocal
+   ./gradlew publishToMavenLocal -Pversion=1.0.0-SNAPSHOT
    cd playground
-   ./gradlew clean build
+   ./gradlew clean build -PpluginVersion=1.0.0-SNAPSHOT
    ```
 
 5. **Check code style** (Detekt is temporarily disabled but will be re-enabled):
