@@ -88,6 +88,24 @@ androidAssetsJournalist {
 }
 ```
 
+Use `stringNameCharMapping` when you want control over how path characters become resource name
+characters. Replacements run before the plugin sanitizes whatever is left.
+
+```kotlin
+androidAssetsJournalist {
+    xmlFile {
+        enabled = true
+        stringNameCharMapping = listOf(
+            mapOf("match" to "/", "replaceWith" to "__")
+        )
+    }
+}
+```
+
+```xml
+<string name="configs__settings_json_2053859403">configs/settings.json</string>
+```
+
 ## Build
 
 Run your usual Android build.
@@ -171,6 +189,14 @@ const val ASSET_MODELS_ML_MODEL_TFLITE_527533696 =
 
 - `enabled`: turns XML generation on or off
 - `stringNamePrefix`: prefix added to each generated string resource name
+- `stringNameCharMapping`: regex replacements applied to the asset path before it becomes a string
+  resource name. Same entry shape as `replaceInAssetsPath`. Affects only the generated name, never
+  the string value
+
+Deprecated
+
+- `sourceSets`: no longer read. The plugin uses the asset directories each variant declares. Remove
+  it from your build file; it has no effect
 
 ## Requirements
 
