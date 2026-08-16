@@ -78,7 +78,10 @@ open class GenerateXmlFileTask
             FileWriter(outputFile.asFile.get()).use { fileWriter ->
                 val writer = XMLOutputFactory.newInstance().createXMLStreamWriter(fileWriter)
 
-                val list = assetFiles.listAssets()
+                // remove duplicate entries - the same relative path can be contributed by more
+                // than one asset source dir of a variant, and duplicate resource names would
+                // fail the resource merger
+                val list = assetFiles.listAssets().distinct()
 
                 writer.document {
                     writeComment(
