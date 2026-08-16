@@ -14,6 +14,19 @@ package com.github.utilx.assetsjournalist.xml
 
 open class XmlFileConfig {
     var enabled = false
+
+    /**
+     * Regex replacements applied to the asset path before it is turned into a string resource
+     * name. Uses the same entry shape as `kotlinFile.replaceInAssetsPath`.
+     *
+     * stringNameCharMapping = [
+     * [match: '/', replaceWith: '__'],
+     * [match: '\\.', replaceWith: '_dot_']
+     * ]
+     *
+     * Only the generated name is affected, the string value stays the original asset path.
+     */
     var stringNameCharMapping = emptyList<Map<String, String>>()
+
     var stringNamePrefix = ""
 }

@@ -12,6 +12,8 @@
 
 package com.github.utilx.assetsjournalist.xml
 
+import com.github.utilx.assetsjournalist.common.StringTransformer
+import com.github.utilx.assetsjournalist.common.buildStringTransformerUsing
 import com.github.utilx.assetsjournalist.common.listAssets
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
@@ -71,6 +73,8 @@ open class GenerateXmlFileTask
                 .parentFile
                 ?.mkdirs()
 
+            val stringNameTransformer = buildStringTransformerUsing(stringNameCharMapping.get())
+
             FileWriter(outputFile.asFile.get()).use { fileWriter ->
                 val writer = XMLOutputFactory.newInstance().createXMLStreamWriter(fileWriter)
 
@@ -84,7 +88,7 @@ open class GenerateXmlFileTask
                     element(RESOURCE_XML_TAG) {
                         list.forEach {
                             element(STRING_XML_TAG) {
-                                attribute(NAME_XML_ATTRIBUTE, createStringName(it))
+                                attribute(NAME_XML_ATTRIBUTE, createStringName(it, stringNameTransformer))
                                 writeCharacters(it)
                             }
                         }
@@ -95,11 +99,29 @@ open class GenerateXmlFileTask
             }
         }
 
-        private fun createStringName(filePath: String): String =
-            filePath
+        /**
+         * Builds the string resource name for given asset path.
+         *
+         * The user supplied [stringNameCharMapping] replacements are applied first, then any
+         * character that is still not valid in a resource name is replaced with
+         * [DEFAULT_NAME_REPLACEMENT_CHAR]. The hashcode suffix is derived from the original,
+         * untransformed path so that the mapping never makes two distinct assets collide.
+         *
+         * A resource name becomes a field on the generated R class, so it cannot start with a
+         * digit. That can happen for an asset named like "1file.txt", or once a mapping rewrites
+         * the start of a path, so the result is prefixed with [DEFAULT_NAME_REPLACEMENT_CHAR]
+         * when needed.
+         */
+        private fun createStringName(
+            filePath: String,
+            stringNameTransformer: StringTransformer,
+        ): String =
+            stringNameTransformer
+                .apply(filePath)
                 .replace(notAllowedStringNameCharsRegex, DEFAULT_NAME_REPLACEMENT_CHAR)
                 .let { it + DEFAULT_NAME_REPLACEMENT_CHAR + filePath.hashCode().absoluteValue }
                 .let { stringNamePrefix.get() + it }
+                .let { if (it.first().isDigit()) DEFAULT_NAME_REPLACEMENT_CHAR + it else it }
 
         /**
          * Configure task using provided config
