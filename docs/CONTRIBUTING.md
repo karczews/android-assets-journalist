@@ -14,24 +14,22 @@ Thank you for your interest in contributing to Android Assets Journalist! This g
 
 ## Project Overview
 
-Android Assets Journalist is a Gradle plugin that automatically generates type-safe constants for Android assets. It hooks into the Android build process and creates Java/Kotlin constants or XML string resources for all files in your `src/main/assets/` directory.
+Android Assets Journalist is a Gradle plugin that automatically generates type-safe constants for Android assets. It hooks into the Android build process and creates Kotlin constants or XML string resources for all files in your `src/main/assets/` directory.
 
 ### How It Works
 
 1. **Plugin Application**: When applied to an Android project, the plugin registers tasks for each build variant
-2. **Task Registration**: For each variant (e.g., `debug`, `release`), three tasks are created:
-   - `generateAssetsJavaFile{Variant}` - Generates Java constants class
-   - `generateAssetsKotlinFile{Variant}` - Generates Kotlin constants object  
+2. **Task Registration**: For each variant (e.g., `debug`, `release`), two tasks are created:
+   - `generateAssetsKotlinFile{Variant}` - Generates Kotlin constants object
    - `generateAssetsXmlFile{Variant}` - Generates Android string resources
 3. **Asset Discovery**: Tasks scan the `src/main/assets/` directory at build time
-4. **Code Generation**: Uses [JavaPoet](https://github.com/square/javapoet) and [KotlinPoet](https://github.com/square/kotlinpoet) to generate type-safe code
+4. **Code Generation**: Uses [KotlinPoet](https://github.com/square/kotlinpoet) to generate type-safe code
 5. **Integration**: Generated sources are automatically added to the variant's source sets
 
 ### Key Components
 
 - **`AssetsJournalistPlugin.kt`** - Main plugin entry point, configures the extension and tasks
 - **`AssetFileGeneratorConfig.kt`** - Plugin extension DSL for user configuration
-- **`GenerateJavaFileTask.kt`** - Task that generates Java constants
 - **`GenerateKotlinFileTask.kt`** - Task that generates Kotlin constants
 - **`GenerateXmlFileTask.kt`** - Task that generates XML string resources
 - **`FileConstantsFactory.kt`** - Transforms asset paths into valid constant names
@@ -78,8 +76,6 @@ android-assets-journalist/
 │   │           ├── common/
 │   │           │   ├── FileConstantsFactory.kt        # Path transformation
 │   │           │   └── StringTransformer.kt            # Regex replacements
-│   │           ├── java/
-│   │           │   └── GenerateJavaFileTask.kt        # Java generation
 │   │           ├── kotlin/
 │   │           │   └── GenerateKotlinFileTask.kt      # Kotlin generation
 │   │           └── xml/
@@ -200,10 +196,7 @@ Or use the provided script:
 After building, check the generated asset constants:
 
 ```bash
-# Java constants
-ls playground/app/build/generated/assetsjournalist/src/debug/java/com/github/utilx/
-
-# Kotlin constants  
+# Kotlin constants
 ls playground/app/build/generated/assetsjournalist/src/debug/kotlin/com/github/utilx/
 
 # XML resources
@@ -262,7 +255,7 @@ java -version  # Should show 17
 ### Key Files to Modify
 
 - **Adding new configuration options**: `AssetFileGeneratorConfig.kt`
-- **Changing code generation**: `GenerateJavaFileTask.kt`, `GenerateKotlinFileTask.kt`
+- **Changing code generation**: `GenerateKotlinFileTask.kt`, `GenerateXmlFileTask.kt`
 - **Modifying path transformations**: `FileConstantsFactory.kt`, `StringTransformer.kt`
 - **Adding tests**: `PluginTest.kt`, `AssetsJournalistPluginTest.kt`
 
