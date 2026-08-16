@@ -282,6 +282,37 @@ class GenerateXmlFileTaskTest {
         }
 
         @Test
+        @DisplayName("Should emit one entry when several asset dirs share a relative path")
+        fun shouldDeduplicateAssetsSharedAcrossSourceDirs() {
+            // given - mirrors src/main/assets and src/foo/assets both holding settings.json
+            val mainAssets = File(tempDir, "main").apply { mkdirs() }
+            File(mainAssets, "settings.json").createNewFile()
+            val flavorAssets = File(tempDir, "foo").apply { mkdirs() }
+            File(flavorAssets, "settings.json").createNewFile()
+
+            val outputDir = File(tempDir, "output").apply { mkdirs() }
+            val task =
+                project.tasks.create("testTask", GenerateXmlFileTask::class.java).apply {
+                    outputFile.set(File(outputDir, "assets-strings.xml"))
+                    outputSrcDir.set(outputDir)
+                    stringNamePrefix.set("")
+                    stringNameCharMapping.set(emptyList())
+                    assetFiles.from(mainAssets, flavorAssets)
+                }
+
+            // when
+            task.generateXml()
+
+            // then - a duplicate resource name would fail the resource merger
+            val content = task.outputFile.asFile.get().readText()
+            assertEquals(
+                1,
+                Regex("<string ").findAll(content).count(),
+                "Expected a single string entry, was: $content",
+            )
+        }
+
+        @Test
         @DisplayName("Should generate empty resources element for empty asset dir")
         fun shouldHandleEmptyAssetDirectory() {
             // given

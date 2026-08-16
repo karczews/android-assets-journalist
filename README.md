@@ -116,7 +116,10 @@ Run your usual Android build.
 
 Gradle registers variant-aware tasks such as `generateAssetsKotlinFileDebug` and `generateAssetsXmlFileDebug`.
 
-You will find generated files under `build/generated/assetsjournalist/src/<variant>/`.
+You will find generated files under `build/generated/assetsjournalist/src/<variant>/`:
+
+- Kotlin: `<variant>/kotlin/<package as directories>/<className>.kt`
+- XML: `<variant>/res/values/assets-strings.xml`
 
 ## Generated Output
 
@@ -141,6 +144,10 @@ With XML output enabled, you get:
 ```
 
 ## Path Transforms And Value Prefixes
+
+These options are Kotlin only. `xmlFile` has no value prefix and no `replaceInAssetsPath`; its
+closest equivalent is `stringNameCharMapping`, which rewrites the resource name but never the
+string value.
 
 Use `replaceInAssetsPath` when you want the generated name and value to use a transformed path.
 
@@ -173,6 +180,24 @@ androidAssetsJournalist {
 const val ASSET_MODELS_ML_MODEL_TFLITE_527533696 =
     "file:///android_asset/models/ml_model.tflite"
 ```
+
+## How Names Are Built
+
+Both generators sanitize the asset path and append a hash suffix, but the rules differ.
+
+| | Kotlin constant | XML string resource |
+|---|---|---|
+| Characters replaced with `_` | everything outside `A-Z a-z 0-9 $` | everything outside `A-Z a-z 0-9` |
+| Case | uppercased | left as-is |
+| Hash suffix | from the path after `replaceInAssetsPath` | from the original path |
+| Name prefix | `constNamePrefix`, uppercased with the rest | `stringNamePrefix`, case preserved |
+
+So `configs/settings.json` becomes `ASSET_CONFIGS_SETTINGS_JSON_2053859403` in Kotlin and
+`asset_configs_settings_json_2053859403` in XML.
+
+The hash suffix keeps names unique when two different paths sanitize to the same identifier. Both
+generators drop duplicates, which matters when several asset source directories of one variant hold
+the same relative path.
 
 ## Configuration Reference
 
@@ -210,7 +235,7 @@ Deprecated
 
 - Apply the plugin in the Android module that owns the `assets/` directory.
 - Each variant gets its own generated output directory.
-- The Kotlin generator removes duplicate entries after path transformation.
+- Both generators remove duplicate entries.
 - Examples in this README use Kotlin DSL.
 
 ## License
