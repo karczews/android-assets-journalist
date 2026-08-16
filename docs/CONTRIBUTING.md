@@ -19,7 +19,7 @@ Android Assets Journalist is a Gradle plugin that automatically generates type-s
 ### How It Works
 
 1. **Plugin Application**: When applied to an Android project, the plugin registers tasks for each build variant
-2. **Task Registration**: For each variant (e.g., `debug`, `release`), two tasks are created:
+2. **Task Registration**: Depending on the enabled generators, tasks are registered for each variant (e.g., `debug`, `release`):
    - `generateAssetsKotlinFile{Variant}` - Generates Kotlin constants object
    - `generateAssetsXmlFile{Variant}` - Generates Android string resources
 3. **Asset Discovery**: Tasks scan the `src/main/assets/` directory at build time
