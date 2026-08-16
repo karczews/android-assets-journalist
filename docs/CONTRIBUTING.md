@@ -14,7 +14,7 @@ Thank you for your interest in contributing to Android Assets Journalist! This g
 
 ## Project Overview
 
-Android Assets Journalist is a Gradle plugin that automatically generates type-safe constants for Android assets. It hooks into the Android build process and creates Kotlin constants or XML string resources for all files in your `src/main/assets/` directory.
+Android Assets Journalist is a Gradle plugin that automatically generates type-safe constants for Android assets. It hooks into the Android build process and creates Kotlin constants or XML string resources for all files in the asset directories of each build variant.
 
 ### How It Works
 
@@ -25,7 +25,9 @@ Android Assets Journalist is a Gradle plugin that automatically generates type-s
 
    Both generators are disabled by default. When neither is enabled the plugin logs a warning and
    turns Kotlin generation on, so a default configuration registers only the Kotlin task.
-3. **Asset Discovery**: Tasks scan the `src/main/assets/` directory at build time
+3. **Asset Discovery**: Tasks scan every asset source directory the variant contributes
+   (`variant.sources.assets`), not just `src/main/assets/`. For a `fooDebug` variant that
+   includes `src/main/assets/`, `src/foo/assets/` and `src/debug/assets/`
 4. **Code Generation**: Uses [KotlinPoet](https://github.com/square/kotlinpoet) to generate type-safe code
 5. **Integration**: Generated sources are automatically added to the variant's source sets
 
@@ -41,7 +43,7 @@ Android Assets Journalist is a Gradle plugin that automatically generates type-s
 
 ### Prerequisites
 
-- **Java**: JDK 17 or higher (required for AGP 8.x)
+- **Java**: JDK 17 or higher
 - **Android SDK**: API level 28+ (for running tests)
 - **Git**: For version control
 
@@ -88,8 +90,11 @@ android-assets-journalist/
 │   │       └── com/github/utilx/assetsjournalist/
 │   │           ├── PluginTest.kt                       # Plugin tests
 │   │           ├── AssetFileGeneratorConfigTest.kt     # Config tests
-│   │           ├── FileConstantsFactoryTest.kt         # Factory tests
-│   │           └── StringTransformerTest.kt           # Transformer tests
+│   │           ├── common/
+│   │           │   ├── FileConstantsFactoryTest.kt     # Factory tests
+│   │           │   └── StringTransformerTest.kt        # Transformer tests
+│   │           └── kotlin/
+│   │               └── GenerateKotlinFileTaskTest.kt   # Kotlin task tests
 │   └── functionalTest/                   # Integration tests
 │       └── kotlin/
 │           └── com/github/utilx/assetsjournalist/
@@ -173,25 +178,35 @@ The `playground/` directory contains a sample Android app used for manual testin
 
 ### Publishing to Maven Local
 
-First, publish the plugin to your local Maven repository:
+First, publish the plugin to your local Maven repository under a version you choose:
 
 ```bash
-./gradlew publishToMavenLocal
+./gradlew publishToMavenLocal -Pversion=1.0.0-SNAPSHOT
 ```
 
 This installs the plugin to `~/.m2/repository/com/github/utilx/android-assets-journalist/`.
 
 ### Building the Playground
 
+The playground resolves the plugin from `mavenLocal()`, so it needs the version you just
+published. Pass it with `-PpluginVersion`:
+
 ```bash
 cd playground
-./gradlew clean build
+./gradlew clean build -PpluginVersion=1.0.0-SNAPSHOT
 ```
 
-Or use the provided script:
+Or use the provided script, which defaults to `1.0.0-SNAPSHOT`:
 
 ```bash
 ./.scripts/build_playground.sh
+```
+
+The script also takes an optional second argument to override the AGP version, which is how
+the compatibility matrix exercises the playground:
+
+```bash
+./.scripts/build_playground.sh 1.0.0-SNAPSHOT 8.13.2
 ```
 
 ### Verify Generated Files
@@ -210,7 +225,16 @@ ls playground/app/build/generated/assetsjournalist/src/debug/res/values/
 
 **Issue**: "Could not find com.github.utilx:android-assets-journalist:X.X.X"
 
-**Solution**: Run `./gradlew publishToMavenLocal` from the root project first.
+**Solution**: The version the playground asks for must match the version you published. Publish
+from the root project and pass the same version to the playground:
+
+```bash
+./gradlew publishToMavenLocal -Pversion=1.0.0-SNAPSHOT
+cd playground && ./gradlew clean build -PpluginVersion=1.0.0-SNAPSHOT
+```
+
+Without `-PpluginVersion` the playground falls back to the hardcoded default in
+`playground/build.gradle`, which is unlikely to be the version you published.
 
 **Issue**: "Multiple SDK locations"
 
@@ -267,7 +291,7 @@ java -version  # Should show 17
 Always ensure:
 1. Unit tests pass: `./gradlew test`
 2. Functional tests pass: `./gradlew functionalTest`
-3. Playground builds: `./gradlew publishToMavenLocal && ./scripts/build_playground.sh`
+3. Playground builds: `./gradlew publishToMavenLocal -Pversion=1.0.0-SNAPSHOT && ./.scripts/build_playground.sh`
 
 ## Submitting Changes
 
@@ -285,18 +309,23 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
 #### Commit Types
 
-| Type | Purpose |
-|------|---------|
-| `feat` | New feature (correlates to MINOR in SemVer) |
-| `fix` | Bug fix (correlates to PATCH in SemVer) |
-| `docs` | Documentation only changes |
-| `test` | Adding or correcting tests |
-| `build` | Changes to build system or dependencies |
-| `ci` | Changes to CI configuration |
-| `refactor` | Code refactoring without behavior change |
-| `perf` | Performance improvements |
-| `style` | Code style changes (formatting, missing semicolons, etc.) |
-| `chore` | Routine maintenance tasks |
+The accepted types are configured in [`.commisery.yml`](../.commisery.yml) and enforced in CI by
+[commisery-action](https://github.com/tomtom-international/commisery-action).
+
+| Type | Purpose | Bumps version |
+|------|---------|---------------|
+| `feat` | New feature (correlates to MINOR in SemVer) | yes |
+| `fix` | Bug fix (correlates to PATCH in SemVer) | yes |
+| `improvement` | An improvement to an existing feature | yes |
+| `revert` | Reverts a previous commit | yes |
+| `docs` | Documentation only changes | no |
+| `test` | Adding or correcting tests | no |
+| `build` | Changes to build system or dependencies | no |
+| `ci` | Changes to CI configuration | no |
+| `refactor` | Code refactoring without behavior change | no |
+| `perf` | Performance improvements | no |
+| `style` | Code style changes (formatting, missing semicolons, etc.) | no |
+| `chore` | Routine maintenance tasks | no |
 
 #### Breaking Changes
 
@@ -314,7 +343,8 @@ Breaking changes MUST be indicated by either:
 - Use lowercase after the colon
 - Use imperative, present tense: "add feature" not "added feature"
 - No period at the end
-- Keep it concise (under 72 characters recommended)
+- Keep it concise. CI rejects subject lines longer than 80 characters
+  (`max-subject-length` in `.commisery.yml`)
 
 #### Examples
 
