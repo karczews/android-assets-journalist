@@ -227,9 +227,28 @@ Deprecated
 ## Requirements
 
 - Java 17 or newer
-- Gradle 8.0 or newer
+- Gradle 8.0 or newer. The plugin checks this and fails with an explicit message on older versions
 - Android Gradle Plugin 8.0.0 or newer
-- `namespace` set in your Android block when you use AGP 8+
+- `namespace` set in your Android block
+
+AGP 9 itself requires Gradle 9, so the Gradle floor that applies to you is whichever of the two is
+higher.
+
+### Tested Versions
+
+The plugin is compiled against the AGP API as `compileOnly`, so the versions it works with are the
+ones that get exercised rather than the ones it was built with.
+
+| | Versions |
+|---|---|
+| Built against | AGP 9.3.1, Gradle 9.5.1, Kotlin 2.4.10 |
+| Every CI run | AGP 8.13.2, Gradle 9.5.1 (the playground build) |
+| Every release | every stable AGP release from 8.0.0 upwards |
+
+The per-release sweep is the [compatibility check](.github/workflows/compatibility-check.yml)
+workflow. It builds the playground against each published AGP version and appends a pass/fail table
+to the release notes, so check the release you are on if you need the 8.0.x end of that range
+confirmed. It only picks up final releases; alpha, beta and rc builds are never tested.
 
 ## Notes
 
