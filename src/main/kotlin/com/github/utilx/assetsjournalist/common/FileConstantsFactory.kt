@@ -43,7 +43,7 @@ internal class FileConstantsFactory(
                         DEFAULT_NAME_REPLACEMENT_CHAR +
                         it.hashCode().absoluteValue
 
-                val constValue = constValuePrefix + constValueTransformer.apply(it)
+                val constValue = constValuePrefix + it
 
                 ConstNameValuePair(
                     constName.uppercase(),

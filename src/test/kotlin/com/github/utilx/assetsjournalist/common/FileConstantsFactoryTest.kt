@@ -91,6 +91,45 @@ class FileConstantsFactoryTest {
     }
 
     @Test
+    @DisplayName("Should apply value replacements exactly once")
+    fun shouldApplyValueReplacementsExactlyOnce() {
+        // given - a deliberately non idempotent replacement, applying it twice yields "aaaa.txt"
+        val factory =
+            createFactory(
+                constValueTransformer =
+                    StringTransformer(
+                        listOf(Replacement("a".toRegex(), "aa")),
+                    ),
+            )
+
+        // when
+        val result = factory.toConstNameValuePair("a.txt")
+
+        // then
+        assertThat(result.value).isEqualTo("aa.txt")
+    }
+
+    @Test
+    @DisplayName("Should derive name and value from the same transformed path")
+    fun shouldDeriveNameAndValueFromSameTransformedPath() {
+        // given
+        val factory =
+            createFactory(
+                constValueTransformer =
+                    StringTransformer(
+                        listOf(Replacement("a".toRegex(), "aa")),
+                    ),
+            )
+
+        // when
+        val result = factory.toConstNameValuePair("a.txt")
+
+        // then - the name must describe the value it is bound to
+        assertThat(result.name).startsWith("AA_TXT")
+        assertThat(result.value).isEqualTo("aa.txt")
+    }
+
+    @Test
     fun shouldSuffixNameWithHashcode() {
         // given
         val originalPath = "assets/file.txt"
