@@ -34,7 +34,7 @@ jobs:
         if: steps.version.outputs.next-version != ''
         uses: actions/setup-java@v6
         with:
-          java-version: '17'
+          java-version: '17.0.20+101'
           distribution: 'temurin'
 
       - name: Grant execute permission for gradlew
