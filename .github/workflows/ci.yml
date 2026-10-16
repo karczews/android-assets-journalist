@@ -40,10 +40,13 @@ jobs:
         java-version: '17.0.20+101'
         distribution: 'temurin'
     
+    - name: Setup Android CLI
+      run: |
+        curl -fsSL https://dl.google.com/android/cli/latest/linux_x86_64/install.sh | bash
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
     - name: Setup Android SDK
-      uses: android-actions/setup-android@v4
-      with:
-        packages: "platforms;android-35 build-tools;35.0.0"
+      run: android sdk install platforms/android-35 build-tools/35.0.0
     
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
