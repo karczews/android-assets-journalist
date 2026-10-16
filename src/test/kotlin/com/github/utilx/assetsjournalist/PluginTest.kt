@@ -13,9 +13,9 @@
 package com.github.utilx.assetsjournalist
 
 import com.android.build.api.dsl.ApplicationExtension
-import com.android.build.gradle.AndroidConfig
+import com.android.build.api.dsl.AndroidSourceSet
+import com.android.build.api.dsl.CommonExtension
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.api.AndroidSourceSet
 import com.github.utilx.assetsjournalist.kotlin.GenerateKotlinFileTask
 import com.github.utilx.assetsjournalist.xml.GenerateXmlFileTask
 import org.gradle.api.GradleException
@@ -31,7 +31,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import java.io.File
 import kotlin.test.assertFails
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -244,9 +243,9 @@ class PluginTest {
         srcDir: String,
         setName: String = SourceSet.MAIN_SOURCE_SET_NAME,
     ) {
-        val srcDirs = getSourceSet(setName).java.srcDirs
+        val srcDirs = getSourceSet(setName).java.directories
         assertTrue(
-            srcDirs.contains(File(srcDir)),
+            srcDirs.contains(srcDir),
             "srcDir $srcDir is not registered in $setName sourceSet. Currently registered sets are $srcDirs",
         )
     }
@@ -255,9 +254,9 @@ class PluginTest {
         resDir: String,
         setName: String = SourceSet.MAIN_SOURCE_SET_NAME,
     ) {
-        val resDirs = getSourceSet(setName).res.srcDirs
+        val resDirs = getSourceSet(setName).res.directories
         assertTrue(
-            resDirs.contains(File(resDir)),
+            resDirs.contains(resDir),
             "resDir $resDir is not registered in $setName sourceSet. Currently registered sets are $resDirs",
         )
     }
@@ -271,7 +270,7 @@ class PluginTest {
 
     private fun getSourceSet(name: String = SourceSet.MAIN_SOURCE_SET_NAME): AndroidSourceSet =
         project.extensions
-            .getByType<AndroidConfig>()
+            .getByType<CommonExtension>()
             .sourceSets
             .getByName(name)
 }

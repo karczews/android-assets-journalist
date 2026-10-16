@@ -36,7 +36,7 @@ class GenerateKotlinFileTaskTest {
         @DisplayName("Should configure task using KotlinFileConfig")
         fun shouldConfigureTaskUsingConfig() {
             // given
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             val config =
                 KotlinFileConfig().apply {
                     enabled = true
@@ -65,7 +65,7 @@ class GenerateKotlinFileTaskTest {
         @DisplayName("Should have default values")
         fun shouldHaveDefaultValues() {
             // given
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
 
             // when/then
             assertEquals("AssetFileKt", task.className.get())
@@ -78,7 +78,7 @@ class GenerateKotlinFileTaskTest {
         @DisplayName("Should configure empty replacement expressions")
         fun shouldConfigureEmptyReplacementExpressions() {
             // given
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             val config =
                 KotlinFileConfig().apply {
                     replaceInAssetsPath = emptyList()
@@ -110,7 +110,7 @@ class GenerateKotlinFileTaskTest {
             val outputDir = File(tempDir, "output")
             outputDir.mkdirs()
 
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             task.outputSrcDir.set(outputDir)
             task.className.set("TestAssets")
             task.packageName.set("com.test")
@@ -139,7 +139,7 @@ class GenerateKotlinFileTaskTest {
             val outputDir = File(tempDir, "output")
             outputDir.mkdirs()
 
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             task.outputSrcDir.set(outputDir)
             task.className.set("TestAssets")
             task.packageName.set("com.test")
@@ -167,7 +167,7 @@ class GenerateKotlinFileTaskTest {
             val outputDir = File(tempDir, "output")
             outputDir.mkdirs()
 
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             task.outputSrcDir.set(outputDir)
             task.className.set("TestAssets")
             task.packageName.set("com.test")
@@ -196,7 +196,7 @@ class GenerateKotlinFileTaskTest {
             val outputDir = File(tempDir, "output")
             outputDir.mkdirs()
 
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             task.outputSrcDir.set(outputDir)
             task.className.set("EmptyAssets")
             task.packageName.set("com.test")
@@ -228,7 +228,7 @@ class GenerateKotlinFileTaskTest {
             val outputDir = File(tempDir, "output")
             outputDir.mkdirs()
 
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             task.outputSrcDir.set(outputDir)
             task.className.set("SpecialAssets")
             task.packageName.set("com.test")
@@ -266,7 +266,7 @@ class GenerateKotlinFileTaskTest {
             val outputDir = File(tempDir, "output")
             outputDir.mkdirs()
 
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             task.outputSrcDir.set(outputDir)
             task.className.set("NestedAssets")
             task.packageName.set("com.test")
@@ -296,7 +296,7 @@ class GenerateKotlinFileTaskTest {
             val outputDir = File(tempDir, "output")
             outputDir.mkdirs()
 
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             task.outputSrcDir.set(outputDir)
             task.className.set("RootAssets")
             task.packageName.set("")
@@ -330,7 +330,7 @@ class GenerateKotlinFileTaskTest {
             val outputDir = File(tempDir, "output")
             outputDir.mkdirs()
 
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             task.outputSrcDir.set(outputDir)
             task.className.set("MultiReplaceAssets")
             task.packageName.set("com.test")
@@ -362,7 +362,7 @@ class GenerateKotlinFileTaskTest {
             val outputDir = File(tempDir, "output")
             outputDir.mkdirs()
 
-            val task = project.tasks.create("testTask", GenerateKotlinFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateKotlinFileTask::class.java).get()
             task.outputSrcDir.set(outputDir)
             task.className.set("UnicodeAssets")
             task.packageName.set("com.test")
