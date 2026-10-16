@@ -41,8 +41,13 @@ jobs:
         distribution: 'temurin'
     
     - name: Setup Android CLI
+      # Pinned so CLI upgrades happen through reviewed changes, not silently via `latest`.
+      env:
+        ANDROID_CLI_VERSION: 1.0.16500706
       run: |
-        curl -fsSL https://dl.google.com/android/cli/latest/linux_x86_64/install.sh | bash
+        mkdir -p "$HOME/.local/bin"
+        curl -fsSL "https://dl.google.com/android/cli/${ANDROID_CLI_VERSION}/linux_x86_64/android" -o "$HOME/.local/bin/android"
+        chmod +x "$HOME/.local/bin/android"
         echo "$HOME/.local/bin" >> $GITHUB_PATH
 
     - name: Setup Android SDK
