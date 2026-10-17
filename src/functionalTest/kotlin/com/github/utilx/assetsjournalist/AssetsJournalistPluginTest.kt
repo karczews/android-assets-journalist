@@ -205,6 +205,41 @@ class AssetsJournalistPluginTest {
     }
 
     @Test
+    @DisplayName("Should reuse configuration cache for asset generation tasks")
+    fun `Should reuse configuration cache`() {
+        val projectDir = setupProjectWithAsset("test_cc_asset.txt")
+
+        val arguments =
+            arrayOf(
+                ":app:generateAssetsKotlinFileFooDebug",
+                ":app:generateAssetsXmlFileFooDebug",
+                "--configuration-cache",
+                "--stacktrace",
+            )
+
+        val firstResult = createGradleRunner(projectDir, *arguments).build()
+        assertTrue(
+            firstResult.output.contains("Configuration cache entry stored"),
+            "First build should store configuration cache entry, output was:\n${firstResult.output}",
+        )
+
+        val secondResult = createGradleRunner(projectDir, *arguments).build()
+        assertTrue(
+            secondResult.output.contains("Configuration cache entry reused") ||
+                secondResult.output.contains("Reusing configuration cache"),
+            "Second build should reuse configuration cache entry, output was:\n${secondResult.output}",
+        )
+
+        val kotlinGeneratedFile =
+            File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/kotlin/com/github/utilx/AssetFilesKotlin.kt")
+        assertTrue(kotlinGeneratedFile.exists(), "Generated Kotlin file should exist after CC reuse")
+
+        val xmlGeneratedFile =
+            File(projectDir, "app/build/generated/assetsjournalist/src/fooDebug/res/values/assets-strings.xml")
+        assertTrue(xmlGeneratedFile.exists(), "Generated XML file should exist after CC reuse")
+    }
+
+    @Test
     @DisplayName("Should apply regex replacements to asset paths")
     fun `Should apply regex replacements to asset paths`() {
         val resourceDirectory = Paths.get("src", "functionalTest", "testProject")

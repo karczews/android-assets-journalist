@@ -10,6 +10,7 @@
  *  the License for the specific language governing permissions and limitations under the License.
  */
 
+import org.gradle.plugin.compatibility.compatibility
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -38,10 +39,18 @@ gradlePlugin {
     plugins {
         create("android-assets-journalist") {
             id = "com.github.utilx.android-assets-journalist"
-            displayName = "Android Asset Files Listing Plugin"
-            description = "Plugin that generates android assets list as string resources or source code file"
+            displayName = "Android Assets Journalist - Type-safe Kotlin constants and XML resources from assets/"
+            description =
+                "Generate Kotlin constants or Android string resources from files in Android assets/ directories. " +
+                "Variant-aware, works with AssetManager.open() without hard-coded paths."
             implementationClass = "com.github.utilx.assetsjournalist.AssetsJournalistPlugin"
-            tags.set(listOf("android", "assets", "file", "listing", "generator", "journaling"))
+            tags.set(listOf("android", "android-assets", "assets", "kotlin", "string-resources", "generator", "type-safe"))
+            compatibility {
+                features {
+                    // Verified via playground clean assembleDebug --configuration-cache (stored + reused).
+                    configurationCache = true
+                }
+            }
         }
     }
 }
