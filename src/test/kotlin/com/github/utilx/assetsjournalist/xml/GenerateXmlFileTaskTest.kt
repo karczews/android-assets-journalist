@@ -37,7 +37,7 @@ class GenerateXmlFileTaskTest {
         val outputDir = File(tempDir, "output")
         outputDir.mkdirs()
 
-        return project.tasks.create("testTask", GenerateXmlFileTask::class.java).apply {
+        return project.tasks.register("testTask", GenerateXmlFileTask::class.java).get().apply {
             this.outputFile.set(File(outputDir, "assets-strings.xml"))
             this.outputSrcDir.set(outputDir)
             this.stringNamePrefix.set(stringNamePrefix)
@@ -64,7 +64,7 @@ class GenerateXmlFileTaskTest {
         @DisplayName("Should configure task using XmlFileConfig")
         fun shouldConfigureTaskUsingConfig() {
             // given
-            val task = project.tasks.create("testTask", GenerateXmlFileTask::class.java)
+            val task = project.tasks.register("testTask", GenerateXmlFileTask::class.java).get()
             val config =
                 XmlFileConfig().apply {
                     enabled = true
@@ -292,7 +292,7 @@ class GenerateXmlFileTaskTest {
 
             val outputDir = File(tempDir, "output").apply { mkdirs() }
             val task =
-                project.tasks.create("testTask", GenerateXmlFileTask::class.java).apply {
+                project.tasks.register("testTask", GenerateXmlFileTask::class.java).get().apply {
                     outputFile.set(File(outputDir, "assets-strings.xml"))
                     outputSrcDir.set(outputDir)
                     stringNamePrefix.set("")
