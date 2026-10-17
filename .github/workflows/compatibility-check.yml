@@ -28,7 +28,7 @@ on:
 jobs:
   setup:
     name: Fetch AGP Versions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       agp_versions: ${{ steps.fetch_versions.outputs.versions }}
     steps:
@@ -69,7 +69,7 @@ jobs:
           path: ${{ github.workspace }}/agp-versions/versions.json
 
   compatibility-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: setup
     strategy:
       fail-fast: false
@@ -128,7 +128,7 @@ jobs:
 
   report:
     name: Compatibility Report
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [setup, compatibility-test]
     if: always()
     steps:

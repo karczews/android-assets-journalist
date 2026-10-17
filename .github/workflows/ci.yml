@@ -9,7 +9,7 @@ on:
 jobs:
   conventional-commits:
     name: Check Conventional Commits
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Check for Conventional Commit compliance
         uses: tomtom-international/commisery-action@v8
@@ -18,7 +18,7 @@ jobs:
 
   license-header:
     name: Check License Headers
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
 
@@ -29,7 +29,7 @@ jobs:
           config: .licenserc.yaml
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
     - uses: actions/checkout@v7
