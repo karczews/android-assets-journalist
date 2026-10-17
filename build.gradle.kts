@@ -39,12 +39,12 @@ gradlePlugin {
     plugins {
         create("android-assets-journalist") {
             id = "com.github.utilx.android-assets-journalist"
-            displayName = "Android Assets Journalist - Type-safe Kotlin constants and XML resources from assets/"
+            displayName = "Android Assets Journalist - Type-safe Kotlin/XML resources from assets/"
             description =
                 "Generate Kotlin constants or Android string resources from files in Android assets/ directories. " +
                 "Variant-aware, works with AssetManager.open() without hard-coded paths."
             implementationClass = "com.github.utilx.assetsjournalist.AssetsJournalistPlugin"
-            tags.set(listOf("android", "android-assets", "assets", "kotlin", "string-resources", "generator", "type-safe"))
+            tags.set(listOf("android", "android-assets", "assets", "kotlin", "string-resources"))
             compatibility {
                 features {
                     // Verified via playground clean assembleDebug --configuration-cache (stored + reused).

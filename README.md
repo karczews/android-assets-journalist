@@ -6,7 +6,7 @@
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkarczews%2Fandroid-assets-journalist?ref=badge_shield)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/karczews/android-assets-journalist/blob/main/LICENSE)
 
-Generate type-safe Kotlin constants or Android string resources from files in your Android `assets/` directories. Use generated `AssetFiles` constants instead of raw `AssetManager.open("path")` strings and keep hard-coded asset paths out of call sites.
+Generate type-safe Kotlin constants or Android string resources from files in your Android `assets/` directories. Use generated constants or string resources instead of hard-coded asset paths in call sites.
 
 ## Example
 
