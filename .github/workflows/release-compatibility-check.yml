@@ -7,7 +7,7 @@ on:
 jobs:
   trigger-compatibility-check:
     name: Trigger Compatibility Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
@@ -30,7 +30,7 @@ jobs:
 
   update-release-notes:
     name: Update Release Notes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [trigger-compatibility-check, compatibility-check]
     if: always()
     permissions:
